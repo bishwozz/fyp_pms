@@ -1,0 +1,46 @@
+:root {
+    --white: #ffffff;
+    --black: #000000;
+    --primary: #1B2A47;
+    --secondary: #867EE6;
+    --buttonColor: yellow;
+    --hoverColor: #3d80aa;
+    --bodyColor: #777777;
+    --tabColor: #006dad;
+}
+
+.sidebar,
+.app-header {
+    background-color: var(--primary) !important;
+}
+
+.sidebar.sidebar-pills .nav-link.active,
+.sidebar.sidebar-pills .nav-link:hover {
+    
+    color: var(--white) !important;
+}
+
+.sidebar.sidebar-pills .nav-link,
+.sidebar.sidebar-pills .nav-title,
+.nav-icon,
+.sidebar.sidebar-pills .nav-link:hover .nav-icon,
+.navbar-brand {
+    color: var(--white);
+}
+
+.btn-primary,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background-color: var(--primary) !important;
+    border-color: var(--hoverColor) !important;
+    color: var(--white) !important;
+}
+
+
+
+#crudTable_reset_button {
+    color: var(--primary) !important;
+}
+
+.nav-link {
+    margin-bottom: 5px;
+}

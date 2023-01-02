@@ -1,0 +1,33 @@
+<?php
+return[
+    'title_text' => 'Application Setting',
+    'client' => 'सेवाग्राही',
+    'office_name_lc' => 'कार्यालयको नाम',
+    'office_name_en' => 'Office Name',
+    'office_address_lc' => 'कार्यालय ठेगाना',
+    'office_address_en' => 'Office Address',
+    'phone' => 'Phone',
+    'fax' => 'Fax',
+    'email' => 'E-mail',
+    'url' => 'URL',
+    'remarks' => 'Remarks',
+    'is_active' => 'सक्रिय हो?',
+    'follow_up_period_days'=> 'Follow Up Period',
+    'show_follow_up_button_days'=> 'Show Follow Up Button',
+    'fiscalyear' => 'Current Fiscal Year',
+    'is_doctor_charge_applicable' => 'Is Doctor Charge Applicable ?',
+    'title_text'=>'Address',
+
+
+    'logo'=>'Upload Logo',
+    'title_1'=>'Title 1',
+    'title_2'=>'Title 2',
+    'full_address'=>'Full Address',
+    'phone'=>'Phone No',
+    'photo'=>'Photo',
+    'logo'=>'Logo',
+    'stamp'=>'Stamp',
+    'fax'=>'Fax',
+    'email'=>'E-mail',
+    'remarks'=>'Remarks',
+];

@@ -1,0 +1,110 @@
+body{
+    background-image: url("/images/patient_end/assets-03.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+  }
+  .content{
+    border: 2px solid white;
+    border-radius: 45px;
+    background-image: url("/images/patient_end/ses-06.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center; 
+  }
+  
+  a{
+    text-decoration: none;
+    
+  }
+  .box-1{
+    border: 1px solid white;
+    box-shadow: 3px 5px   #f2f2f2;
+    background-color: rgba(231,238,248,255);
+    border-radius:30px;
+
+  }
+  .box-2{
+    background-color: #F7F7F7 !important;
+    border-radius:30px;
+  }
+  .login-box{
+    color: #867de6;
+    
+  }
+  .btn{
+    background-color:#867de6 ;
+    color: white;
+  }
+  .form-control{
+      border-left:none;
+      border-right:none;
+      border-top: none;
+  }
+  .governance{
+    color: #867de6;
+    font-weight: 620;
+  }
+
+  ::placeholder{
+    color: lightgray !important;
+  }
+  
+  @media (max-width: 767px)
+  {
+    .content{
+      border-radius:0px;
+      padding: 15px;
+    }
+   
+  }
+  @media (min-width:768px) and (max-width: 991px)
+  {
+    .content{
+      padding: 15px;
+    }
+    .content-middle{
+      border-radius:0px; 
+    }
+    
+  }
+  @media (min-width:992px) and (max-width: 1199px)
+  {
+    .content{
+      padding: 15px;
+    }
+    .content-middle{
+      border-radius:0px; 
+    }
+    
+  }
+  @media (min-width:1200px)
+  {
+    .content{
+      padding: 15px;
+    }
+    .content-middle{
+      border-radius:0px; 
+    }
+    
+  }
+  @media (min-width:1500px)
+  {
+    .login-box{
+      min-height: 450px;
+    }
+    
+  }
+  
+  .arrow-return{
+    color: white;
+    
+  }
+  
+  
+  
+  input:focus{
+    outline: none;
+    box-shadow: 0 0 0 3px red;
+  }

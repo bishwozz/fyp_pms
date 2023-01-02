@@ -1,0 +1,49 @@
+.personal-info{
+    position:fixed;
+
+}
+.personal-info-head {
+    margin-top: 40px;
+}
+
+#photo{
+    width: 200px;
+    height: 200px;
+    margin-right: 40px;
+    border-radius: 50%;
+    border-style: solid;
+    border-color: black;
+}
+
+.personal-info-head .name{
+    font-size:1.875rem;
+    font-weight: 500;
+
+
+}
+.personal-info-head .email{
+    /* margin-top: -20px; */
+    font-family: cursive;
+    font-size:0.625rem ;
+}
+
+.contact-info{
+    margin-top : 20px;
+    /* text-align: center; */
+
+}
+
+.contact-info .con_icon{
+    width: 20%;
+
+
+}
+
+.contact-info .head{
+    margin: 10px 0 -7px;
+}
+
+
+.horizontally-center{
+    margin: auto 0;
+}

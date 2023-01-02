@@ -1,0 +1,205 @@
+S.N,Test,Category
+1,Hb,Haematology
+2,RBC Count,Haematology
+3,TLC,Haematology
+4,Platelets Count,Haematology
+5,DLC,Haematology
+6,ESR,Haematology
+7,PCV/ Hct,Haematology
+8,MVC,Haematology
+9,MCHC,Haematology
+10,RDW,Haematology
+11,Blood Group & Rh Type,Haematology
+12,Coombs Test,Haematology
+13,Retics,Haematology
+14,PBS/ PBF,Haematology
+15,HbA1c,Haematology
+16,Special Stain: MPO,Haematology
+17,Special Stain: PAS,Haematology
+18,Sickling Test,Haematology
+19,Urine for Hemosiderin,Haematology
+20,BT,Haematology
+21,CT,Haematology
+22,PT-INR,Haematology
+23,APTT,Haematology
+24,Bone Marrow Analysis,Haematology
+25,Aldehyde Test,Haematology
+26,MP Total,Haematology
+27,Smear MP Pos: PF,Haematology
+28,Smear MP Pos: PV,Haematology
+29,Smear Mp Pos: P-MIX,Haematology
+30,MF: Total,Haematology
+31,MF: Pos.,Haematology
+32,LD Bodies,Haematology
+33,Hb Electrophoresis,Haematology
+34,LE Cell,Haematology
+35,ALC,Haematology
+36,AEC,Haematology
+37,FDP,Haematology
+38,D-dimer,Haematology
+39,Fac VIII,Haematology
+40,FAC IX,Haematology
+41,Others,Haematology
+42,MCH,Haematology
+43,Pregnancy Test (UTP),Immunology
+44,ASO,Immunology
+45,CRP,Immunology
+46,TPHA: +Ve,Immunology
+47,TPHA: Total,Immunology
+48,TPHA: +Ve,Immunology
+49,ANA,Immunology
+50,Anti-dsDNA,Immunology
+51,RPR/VDRL: TOTAL,Immunology
+52,RPR/VDRL: +Ve,Immunology
+53,CEA,Immunology
+54,CA-125,Immunology
+55,CA19.9,Immunology
+56,CA15.3,Immunology
+57,Toxo,Immunology
+58,Rubella,Immunology
+59,CMV,Immunology
+60,HSV,Immunology
+61,Measels,Immunology
+62,Echiococcus,Immunology
+63,Amoebiasis,Immunology
+64,PSA,Immunology
+65,Ferritin,Immunology
+66,Cysticercosis,Immunology
+67,Brucella,Immunology
+68,Thyroglobulin,Immunology
+69,Anti TPO,Immunology
+70,Protine Electrophoresis,Immunology
+71,Anti-CCP,Immunology
+72,RK-39: Total,Immunology
+73,RK:39: +Ve,Immunology
+74,JE: Total ,Immunology
+75,JE: +VE,Immunology
+76,Dengue: Total,Immunology
+77,Dengue: +Ve,Immunology
+78,Rapid MP Test: Total,Immunology
+79,Rapid MP Test: +Ve PV,Immunology
+80,Mantoux Test,Immunology
+81,Chikungunya: Total,Immunology
+82,Chikungunya: P+Ve,Immunology
+83,Scrub Typhus: Total,Immunology
+84,H. Pylori,Immunology
+85,Leptospira,Immunology
+86,Others,Immunology
+87,RA Factor,Immunology
+88,Sugar,Biochemistry
+89,Blood Urea,Biochemistry
+90,Creatinine,Biochemistry
+91,Sodium (Na),Biochemistry
+92,Potassium (K),Biochemistry
+93,Calcium,Biochemistry
+94,Phosphorus,Biochemistry
+95,Magnesium,Biochemistry
+96,Uric Acid,Biochemistry
+97,Total Cholesterol,Biochemistry
+98,Triglycerides,Biochemistry
+99,HDI,Biochemistry
+100,LDL,Biochemistry
+101,Amylase,Biochemistry
+102,Micro Albumin,Biochemistry
+103,Bilirubin,Biochemistry
+104,SGPT,Biochemistry
+105,Alk Phos,Biochemistry
+106,SGOT,Biochemistry
+107,Total Protine,Biochemistry
+108,Albumin ,Biochemistry
+109,Gamma GT,Biochemistry
+110,24hr Urine Protein,Biochemistry
+111,21hr Urine U/A,Biochemistry
+112,Creatinine Clerance,Biochemistry
+113,Iron,Biochemistry
+114,TIBC,Biochemistry
+115,CPK-MB,Biochemistry
+116,CPK-NAC,Biochemistry
+117,LDH,Biochemistry
+118,Iso-Trop-I,Biochemistry
+119,Others,Biochemistry
+120,Gram Stain,Bacteriology
+121,Culture: Blood,Bacteriology
+122,Culture: Urine,Bacteriology
+123,Culture: Body Fluid,Bacteriology
+124,Culture: Swab,Bacteriology
+125,Culture: Stool,Bacteriology
+126,Culture: Water,Bacteriology
+127,Culture: Pus,Bacteriology
+128,Culture: Sputum,Bacteriology
+129,Culture: CSF,Bacteriology
+130,Culture: Others,Bacteriology
+131,Speutum AFB,Bacteriology
+132,Other AFB,Bacteriology
+133,Leprosy Smear,Bacteriology
+134, India Ink Test,Bacteriology
+135,Fungus: KHO Test,Bacteriology
+136,Fungus: Culture,Bacteriology
+137,Others,Bacteriology
+138,HIV: Total,Virology
+139,HIV: +Ve,Virology
+140,HAV: Total,Virology
+141,HAV: +Ve,Virology
+142,HBsAg: Total,Virology
+143,HBsAg: +Ve,Virology
+144,HCV: Total,Virology
+145,HCV: +Ve,Virology
+146,HEV: Total,Virology
+147,HEV: +Ve,Virology
+148,Anit-HBs,Virology
+149,HBeAg,Virology
+150,Anti-Hbe,Virology
+151,HBcAg,Virology
+152,Anit-HBcAg,Virology
+153,Western Bolt,Virology
+154,CD4 Count,Virology
+155,Viral Load,Virology
+156,Others,Virology
+157,Stool R/E,Parasitology
+158,Occult Blood,Parasitology
+159,Reducing Sugar,Parasitology
+160,Urine R/E,Parasitology
+161,Bile Salts,Parasitology
+162,Bile Pigments,Parasitology
+163,Urobilinogen,Parasitology
+164,Porphobilinogen,Parasitology
+165,Acetone,Parasitology
+166,Chyle,Parasitology
+167,Specific Gravity,Parasitology
+168,Bence Jones Protein,Parasitology
+169,Semen Analysis,Parasitology
+170,Others,Parasitology
+171,Cortisol,Hormone/ Endocrine
+172,AFP,Hormone/ Endocrine
+173,?-HCG,Hormone/ Endocrine
+174,LH,Hormone/ Endocrine
+175,FSH,Hormone/ Endocrine
+176,Prolactin,Hormone/ Endocrine
+177,Oestrogen,Hormone/ Endocrine
+178,Progesterone,Hormone/ Endocrine
+179,Testosterone,Hormone/ Endocrine
+180,Vit.D,Hormone/ Endocrine
+181,Vit.B12,Hormone/ Endocrine
+182,Others,Hormone/ Endocrine
+183,T3,Hormone/ Endocrine
+184,T4,Hormone/ Endocrine
+185,TSH,Hormone/ Endocrine
+186,Carbamazepine,Drug Analysis
+187,Cyclosporine,Drug Analysis
+188,Valporic Acid,Drug Analysis
+189,Phenytoin,Drug Analysis
+190,Digoxine,Drug Analysis
+191,Tacrolimus,Drug Analysis
+192,Others,Drug Analysis
+193,Biopsy: H & E,Histopathology/ Cytology
+194,Biopsy: Other,Histopathology/ Cytology
+195,Cytology: Pap,Histopathology/ Cytology
+196,Cytology: Giemsa,Histopathology/ Cytology
+197,Cytology: Others,Histopathology/ Cytology
+198,ER,Immuno-Histo Chemestry
+199,PR,Immuno-Histo Chemestry
+200,G-FAP,Immuno-Histo Chemestry
+201,s-100,Immuno-Histo Chemestry
+202,Vimentin,Immuno-Histo Chemestry
+203,Cytokeratin,Immuno-Histo Chemestry
+204,Others,Immuno-Histo Chemestry

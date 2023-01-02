@@ -1,0 +1,1 @@
+<button type="button" class="btn btn-sm btn-secondary btn-link float-right font-weight-bold inline-create-button"><span class="fa fa-plus font-weight-bold"></span>{{trans('backpack::crud.add')}}</span></button>

@@ -1,0 +1,88 @@
+.ad-block {
+  background-color: lightgrey;
+  width: 400px;
+  height: 200px;
+  padding: 50px;
+  margin-bottom: 50px;
+}
+.top-img img {
+  height: auto;
+  width: 100%;
+
+  object-fit: cover;
+}
+
+.banner-img img {
+  height: auto;
+  width: 100%;
+
+  object-fit: cover;
+}
+
+.card {
+  display: block;
+  margin: 10px;
+}
+
+.counter-icon {
+  float: left;
+  width: 60px;
+}
+
+@media (min-width: 300px) and (max-width:100%){
+    .banner .bar-line{
+        display: inline;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 500px){
+    #searchInput{
+        display: none;
+        justify-content: space-between;
+    }
+}
+@media (min-width: 500px){
+    #searchInput{
+        display: block;
+        justify-content: space-between;
+    }
+}
+.card-title {
+  float: left;
+  margin-right: 10px;
+}
+
+.icons a {
+  margin: 0px 5px;
+  color: white;
+  font-size: 0.7rem;
+  font-family: sans-serif;
+}
+
+.last {
+  margin: 10px 0 0 -5px;
+  font-size: 0.7rem;
+}
+
+.last .datetime {
+  float: left;
+  margin: 0 10px;
+}
+
+.cash {
+  color: rgb(218, 126, 22);
+  font-weight: 600;
+
+}
+
+.cash .amount {
+  font-size: 3.2rem;
+}
+
+/* report css */
+
+.icon-btn ul li {
+  list-style: none;
+  padding: 5px;
+}

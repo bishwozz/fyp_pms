@@ -1,0 +1,18 @@
+#logo {
+  width: 200px;
+  margin: 40px 10px 20px 15px;
+}
+
+.menubar {
+  background-image: url("/images/patient_end/background1.png");
+}
+
+.mainmenu-items {
+  margin-top: 40px;
+}
+
+.mainmenu-items i {
+  float: left;
+  margin: 0 10px;
+}
+

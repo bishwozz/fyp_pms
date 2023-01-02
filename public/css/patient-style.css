@@ -1,0 +1,28 @@
+.container{
+  background-color:#F2F6FF;
+  height: 100%;
+}
+.content{
+  border-radius: 10px;
+}
+.left{
+  background-color: #E8EEF7;
+}
+.right{
+  background-image: linear-gradient(to right, #8279E3  ,#A7A7FF );
+ 
+  
+}
+.color{
+color: #8279E3;
+}
+.placeholder{
+  color: #8279E3 !important;
+}
+.right-content{
+  color:white;
+  padding-top: 150px;
+}
+.right-content h3{
+  text-align: center;
+}

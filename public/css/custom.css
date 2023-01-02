@@ -1,0 +1,327 @@
+/* css for login page */
+.login-container {
+  height: 100vh;
+  background-image: url('../img/main-bg.png');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.gov-logo {
+  max-width: 229px;
+}
+.login-panel {
+  background-image: url('../img/login-bg.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  text-align: center;
+  width: 619px;
+  height: 492px;
+  padding: 0 120px;
+}
+.login-panel .cabinet-logo {
+  max-width: 225px;
+}
+.login-panel .map-img {
+  max-width: 260px;
+}
+.login-panel label {
+  text-align: unset;
+  color: #fff;
+  margin-bottom: 2px;
+}
+.login-panel input {
+  background: unset;
+  padding-left: 5px;
+  border: 0;
+  border-radius: 12px;
+  border-bottom: 1px solid #636c74;
+}
+.login-panel input:focus {
+  color: #fff;
+  background-color: unset;
+}
+.login-panel .form-check-input:checked {
+  background-color: unset;
+}
+
+.print_export_button {
+  background-color: green !important;
+  color: white !important;
+  border-radius: 5px 5px 5px 5px;
+}
+.app-header{
+  /* background: #741c98 !important; */
+}
+
+
+.reports-card {
+  border-radius: 20px;
+  background:#c8d3ea;
+  margin-bottom: 20px !important;
+}
+
+.reports-card-title {
+  color:#1B2A47;
+  font-weight:bold;
+  text-decoration: none !important;
+}
+
+.reports-card-icon{
+  height: 70px;
+}
+
+
+.sidebar {
+  /* background: #741c98 !important; */
+}
+/* .print_export_button.buttons-colvis {
+  background-color: red !important;
+} */
+
+@media only screen and (min-width: 600px) and (max-width:1499px) {
+  .login-container {
+    position: relative;
+    top:-25px;
+    align-items: center;
+  }
+
+  .login-panel {
+    width: 550px !important;
+    height: 450px;
+    padding: 0 110px;
+    align-items: center;
+
+  }
+  .gov-logo {
+    max-width: 200px;
+  }
+  .login-panel .cabinet-logo {
+    max-width: 200px;
+  }
+  .login-panel .map-img {
+    max-width: 200px;
+  }
+  .login-panel label {
+    text-align: unset;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+}
+
+/* css for sidebar */
+/* .sidebar .nav-dropdown:hover>.nav-dropdown-items {
+  max-height: 1500px;
+} */
+
+/* .sidebar .nav-dropdown:hover>.nav-dropdown-toggle:before {
+  transform: rotate(-90deg);
+} */
+
+/* css for setting-tab */
+.setting-tab {
+  position: fixed;
+  padding: 5px 0;
+  top: 73px;
+  right: 0;
+  width: 44px;
+  background: rgba(0,0,0,.3);
+  z-index: 3;
+  border-radius: 8px 0 0 8px;
+  text-align: center;
+}
+
+.setting-tab i:hover {
+  cursor: pointer;
+}
+
+.setting-tab-container {
+  position: fixed;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 12px 15px;
+  box-shadow: 3px 3px 8px #888888;
+  top: 70px;
+  /* opacity: 0; */
+  right: 60px;
+  z-index: 5;
+  display: none;
+}
+
+.setting-tab-container.open {
+  /* visibility: visible; */
+  display: block;
+}
+
+.setting-tab-container::before {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 10px;
+  width: 16px;
+  border-bottom: 16px solid transparent;
+  border-left: 16px solid rgba(0,0,0,.2);
+  border-top: 16px solid transparent;
+  right: -16px;
+}
+
+.setting-tab-container::after {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 10px;
+  width: 16px;
+  border-bottom: 16px solid transparent;
+  border-left: 16px solid #fff;
+  border-top: 16px solid transparent;
+  right: -15px;
+}
+
+.setting-tab-container .badge {
+  border: 3px solid #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  display: inline-block;
+  height: 23px;
+  margin-right: 5px;
+  position: relative;
+  width: 23px;
+  padding: 8px;
+  transition: all .34s;
+}
+
+.badge.primary {
+  background-color: #867EE6;
+}
+.badge.red {
+  background-color: #f44336;
+}
+.badge.green {
+  background-color: #18ce0f;
+}
+.badge.purple {
+  background-color: #9368e9;
+}
+.badge.blue {
+  background-color: #2ca8ff;
+}
+
+.setting-tab-container .badge.active {
+  border-color: #0bf;
+}
+
+.setting-overlay {
+  position: absolute;
+  display: none;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100%;
+  z-index: 3;
+}
+
+.setting-overlay.open {
+  display: block;
+}
+
+.card-counter {
+  box-shadow: 2px 2px 10px #DADADA;
+  margin: 5px;
+  padding: 20px 10px;
+  background-color: #fff;
+  height: 100px;
+  border-radius: 5px;
+  transition: .3s linear all;
+}
+
+
+
+.card-counter.primary {
+  background-color: #007bff;
+  color: #FFF;
+}
+.card-counter.primary:hover {
+  box-shadow: 4px 4px 20px #DADADA;
+  transition: .3s linear all;
+  background-color: #053a73;
+
+}
+
+.card-counter.danger {
+  background-color: #ef5350;
+  color: #FFF;
+}
+
+.card-counter.danger:hover {
+  box-shadow: 4px 4px 20px #DADADA;
+  transition: .3s linear all;
+  background-color: #ef0804;
+
+}
+
+.card-counter.success {
+  background-color: #66bb6a;
+  color: #FFF;
+}
+
+.card-counter.success:hover {
+  box-shadow: 4px 4px 20px #DADADA;
+  transition: .3s linear all;
+  background-color: #06790b;
+}
+
+.card-counter.info-counter {
+  background-color: #26c6da;
+  color: #FFF;
+}
+
+.card-counter.info-counter:hover {
+  box-shadow: 4px 4px 20px #DADADA;
+  transition: .3s linear all;
+  background-color: #0196a9;
+}
+
+.card-counter.warning {
+  background-color:rgb(255, 159, 64);
+  color: #FFF;
+}
+.card-counter.warning:hover {
+  box-shadow: 4px 4px 20px #DADADA;
+  transition: .3s linear all;
+  background-color: rgb(210,107, 6);
+}
+
+.card-counter.purple {
+  background-color:rgb(153, 102, 255);
+  color: #FFF;
+}
+
+.card-counter.purple:hover {
+  box-shadow: 4px 4px 20px #DADADA;
+  transition: .3s linear all;
+  background-color:rgb(70, 20, 171);
+}
+
+.card-counter i {
+  font-size: 5em;
+  opacity: 0.2;
+}
+
+.card-counter .count-numbers {
+  position: absolute;
+  right: 35px;
+  top: 38px;
+  font-size: 32px;
+  display: block;
+}
+
+.card-counter .count-name {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 7px;
+  /* font-style: italic; */
+  text-transform: capitalize;
+  /* opacity: 0.5; */
+  display: block;
+  font-size: 18px;
+  text-align: center;
+}

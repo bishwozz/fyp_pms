@@ -1,0 +1,193 @@
+body {
+  background-color: rgb(225, 239, 248);
+  font-family: cursive;
+}
+.table>:not(caption)>*>* {
+  padding: 0.2rem;
+}
+
+.topic img{
+  width: 180px;
+}
+
+input[type="text"] {
+  width: 85%;
+  height: 33px;
+  padding: 0px 12px;
+  box-sizing: border-box;
+  border: 1px solid rgb(221, 212, 212);
+  border-radius: 20px;
+  font-size: 18px;
+  outline: none;
+  color: #656769;
+}
+
+
+.nav1 {
+  margin-top: -25px;
+}
+.nav {
+  font-size: 14px;
+  margin-top: -15px;
+}
+
+.nav a {
+  text-decoration: none;
+}
+.hr {
+  margin-top: -28px;
+}
+
+.user {
+  border: none;
+  /* height: 200px; */
+  padding: 0.5rem;
+  align-items: center;
+}
+
+
+.user .card-img-top {
+  height: 100px;
+  width: 100px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 50px;
+}
+.user .patient-id {
+  font-size: 0.875rem;
+  color: #656769;
+}
+
+.user .card-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+
+.details {
+  border: none;
+  padding: 19px;
+}
+
+table {
+  font-size: 1rem;
+}
+
+table tr th {
+  /* font-size: 12px; */
+  color: #656769;
+  font-weight: 400;
+}
+
+/* .t-one {
+  border-right: 1px solid #cac3c3;
+} */
+.t-two hr {
+  margin-top: -18px;
+}
+.t-one hr {
+  margin-top: -18px;
+}
+
+.go-to {
+  background-color: rgb(225, 239, 248);
+  border-radius: 10px;
+  padding: 5px;
+  text-align: center;
+}
+.go-to a {
+  text-decoration: none;
+  color: #656769;
+  font-size: 1rem;
+}
+.billing {
+  background-color: rgb(225, 239, 248);
+}
+
+.go-to a:hover {
+  background-color: white;
+  border-radius: 10px;
+  width: 100%;
+  color: rgb(45, 33, 209);
+}
+
+.tab-btn {
+  background-color: white;
+  border-radius: 10px;
+  width: 100%;
+  color: rgb(45, 33, 209) !important;
+}
+
+.title {
+  font-size: 1rem;
+}
+
+.title p {
+  font-weight: 700;
+  margin: 10px;
+}
+
+.title button {
+  background-color: white;
+  border: 1px solid rgb(219, 211, 211);
+  color: #656769;
+}
+
+.bills .card .card-body table {
+  border-collapse: collapse;
+  font-size: 1.2rem;
+}
+
+.bills .card .card-body table th {
+  border-right: 1px solid #cac3c3;
+  color: #656769;
+}
+.bills .card .card-body table td {
+  border-right: 1px solid #cac3c3;
+  font-weight: 700;
+}
+
+.bills .card .card-body table .view {
+  font-size: 1.7rem;
+  border: none;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+  content: '\f105';
+  font-family: "Font Awesome 5 free";
+    font-weight: 900;
+}
+
+@media screen and (max-width: 400px) {
+  .bills .card .card-body table .mob-rmv {
+    display: none;
+  }
+}
+@media screen and (max-width: 600px) {
+  .project {
+    display: block;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  .title button {
+    width: 45%;
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .bills .card .card-body table {
+    font-size: 0.7rem;
+  }
+  .bills .card .card-body table .view {
+    font-size: 0.9rem;
+  }
+}
+.breadcrumb-item{
+  font-size: 17px;
+  color: black;
+}
+a.active{
+  color:blue;
+}
