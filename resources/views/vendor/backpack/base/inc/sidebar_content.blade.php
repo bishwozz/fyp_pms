@@ -35,35 +35,35 @@
     <a class="nav-link nav-dropdown-toggle" href="#"><i class="nav-icon la la-tasks"></i>PMS</a>
     <ul class="nav-dropdown-items" style="overflow-x:hidden">
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('item') }}'><i
-                    class='la la-user nav-icon'></i>{{ trans('menu.item') }}</a>
+                    class='la la-user nav-icon'></i>{{ trans('Item') }}</a>
             <a href="{{ backpack_url('item/create') }}"><i class="fa fa-plus"></i></a>
         </li>
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('mstgenericname') }}'><i
-                    class='la la-user nav-icon'></i>{{ trans('menu.mstgenericname') }}</a>
+                    class='la la-user nav-icon'></i>{{ trans('MstGenericName') }}</a>
             <a href="{{ backpack_url('mstgenericname/create') }}"><i class="fa fa-plus"></i></a>
         </li>
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('mstcategory') }}'><i
-                    class='la la-user nav-icon'></i>{{ trans('menu.mstcategory') }}</a>
+                    class='la la-user nav-icon'></i>{{ trans('MstCategory') }}</a>
             <a href="{{ backpack_url('mstcategory/create') }}"><i class="fa fa-plus"></i></a>
         </li>
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('mstsupplier') }}'><i
-                    class='la la-user nav-icon'></i>{{ trans('menu.mstsupplier') }}</a>
+                    class='la la-user nav-icon'></i>{{ trans('MstSupplier') }}</a>
             <a href="{{ backpack_url('mstsupplier/create') }}"><i class="fa fa-plus"></i></a>
         </li>
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('inventory') }}'><i
-                    class='la la-user nav-icon'></i>{{ trans('menu.inventory') }}</a>
+                    class='la la-user nav-icon'></i>{{ trans('Inventory') }}</a>
             <a href="{{ backpack_url('inventory/create') }}"><i class="fa fa-plus"></i></a>
         </li>
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('mstpharmaceutical') }}'><i
-                    class='la la-user nav-icon'></i>{{ trans('menu.mstpharmaceutical') }}</a>
+                    class='la la-user nav-icon'></i>{{ trans('MstPharmaceutical') }}</a>
             <a href="{{ backpack_url('mstpharmaceutical/create') }}"><i class="fa fa-plus"></i></a>
         </li>
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('mstunit') }}'><i
-                    class='la la-user nav-icon'></i>{{ trans('menu.mstunit') }}</a>
+                    class='la la-user nav-icon'></i>{{ trans('MstUnit') }}</a>
             <a href="{{ backpack_url('mstunit/create') }}"><i class="fa fa-plus"></i></a>
         </li>
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('mstbrand') }}'><i
-                    class='la la-user nav-icon'></i>{{ trans('menu.mstbrand') }}</a>
+                    class='la la-user nav-icon'></i>{{ trans('MstBrand') }}</a>
             <a href="{{ backpack_url('mstbrand/create') }}"><i class="fa fa-plus"></i></a>
         </li>
     </ul>
@@ -71,11 +71,24 @@
  <hr class="hr-line">
 {{-- ///-----pms --}}
 
+{{-- ///-----purchase --}}
+
+<li class="nav-item nav-dropdown">
+    <a class="nav-link nav-dropdown-toggle" href="#"><i class="nav-icon la la-tasks"></i>Purchase</a>
+    <ul class="nav-dropdown-items" style="overflow-x:hidden">
+        <li class='nav-item'><a class='nav-link' href='{{ backpack_url('item') }}'><i
+                    class='la la-user nav-icon'></i>{{ trans('Item') }}</a>
+            <a href="{{ backpack_url('item/create') }}"><i class="fa fa-plus"></i></a>
+        </li>
+    </ul>
+ </li>
+ <hr class="hr-line">
+
 {{-- bill --}}
 @hasanyrole('superadmin|clientadmin|admin|reception|lab_admin|finance')
-<li class='nav-item'><a class='nav-link' href='{{ backpack_url('billing/patient-billing/recent') }}'><i
+<li class='nav-item'><a class='nav-link' href='{{ backpack_url('sales') }}'><i
            class='nav-icon la la-columns'></i> Patient billings</a>
-   <a href="{{ backpack_url('billing/patient-billing/recent/create') }}"><i class="fa fa-plus"></i></a>
+   <a href="{{ backpack_url('sales/create') }}"><i class="fa fa-plus"></i></a>
 </li>
 <hr class="hr-line">
 @endhasanyrole

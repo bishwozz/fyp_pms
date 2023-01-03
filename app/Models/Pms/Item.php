@@ -21,8 +21,8 @@ class Item extends BaseModel
     protected $table = 'phr_items';
      protected $keyType = 'string';
     protected $guarded = ['id','created_by'];
-    protected $fillable = ['client_id','code','supplier_id','category_id','brand_name','generic_name_id','strength','current_stock','stock_unit_id',
-    'pharmaceutical_id','stock_alert_minimun','is_free','is_banned','is_deprecated','description','is_active','updated_by'];
+    protected $fillable = ['client_id','code','supplier_id','category_id','brand_id','generic_id','unit_id',
+    'pharmaceutical_id','stock_alert_minimun','is_free','is_deprecated','description','is_active','updated_by'];
 
     public function supplier() {
         return $this->belongsTo(MstSupplier::class,'supplier_id','id');

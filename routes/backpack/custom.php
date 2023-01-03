@@ -210,6 +210,19 @@ Route::group([
 		Route::get('/inventory/printReport', 'InventoryCrudController@printInventoryReport');
 
  	    Route::crud('/mstgenericname', 'MstGenericNameCrudController');
+
+		Route::crud('/sales', 'SalesCrudController');
+        Route::get('/sales/get-item-info','SalesCrudController@getItemsInfo');
+    	Route::get('/sales/items','SalesCrudController@loadItems');
+    	Route::get('/sales/get-item-rate','SalesCrudController@getItemRate');
+
+		Route::post('/sales/store-bill', 'SalesCrudController@storeBill');
+    	Route::get('/sales/{bill_id}/bill-cancel-view', 'SalesCrudController@billCancelView');
+    	Route::post('/sales/update-bill-cancel-status', 'SalesCrudController@updateBillCancelStatus');
+
+		Route::get('/sales/check-item-qty','SalesCrudController@checkItemsQty');
+
+
  	 // this should be the last line donot remove this
 
 });

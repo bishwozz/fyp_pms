@@ -1,61 +1,63 @@
 <?php
 
-namespace App\Http\Controllers\Admin\Billing;
+namespace App\Http\Controllers\Admin\Pms;
 
-use Exception;
+
 use Carbon\Carbon;
 use App\Models\LabBill;
-use App\Models\MstBank;
-use App\Models\Patient;
-use App\Utils\PdfPrint;
-use App\Models\Referral;
-use App\Models\Lab\LabPanel;
 use App\Models\LabBillItems;
 use Illuminate\Http\Request;
-use App\Models\Lab\LabMstItems;
+
+use App\Models\Pms\Item;
+use Illuminate\Http\Response;
+use App\Models\Pms\Sales;
+use App\Base\Traits\ParentData;
 use App\Base\BaseCrudController;
-use App\Models\Lab\LabGroupItem;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Prologue\Alerts\Facades\Alert;
-use App\Models\Lab\LabMstCategories;
-use App\Models\CoreMaster\AppSetting;
-use App\Models\Lab\LabPanelGroupItem;
-use App\Models\Billing\PatientBilling;
-use App\Models\Lab\LabPatientTestData;
+use App\Base\Helpers\JsReportPrint;
+use App\Models\Pms\MstCategory;
+use App\Models\Pms\MstSupplier;
 use App\Models\HrMaster\HrMstEmployees;
-use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use App\Http\Requests\Pms\PurchaseRequest;
 
-/**
- * Class PatientBillingCrudController
- * @package App\Http\Controllers\Admin
- * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
- */
-class PatientBillingCrudController extends BaseCrudController
+
+class SalesCrudController extends BaseCrudController
 {
-    /**
-     * Configure the CrudPanel object. Apply settings to all operations.
-     * 
-     * @return void
-     */
-    protected $user;
 
     public function setup()
     {
         $this->user = backpack_user();
 
-        CRUD::setModel(PatientBilling::class);
-        CRUD::setRoute(config('backpack.base.route_prefix') . '/billing/patient-billing');
-        CRUD::setEntityNameStrings('Patient Billing', 'Patient Billing');
-        $this->data['patients']=Patient::select('id','name','patient_no','cell_phone')->get();
-        CRUD::setCreateView('billing.billing-index',$this->data);
+        $this->crud->setModel(Sales::class);
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/sales'.$this->parent('custom_param'));
+        $this->crud->setEntityNameStrings('Sales', 'Sales');
+        $this->crud->setCreateView('billing.billing-index');
         $this->crud->addButtonFromModelFunction('line','labBillingPrint','labBillingPrint','beginning');
         $this->crud->addClause('where','client_id',$this->user->client_id);
-        CRUD::setEditView('billing.billing-index',$this->data);
+        $this->crud->setEditView('billing.billing-index',$this->data);
 
         $this->setCustomTabLinks();
 
         $this->crud->clearFilters();
         $this->setFilters();
+        $this->processCustomParams();
+
+        $this->checkPermission([
+            'getPatientInfo'=>'create',
+            'loadLabItems'=>'create',
+            'getItemRate'=>'create',
+            'storeBill'=>'create',
+            'getReferalData'=>'create',
+            'printSalesDetailBill'=>'list',
+            'billCancelView'=>'list',
+            'updateBillCancelStatus'=>'list',
+            'dueCollectionView'=>'list',
+            'updateDueCollection'=>'list',
+            
+        ]);
+
     }
 
     private function setFilters(){
@@ -98,6 +100,34 @@ class PatientBillingCrudController extends BaseCrudController
             }
           });
     }
+    protected function processCustomParams()
+    {
+            
+        $custom_param = $this->parent('custom_param');
+
+        switch ($custom_param) {
+            case 'recent':
+                $this->crud->addButtonFromView('line','cancelBillBtn','cancelBillBtn','beginning');
+                // $this->crud->query->whereNotIn('id',$accepted_bill_ids)->where('is_cancelled',false);
+            break;
+
+            case 'credit':
+                $this->crud->addButtonFromView('line','collectDueBtn','collectDueBtn','beginning');
+                $this->crud->query->where('is_paid',false)->where('is_cancelled',false);
+            break;
+            case 'cancelled':
+                $this->crud->query->where('is_cancelled',true);
+            break;
+
+            default:
+                $this->crud->addButtonFromView('line','cancelBillBtn','cancelBillBtn','beginning');
+            break;
+
+        }
+        $this->crud->orderby('created_at','DESC');
+
+
+    }
 
     protected function setCustomTabLinks()
     {
@@ -108,21 +138,19 @@ class PatientBillingCrudController extends BaseCrudController
         $this->data['cancelled_bills'] = "";
         $this->data['list_tab_header_view'] = 'tab.billing_tab';
 
-        $accepted_bill_ids = LabPatientTestData::where('collection_status',1)->whereNotNull('collection_datetime')->pluck('bill_id')->toArray();
-        $accepted_bill_ids = \array_unique($accepted_bill_ids);
     
         $tab = $this->request->bill_status;
         switch ($tab) {
             case 'recent':
                 $this->data['recent_bills'] = "disabled active";
                 $this->crud->addButtonFromView('line','cancelBillBtn','cancelBillBtn','beginning');
-                $this->crud->query->whereNotIn('id',$accepted_bill_ids)->where('is_cancelled',false);
+                // $this->crud->query->whereNotIn('id',$accepted_bill_ids)->where('is_cancelled',false);
             break;
 
-            case 'accepted':
-                $this->data['accepted_bills'] = "disabled active";
-                $this->crud->query->whereIn('id',$accepted_bill_ids)->where('is_cancelled',false);
-            break;
+            // case 'accepted':
+            //     $this->data['accepted_bills'] = "disabled active";
+            //     // $this->crud->query->whereIn('id',$accepted_bill_ids)->where('is_cancelled',false);
+            // break;
 
             case 'pending':
                 $this->data['pending_bills'] = "disabled active";
@@ -137,7 +165,7 @@ class PatientBillingCrudController extends BaseCrudController
             default:
                 $this->data['recent_bills'] = "disabled active";
                 $this->crud->addButtonFromView('line','cancelBillBtn','cancelBillBtn','beginning');
-                $this->crud->query->whereNotIn('id',$accepted_bill_ids)->where('is_cancelled',false);
+                // $this->crud->query->whereNotIn('id',$accepted_bill_ids)->where('is_cancelled',false);
 
             break;
 
@@ -213,17 +241,11 @@ class PatientBillingCrudController extends BaseCrudController
             ], 404);
         }
     }
-   
 
-    /**
-     * Define what happens when the List operation is loaded.
-     * 
-     * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
-     * @return void
-     */
+
     protected function setupListOperation()
     {
-        $this->crud->removeButtons(['create','update','delete']);
+        // $this->crud->removeButtons(['create','update','delete']);
         $col=[
             $this->addRowNumber(),
             [
@@ -231,12 +253,6 @@ class PatientBillingCrudController extends BaseCrudController
                 'type' => 'text',
                 'label'=>trans('#Bill No.'),
                 'orderable'=>false
-            ],
-            [
-                'name'=>'customer',
-                'type' => 'model_function',
-                'label'=>trans('Name'),
-                'function_name'=>'getName'
             ],
             [
                 'name'=>'created_at',
@@ -288,47 +304,40 @@ class PatientBillingCrudController extends BaseCrudController
 
     }
 
-    //get patient info on billing home page
-    public function getPatientInfo(Request $request){
-        $patient_id = $request->patient_id;
+
+
+    //get Item info on billing home page
+    public function getItemsInfo(Request $request){
         $data = [];
-        if($patient_id != null){
-            $data['patient'] = Patient::find($patient_id);
-        }
-        $data['rate_type'] = PatientBilling::$rate_type;
-        $data['card_type'] = PatientBilling::$card_type;
-        $data['doctors'] = HrMstEmployees::whereIn('salutation_id',[5,6,7,8])->get();
+        $data['rate_type'] = '';
+        $data['card_type'] = '';
         $data['creditors'] = HrMstEmployees::where('is_credit_approver',true)->where('is_active',true)->get();
-        $data['discounters'] = HrMstEmployees::where('is_discount_approver',true)->where('is_active',true)->get();
-        $data['banks'] = MstBank::all();
         $data['payment_methods']=DB::table('mst_payment_methods')->select('id','title')->orderBy('id')->get();
 
-
-        return view('billing.billing-patient-home',$data);
-        // return response()->json(['status'=>'success','data'=>$data]);
+        return view('billing.billing-items-home',$data);
+        // billing-items-home.blade.php
     }
 
 
-    public function loadLabItems(Request $request)
+    public function loadItems(Request $request)
     {
         $qs = $request->qs;
         if(!empty($qs)){
-            $lab_items = DB::table('vw_lab_test_items')
-                            ->select('id','test_name as name','code','category_name as category','test_amount as price')
-                            ->where('test_name','iLike',"%$qs%")
-                            ->orWhere('code','iLike',"%$qs")
+            $item = DB::table('vw_items')
+                            ->select('id','name','qty','amount as price')
+                            ->where('name','iLike',"%$qs%")
                             ->get();
-            return response()->json(['status'=>'success','lab_items'=>$lab_items]);                    
+            return response()->json(['status'=>'success','items'=>$item]);                    
         }else{
             return response()->json(['status'=>'fail']);                    
         }
-      
+    
     }
 
     public function getItemRate(Request $request)
     {
         $item_id = $request->item_id;
-        $item = DB::table('vw_lab_test_items')->find($item_id);
+        $item = DB::table('vw_items')->find($item_id);
         if($item){
             return response()->json(['status'=>'success','item'=>$item]);                    
         }else{
@@ -345,19 +354,9 @@ class PatientBillingCrudController extends BaseCrudController
         $date_ad = Carbon::now()->toDateString();
         $now = Carbon::now()->todatetimestring();
 
-        $categories = [];
-
-        $address = '';
-        if(isset($request->patient_id)){
-             $patient = Patient::find($request->patient_id);
-             $address=$patient->getFullAddress();
-        }
-
-        $age_gender = \str_replace(' ','',$request->age_sex);
-        $age_gender = explode('/',$age_gender);
 
         if(isset($request)){
-            $query = DB::table('lab_bills')->where('client_id',$this->user->client_id)->latest('created_at')->pluck('bill_no')->first();
+            $query = DB::table('sales')->where('client_id',$this->user->client_id)->latest('created_at')->pluck('bill_no')->first();
             $prefix_key = backpack_user()->clientEntity->prefix_key;
             $bill_no = $prefix_key.'-BILL-1';
             if ($query != null) {
@@ -365,23 +364,15 @@ class PatientBillingCrudController extends BaseCrudController
                 $num = end($explode);
                 $bill_no = $prefix_key.'-BILL-'.(intval($num) + 1);
             }
+
+      
             DB::beginTransaction();
             try {
-                $lab_bill = LabBill::create([
+                $lab_bill = Sales::create([
                     'client_id'=>$this->user->client_id,
-                    'patient_id'=> isset($request->patient_id) ? $request->patient_id : NULL,
-                    'bill_no'=>$bill_no,
-                    'customer_name'=>$request->patient_name,
-                    'address'=>$address,
-                    'age'=>$age_gender[0],
-                    'gender'=>$age_gender[1],
-                    'item_discount_type'=>$request->item_discount_type,
-                    'referred_by'=>$request->referred_by,
-
                     'generated_date_bs'=>$date_bs,
                     'generated_date'=>$date_ad,
                     'is_paid'=>$request->payment_method_type == 6 ? 0:1,
-            
                     'payment_method_id'=>$request->payment_method_type,
                     'discount_approved_by'=>isset($request->discount_approved_by)?$request->discount_approved_by : null,
                     'credit_approved_by'=>isset($request->credit_approved_by)?$request->credit_approved_by : null,
@@ -389,10 +380,8 @@ class PatientBillingCrudController extends BaseCrudController
                     'bank_id'=>isset($request->bank_id)?$request->bank_id : null,
                     'cheque_no'=>isset($request->cheque_no)?$request->cheque_no : null,
                     'transaction_number'=>isset($request->transaction_number)?$request->transaction_number : null,
-                    
                     'total_discount_type'=>$request->total_discount_type,
                     'total_discount_value'=>$request->total_discount_value,
-                    
                     'total_gross_amount'=>$request->total_gross_amount,
                     'total_discount_amount'=>$request->total_discount_amount,
                     'total_tax_amount'=>$request->total_tax_amount,
@@ -402,114 +391,47 @@ class PatientBillingCrudController extends BaseCrudController
                     'created_by' => $this->user->id,
                     'created_at' => $now,
                 ]);
-                    if($lab_bill->id){
-                        if(isset($request->selected_item)){
-                            foreach($request->selected_item as $key=>$item_id){ 
-                               
-                                //get item detail from view
-                                $item = DB::table('vw_lab_test_items')->find($item_id);
+                
+                if($lab_bill->id){
+                    if(isset($request->selected_item)){
+                        foreach($request->selected_item as $key=>$item_id){ 
+                           
+                            //get item detail from view
+                            $item = DB::table('vw_items')->find($item_id);
 
-                                //build array of category
-                                $category = LabMstCategories::where('title',$item->category_name)->first();
-                                $categories[$category->id][]=$item;
+                            // 
+                            LabBillItems::create([
+                                'client_id'=>$this->user->client_id,
+                                'lab_bill_id'=>$lab_bill->id,
+                                'lab_item_id'=>$item->item_id,
+                                'quantity'=>$request->item_quantity[$key],
+                                'rate'=>$request->item_rate[$key],
+                                'amount'=>$request->item_amount[$key],
+                                'net_amount'=>$request->item_net_amount[$key],
+                                'created_by' => $this->user->id,
+                                'created_at' => $now,
+                            ]);
 
-                                LabBillItems::create([
-                                    'client_id'=>$this->user->client_id,
-                                    'lab_bill_id'=>$lab_bill->id,
-                                    'lab_panel_id'=>$item->panel_id,
-                                    'lab_item_id'=>$item->item_id,
-                                    'quantity'=>$request->item_quantity[$key],
-                                    'rate'=>$request->item_rate[$key],
-                                    'discount'=>$request->item_discount[$key],
-                                    'amount'=>$request->item_amount[$key],
-                                    // 'tax'=>$request->item_tax[$key],
-                                    'net_amount'=>$request->item_net_amount[$key],
-                                    'created_by' => $this->user->id,
-                                    'created_at' => $now,
-                                ]);
+
+                            $sold_qty = $request->item_quantity[$key];
+                            $changing_items = Item::find($item_id);
+                            if($changing_items){
+                                $changing_items->current_stock = (
+                                    $changing_items->current_stock - $sold_qty
+                                );   
                             }
-
-                            //create records in lab_patient_data
-                            foreach($categories as $key=>$category){
-
-                                $order = DB::table('lab_patient_test_data')->where('client_id',$this->user->client_id)->max('order_no');
-                                    $order_no = 'ORD100000';
-                                    if ($order != null) {
-                                        $sub_str = \substr($order,3);
-                                 
-                                        $order_no = 'ORD'.(intval($sub_str) + 1);
-                                    }
-
-                                    $data=[
-                                        'client_id'=>$this->user->client_id,
-                                        'patient_id'=> isset($request->patient_id) ? $request->patient_id : NULL,
-                                        'bill_id'=>$lab_bill->id,
-                                        'order_no'=>$order_no,
-                                        'category_id'=>$key,
-                                        'collection_status'=>0,
-                                        'reported_status'=>0,
-                                        'delivery_status'=>0,
-                                        'approve_status'=>0,
-                                        'created_by' => $this->user->id,
-                                        'created_at' => $now,
-                                        'deleted_uq_code'=>1
-                                    ];
-                                    $patient_test_id = DB::table('lab_patient_test_data')->insertGetId($data);
-
-                                //category can have multiple items
-                                foreach($category as $cat){
-                                    //check for panel, if panel exists get panel items and insert into patient lab data results table
-                                    if($cat->panel_id != null){
-
-                                        //get all panel items from lab_panel_group_items using category panel_id
-                                        $panel_items= LabPanelGroupItem::where('lab_panel_id',$cat->panel_id)->get();
-                                        //looping through panel_items
-                                        foreach($panel_items as $pi)
-                                        {
-                                            //check if group
-                                            if($pi->lab_group_id != null)
-                                            {
-                                                //get all items from a group
-                                                $group_items = LabGroupItem::where('lab_group_id',$pi->lab_group_id)->get();
-                                                foreach($group_items as $gi){
-                                                    DB::table('lab_patient_test_results')
-                                                        ->insert([
-                                                            'patient_test_data_id'=>$patient_test_id,
-                                                            'lab_panel_id'=>$pi->lab_panel_id,
-                                                            'lab_group_id'=>$gi->lab_group_id,
-                                                            'lab_item_id'=>$gi->lab_item_id
-                                                        ]);
-                                                }
-                                            }else{
-                                                DB::table('lab_patient_test_results')
-                                                    ->insert([
-                                                        'patient_test_data_id'=>$patient_test_id,
-                                                        'lab_panel_id'=>$pi->lab_panel_id,
-                                                        'lab_group_id'=>null,
-                                                        'lab_item_id'=>$pi->lab_item_id
-                                                    ]);
-                                            }
-                                        }
-                                    }else{
-                                        DB::table('lab_patient_test_results')
-                                        ->insert([
-                                            'patient_test_data_id'=>$patient_test_id,
-                                            'lab_panel_id'=>null,
-                                            'lab_group_id'=>null,
-                                            'lab_item_id'=>$cat->item_id
-                                        ]);
-                                    }
-                                }
-
-                           }
+                            $changing_items->save();
                         }
+
                     }
+                }
+
                 DB::commit();
                     // show a success message
                 Alert::success(trans('backpack::crud.insert_success'))->flash();
                 return response()->json([
                     'status' => true,
-                    'url' => backpack_url('billing/patient-billing'),
+                    'url' => backpack_url('sales'),
                 ]);                    
             } catch (\Throwable $th) {
                 DB::rollback();
@@ -519,44 +441,6 @@ class PatientBillingCrudController extends BaseCrudController
                     'message' => $th->getMessage()
                 ], 404);
             }
-        }
-    }
-
-    // referral data
-    public function getReferalData(Request $request)
-    {
-    DB::beginTransaction();
-       try{
-            $getCode = Referral::select('code')->orderBy('code','desc')->first();
-            if(!$getCode){
-                $new_code = 1;
-            }else{
-                $new_code = ($getCode->code + 1);
-            }
-
-            if($request->is_active == "1"){
-                $active = true;
-            }else{
-                $active = false;
-            }
-
-            $create_referal = Referral::create([
-                'code' => $new_code,
-                'name' => $request->name,
-                'referral_type' => $request->referal_type,
-                'contact_person' => $request->contact_person,
-                'phone' => $request->phone,
-                'email' => $request->email,
-                'address' => $request->address,
-                'discount_percentage' => $request->discount_percentage,
-                'is_active'=>$active,
-            ]);
-            DB::commit();
-        return response()->json(['status'=>'success','referal'=>$create_referal]);  
-       }
-        catch (\Throwable $th) {
-            DB::rollBack();
-            return response()->json(['status'=>'fail','referal'=>$create_referal]);                 
         }
     }
 
@@ -630,4 +514,5 @@ class PatientBillingCrudController extends BaseCrudController
 
     }
 
+  
 }

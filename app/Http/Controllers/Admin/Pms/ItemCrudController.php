@@ -285,6 +285,36 @@ class ItemCrudController extends BaseCrudController
 					'onChange' => 'LMS.setIsTaxableField()',
 				],
 			],
+            [
+				'name' => 'is_free',
+				'label' => trans('common.is_free'),
+				'type' => 'radio',
+				'default' => 1,
+				'inline' => true,
+				'options' =>
+				[
+					1 => 'Yes',
+					0 => 'No',
+				],
+				'wrapper' => [
+					'class' => 'form-group col-md-4',
+				],
+			],
+            [
+				'name' => 'is_deprecated',
+				'label' => trans('common.is_deprecated'),
+				'type' => 'radio',
+				'default' => 1,
+				'inline' => true,
+				'options' =>
+				[
+					1 => 'Yes',
+					0 => 'No',
+				],
+				'wrapper' => [
+					'class' => 'form-group col-md-4',
+				],
+			],
             $this->addIsActiveField(),
             [
                 'name' => 'description',

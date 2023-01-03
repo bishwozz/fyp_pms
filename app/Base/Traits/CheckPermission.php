@@ -40,6 +40,8 @@ trait CheckPermission
         'patientApproveSave'=>'index',
         'printInventoryReport'=>'index',
         'fetchMstbrand'=>'index',
+        'getItemsInfo'=>'index',
+        'loadItems'=>'index',
     ];
 
     public function checkPermission($include_extra_permissions=NULL)
