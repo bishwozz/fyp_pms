@@ -15,7 +15,7 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin https://gitlab.com/gas_new_projects/gas_base.git
+git remote add origin https://github.com/bishwozz/fyp_pms.git
 git branch -M main
 git push -uf origin main
 ```
