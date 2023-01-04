@@ -4,20 +4,18 @@ namespace App\Http\Controllers\Admin\Pms;
 
 use Carbon\Carbon;
 use App\Models\User;
-use App\Models\MstItem;
+use App\Models\Pms\Item;
 use App\Utils\PdfPrint;
-use App\Models\MstStore;
-use App\Models\SupStatus;
-use App\Models\PoSequence;
-use App\Models\MstDiscMode;
-use App\Models\MstSupplier;
-use App\Models\PurchaseItem;
+use App\Models\Pms\SupStatus;
+use App\Models\Pms\PoSequence;
+use App\Models\Pms\MstDiscMode;
+use App\Models\Pms\MstSupplier;
+use App\Models\Pms\PurchaseItem;
 use Illuminate\Http\Request;
 use App\Base\BaseCrudController;
-use App\Models\PurchaseOrderType;
 use Illuminate\Support\Facades\DB;
 use Prologue\Alerts\Facades\Alert;
-use App\Models\PurchaseOrderDetail;
+use App\Models\Pms\PurchaseOrderDetail;
 use App\Http\Requests\PurchaseOrderDetailRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -53,7 +51,6 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
         CRUD::setModel(\App\Models\Pms\PurchaseOrderDetail::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/purchase-order-detail');
         CRUD::setEntityNameStrings('', 'Purchase Order');
-        $this->filterDataByStoreUser(["sup_org_id"=>$this->user->sup_org_id,"store_id" =>$this->user->store_id]);
     }
 
     /**
@@ -66,17 +63,8 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
     {
         $cols = [
             $this->addRowNumberColumn(),
-            $this->addStoreColumn(),
 
-            [
-                'name' => 'purchase_order_type_id',
-                'label'=>'PO Type',
-                'type' => 'select',
-                'entity' => 'PurchaseOrderEntity',
-                'attribute' => 'name_en',
-                'model' => PurchaseOrderType::class,
-
-            ],
+            
             [
                 'name' => 'supplier_id',
                 'label'=>'Supplier',
@@ -86,15 +74,7 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
                 'model' => MstSupplier::class,
 
             ],
-            [
-                'name' => 'requested_store_id',
-                'label'=>'Req Store',
-                'type' => 'select',
-                'entity' => 'requestedStoreEntity',
-                'attribute' => 'name_en',
-                'model' => MstStore::class,
-
-            ],
+           
             [
                 'name' => 'po_date',
                 'label' => 'PO Date',
@@ -140,79 +120,37 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
             ],
         ];
         $this->crud->addColumns(array_filter($cols));
-        $this->filterListByUserLevel();
 
-
-        /**
-         * Columns can be defined using the fluent syntax or array syntax:
-         * - CRUD::column('price')->type('number');
-         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']);
-         */
     }
 
-    /**
-     * Define what happens when the Create operation is loaded.
-     *
-     * @see https://backpackforlaravel.com/docs/crud-operation-create
-     * @return void
-     */
+ 
     public function create()
     {
         $this->crud->hasAccessOrFail('create');
         $this->data['crud'] = $this->crud;
 
         $discount_modes = MstDiscMode::all();
-        // dd($discount_modes);
-
-        $purchase_order_type =  PurchaseOrderType::where('is_active', true)
-            ->select('id', 'name_en')->get();
-
-        $store = MstStore::where('is_active', true)
-            ->select('id', 'name_en')
-            ->whereId($this->user->store_id)
-            ->first();
-        // dd( $store);
-
-
-
-        if ($store) {
-            $requested_store = MstStore::where('is_active', true)
-                ->where('sup_org_id', $this->user['sup_org_id'])
-                ->where('id', '<>', $store->id)
-                ->select('id', 'name_en')
-                ->get();
-        } else {
-            $requested_store = MstStore::where('is_active', true)
-                ->where('sup_org_id', $this->user['sup_org_id'])
-                ->select('id', 'name_en')
-                ->get();
-        }
-
-
 
         $suppliers = MstSupplier::where('is_active', true)
-            ->where('sup_org_id', $this->user['sup_org_id'])
-            ->select('id', 'name_en')
+            // ->where('client_id', $this->user->client_id)
+            ->select('id', 'name')
             ->get();
 
 
-        $contact = User::where('is_active', true)
-            ->where('id', backpack_user()->id)
-            ->select('email', 'phone')
+        $contact = User::where('id', backpack_user()->id)
+            ->select('email')
             ->get();
 
         $created_by = backpack_user()->name;
         $item_lists = $this->getItemList();
 
         $this->data['item_lists'] = $item_lists;
-        $this->data['po_types'] = $purchase_order_type;
-        $this->data['store'] = $store;
-        $this->data['requested_store'] = $requested_store;
         $this->data['suppliers'] =  $suppliers;
         $this->data['contact'] = $contact;
         $this->data['created_by'] = $created_by;
         $this->data['discount_modes'] = $discount_modes;
         $this->data['item_lists'] = $this->getItemList();
+        // dd($this->getItemList());
         $this->data['purchaseOrderNumbers'] = $this->getsequenceCode(4);
         $this->data['sequenceCodes'] = $this->sequence_type();
 
@@ -224,7 +162,7 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
         $this->crud->hasAccessOrFail('create');
 
         $request = $this->crud->validateRequest();
-        // dd($request->po_item_name_hidden);
+        // dd($request->all());
         if (isset($request)) {
             $purchaseOrderDetails = $request->only([
                 'status_id',
@@ -236,16 +174,13 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
                 'other_charges',
                 'net_amt',
                 'comments',
-                'store_id',
                 'supplier_id',
-                'purchase_order_type_id',
-                'requested_store_id',
             ]);
 
             $sequenceCodes = $request->only('purchase_order_num');
 
             if ($request->status_id == SupStatus::APPROVED) {
-                if(!$this->user->is_po_approver) abort(401);
+                // if(!$this->user->is_po_approver) abort(401);
                     if(!array_key_exists('purchase_order_num', $sequenceCodes)){
                         return response()->json([
                             'status' => 'failed',
@@ -253,11 +188,12 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
                         ]);
                     }
 
-                    $purchaseOrderDetails['purchase_order_num'] = $sequenceCodes['purchase_order_num'];
+                $purchaseOrderDetails['purchase_order_num'] = $sequenceCodes['purchase_order_num'];
                 $purchaseOrderDetails['po_date'] = dateToday();
                 $purchaseOrderDetails['approved_by'] = $this->user->id;
             }
-            $purchaseOrderDetails['sup_org_id'] = $this->user->sup_org_id;
+
+            $purchaseOrderDetails['client_id'] = $this->user->client_id;
 
 
             DB::beginTransaction();
@@ -267,7 +203,7 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
                 foreach ($request->items_id as $key => $val) {
                     $itemArray = [
                         'po_id' => $podId->id,
-                        'sup_org_id' => $this->user->sup_org_id,
+                        'client_id' => $this->user->client_id,
                         'purchase_qty' => $request->purchase_qty[$key],
                         'free_qty' => $request->free_qty[$key],
                         'total_qty' => $request->total_qty[$key],
@@ -281,12 +217,11 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
                     ];
                     PurchaseItem::create($itemArray);
                 }
-
                 DB::commit();
-                return response()->json([
-                    'status' => true,
-                    'url' => backpack_url('/purchase-order-detail'),
-                ]);
+      
+                \Alert::success(trans('SUCCESS'))->flash();
+                return redirect()->back();
+                
             } catch (\Throwable $th) {
                 DB::rollback();
                 return response()->json([
@@ -307,35 +242,11 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
             abort(404);
 
         $discount_modes = MstDiscMode::all();
-        $po_types =  PurchaseOrderType::where('is_active', true)
-            ->select('id', 'name_en')->get();
-
-        $store = MstStore::where('is_active', true)
-            ->where('store_user_id', $this->user->id)
-            ->select('id', 'name_en')
-            ->first();
-
-
-        if ($store) {
-            $requested_store = MstStore::where('is_active', true)
-                ->where('sup_org_id', $this->user['sup_org_id'])
-                ->where('id', '<>', $store->id)
-                ->select('id', 'name_en')
-                ->get();
-        } else {
-            $requested_store = MstStore::where('is_active', true)
-                ->where('sup_org_id', $this->user['sup_org_id'])
-                ->select('id', 'name_en')
-                ->get();
-        }
-
-
+    
         $suppliers = MstSupplier::where('is_active', true)
-            ->where('sup_org_id', $this->user['sup_org_id'])
-            ->select('id', 'name_en')
+            ->select('id', 'name')
             ->get();
 
-        $mstStoreName = MstStore::where('store_user_id', auth()->user()->id)->first()->name_en ?? 'n/a';
         $approverList = [
             ['id' => 1, 'name' => 'User 1'],
             ['id' => 2, 'name' => 'User 2'],
@@ -347,9 +258,7 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
         $purchaseOrderNumbers = $this->getsequenceCode(4);
         $sequenceCodes = $this->sequence_type();
 
-
-
-        return view('customAdmin.purchaseOrder.po_details_update', compact('discount_modes', 'item_lists', 'po_types', 'store', 'requested_store', 'suppliers', 'crud', 'item_lists', 'mstStoreName', 'approverList', 'po', 'purchaseOrderNumbers', 'sequenceCodes'));
+        return view('customAdmin.purchaseOrder.po_details_update', compact('discount_modes', 'item_lists', 'suppliers', 'crud', 'item_lists', 'approverList', 'po', 'purchaseOrderNumbers', 'sequenceCodes'));
     }
     public function update()
     {
@@ -368,15 +277,12 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
             'other_charges',
             'net_amt',
             'comments',
-            'store_id',
             'supplier_id',
-            'purchase_order_type_id',
-            'requested_store_id',
         ]);
         $sequenceCodes = $request->only('purchase_order_num');
 
-        // $pod['status_id'] = SupStatus::APPROVED;
-        // $pod['po_date'] = dateToday();
+        $pod['status_id'] = SupStatus::APPROVED;
+        $pod['po_date'] = dateToday();
 
 
         try {
@@ -390,7 +296,7 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
             }else {
                 $initialSupStatus = $currentPo->status_id;
 
-                if ($initialSupStatus == SupStatus::APPROVED && !$this->user->is_po_approver) abort(401, "masdjasdsa");
+                // if ($initialSupStatus == SupStatus::APPROVED && !$this->user->is_po_approver) abort(401, "masdjasdsa");
                 if ($request->status_id == SupStatus::APPROVED &&  $initialSupStatus != SupStatus::APPROVED) {
                     if(empty($sequenceCodes)){
                         return response()->json([
@@ -418,7 +324,7 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
                 foreach ($request->items_id as $key => $val) {
                     $itemArray = [
                         'po_id' =>  $this->crud->getCurrentEntryId(),
-                        'sup_org_id' => $this->user->sup_org_id,
+                        'client_id' => $this->user->client_id,
                         'purchase_qty' => $request->purchase_qty[$key],
                         'free_qty' => $request->free_qty[$key],
                         'total_qty' => $request->total_qty[$key],
@@ -490,7 +396,7 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
 
 
 
-    public function poDetails(MstItem $item)
+    public function poDetails(Item $item)
     {
 
         $taxRate = $item->tax_vat;
@@ -516,15 +422,8 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
             $contacts = MstSupplier::where('id', $id)
                 ->first();
             $email = $contacts->email;
-            $phone = $contacts->contact_number;
+            $phone = $contacts->phone_number;
         }
-        if ($request->flag === 'store') {
-            $contacts = MstStore::where('id', $id)
-                ->first();
-            $email = $contacts->email;
-            $phone = $contacts->phone_no;
-        }
-
 
         return response()->json([
             'email' => $email,

@@ -70,12 +70,12 @@ class ItemCrudController extends BaseCrudController
 
           $this->crud->addFilter([
             'type' => 'text',
-            'name' => 'generic_name',
+            'name' => 'name',
             'label'=> trans('Generic Name')
           ], 
           false, 
           function($value) { // if the filter is active
-            $this->crud->addClause('where', 'generic_name', 'iLIKE', "%$value%");
+            $this->crud->addClause('where', 'name', 'iLIKE', "%$value%");
           });
 
           $this->crud->addFilter(
@@ -158,12 +158,9 @@ class ItemCrudController extends BaseCrudController
             $this->addCodeField(),
             $this->addClientIdField(),
             [
-                'label'=>trans('Generic'),
-                'type' => 'select2',
-                'name' => 'generic_name_id', 
-                'entity' => 'generic_name', 
-                'attribute' => 'name', 
-                'model' => MstGenericName::class,
+                'label'=>trans('Generic Name'),
+                'type' => 'text',
+                'name' => 'name', 
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-4',
                 ],

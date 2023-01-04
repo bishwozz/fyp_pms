@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\Pms\MstSequenceCrudController;
 
 // --------------------------
 // Custom Backpack Routes
@@ -205,23 +206,32 @@ Route::group([
 		Route::crud('/mstsupplier', 'MstSupplierCrudController');
 	  
 		Route::crud('/item', 'ItemCrudController');
-		  
+        
 		Route::crud('/inventory', 'InventoryCrudController');
 		Route::get('/inventory/printReport', 'InventoryCrudController@printInventoryReport');
-
- 	    Route::crud('/mstgenericname', 'MstGenericNameCrudController');
-
+        
+        Route::crud('/mstgenericname', 'MstGenericNameCrudController');
+        
 		Route::crud('/sales', 'SalesCrudController');
         Route::get('/sales/get-item-info','SalesCrudController@getItemsInfo');
     	Route::get('/sales/items','SalesCrudController@loadItems');
     	Route::get('/sales/get-item-rate','SalesCrudController@getItemRate');
-
+        
 		Route::post('/sales/store-bill', 'SalesCrudController@storeBill');
     	Route::get('/sales/{bill_id}/bill-cancel-view', 'SalesCrudController@billCancelView');
     	Route::post('/sales/update-bill-cancel-status', 'SalesCrudController@updateBillCancelStatus');
-
+        
 		Route::get('/sales/check-item-qty','SalesCrudController@checkItemsQty');
+        
+		Route::crud('/purchase-order-detail', 'PurchaseOrderDetailCrudController');
 
+
+        Route::get('/mst-sequence/sequence-code-check', [MstSequenceCrudController::class, 'sequenceCodeCheck'])->name('sequence.code-check');
+        Route::post('/mst-sequence/inline-create', [MstSequenceCrudController::class, 'inlineStore'])->name('sequence.inlineStore');
+
+        Route::get('get-contact-details/{detail}', 'PurchaseOrderDetailCrudController@getContactDetails')->name('custom.contact-details');
+        Route::get('po-item-details/{item}', 'PurchaseOrderDetailCrudController@poDetails')->name('custom.po-details');
+        Route::get('purchase-history-details/{id}/{to}/{from}', 'PurchaseOrderDetailCrudController@purchaseOrderHistoryDetails')->name('custom.poh-details');
 
  	 // this should be the last line donot remove this
 

@@ -29,7 +29,8 @@ class User extends Authenticatable
         'client_id',
         'employee_id',
         'username',
-        'patient_id'
+        'patient_id',
+        'phone',
     ];
 
     /**

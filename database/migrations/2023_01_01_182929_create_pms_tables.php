@@ -143,7 +143,7 @@ class CreatePmsTables extends Migration
             $table->unsignedSmallInteger('category_id')->nullable();
             $table->unsignedSmallInteger('pharmaceutical_id')->nullable();
             $table->unsignedSmallInteger('brand_id');
-            $table->unsignedSmallInteger('generic_id')->nullable();
+            $table->string('name',100)->nullable();
             $table->float('price')->nullable();
 
             $table->unsignedSmallInteger('unit_id');
@@ -160,7 +160,6 @@ class CreatePmsTables extends Migration
 
             $table->unique('code','uq_phr_items_code');
             $table->index('brand_id','idx_phr_items_brand_name');
-            $table->index('generic_id','idx_phr_items_generic_name');
 
             $table->foreign('supplier_id','fk_phr_items_supplier_id')->references('id')->on('phr_mst_suppliers');
             $table->foreign('category_id','fk_phr_items_category_id')->references('id')->on('phr_mst_categories');
@@ -169,7 +168,6 @@ class CreatePmsTables extends Migration
             $table->foreign('client_id','fk_phr_items_client_id')->references('id')->on('app_clients');
 
             $table->foreign('brand_id','fk_phr_items_brand_id')->references('id')->on('mst_brands');
-            $table->foreign('generic_id','fk_phr_items_generic_id')->references('id')->on('phr_mst_generic_names');
 
         });
         Schema::create('phr_item_units', function (Blueprint $table) { 
@@ -202,6 +200,28 @@ class CreatePmsTables extends Migration
             $table->foreign('item_id','fk_phr_item_stocks_item_id')->references('id')->on('phr_items');
         });
 
+        Schema::create('sup_status', function (Blueprint $table) {
+
+            $table->increments('id');
+            $table->string('code');
+            $table->string('name_en');
+            $table->string('name_lc')->nullable();
+            $table->string('description')->nullable();
+            $table->boolean('is_active')->default(true);
+
+            $table->timestamps();
+            $table->dateTime('deleted_at')->nullable();
+            $table->unsignedInteger('created_by')->nullable();
+            $table->unsignedInteger('updated_by')->nullable();
+            $table->unsignedInteger('deleted_by')->nullable();
+            $table->unsignedInteger('deleted_uq_code')->default(1);
+
+
+            $table->unique(['code','deleted_uq_code'],'uq_sup_status_code_deleted_uq_code');
+            $table->unique(['name_lc','deleted_uq_code'],'uq_sup_status_name_lc_deleted_uq_code');
+            $table->unique(['name_en','deleted_uq_code'],'uq_sup_status_name_en_deleted_uq_code');
+        });
+
         ////v purchase
         Schema::create('purchase_order_details', function (Blueprint $table) {
 
@@ -225,12 +245,8 @@ class CreatePmsTables extends Migration
             $table->unsignedBigInteger('status_id');
             $table->unsignedSmallInteger('client_id')->nullable();
 
+            $table->foreign('supplier_id')->references('id')->on('phr_mst_suppliers')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('client_id')->references('id')->on('app_clients')->cascadeOnDelete()->cascadeOnUpdate();
-
-
-            $table->foreign('requested_store_id')->references('id')->on('mst_stores')
-                   ->onDelete('restrict')->onUpdate('cascade');
-
             $table->foreign('status_id')->references('id')->on('sup_status')
                    ->onDelete('restrict')->onUpdate('cascade');
 
@@ -242,12 +258,30 @@ class CreatePmsTables extends Migration
             $table->unsignedInteger('deleted_uq_code')->default(1);
      });
 
+     Schema::create('mst_discount_modes', function (Blueprint $table) {
+
+        $table->increments('id');
+        $table->string('code',20);
+        $table->string('name_en',100);
+        $table->string('name_lc',100);
+        $table->string('description',1000)->nullable();
+        $table->boolean('is_active')->default(true);
+        $table->boolean('is_super_data')->default(false)->nullable();
+
+        $table->unsignedInteger('created_by')->nullable();
+        $table->unsignedInteger('updated_by')->nullable();
+        $table->unsignedInteger('deleted_by')->nullable();
+        $table->boolean('is_deleted')->nullable();
+        $table->timestamp('deleted_at')->nullable();
+        $table->unsignedInteger('deleted_uq_code')->nullable()->default(1);
+        $table->timestamps();
+        
+    });
+
      Schema::create('purchase_items', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedSmallInteger('client_id')->nullable();
             $table->unsignedBigInteger('po_id');
-            $table->unsignedSmallInteger('store_id')->nullable();
-
-
             $table->integer('purchase_qty')->nullable();
             $table->integer('free_qty')->nullable();
             $table->integer('total_qty')->nullable();
@@ -256,34 +290,20 @@ class CreatePmsTables extends Migration
             $table->float('sales_price')->nullable();
             $table->float('item_amount')->nullable();
             $table->float('tax_vat')->nullable();
-            $table->unsignedSmallInteger('sup_org_id')->nullable();
-
             $table->unsignedBigInteger('items_id')->nullable();
-
             $table->unsignedBigInteger('discount_mode_id')->nullable();
-
-
             $table->timestamps();
 
-            $table->foreign('po_id')->references('id')->on('purchase_order_details')
-                   ->onDelete('restrict')->onUpdate('cascade');
-
-
-
-
-
-
-            $table->foreign('sup_org_id')->references('id')->on('sup_organizations')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('client_id')->references('id')->on('app_clients')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->foreign('discount_mode_id')->references('id')->on('mst_discount_modes')
-                   ->onDelete('restrict')->onUpdate('cascade');
+                ->onDelete('restrict')->onUpdate('cascade');
 
-            $table->foreign('items_id')->references('id')->on('mst_items')
-                   ->onDelete('restrict')->onUpdate('cascade');
+            $table->foreign('items_id')->references('id')->on('phr_items')
+                ->onDelete('restrict')->onUpdate('cascade');
 
-            $table->foreign('store_id')->references('id')->on('mst_stores')->cascadeOnDelete()->cascadeOnUpdate();
-
-
+            $table->foreign('po_id')->references('id')->on('purchase_order_details')
+                ->onDelete('restrict')->onUpdate('cascade');
 
 
             $table->dateTime('deleted_at')->nullable();
@@ -306,14 +326,10 @@ class CreatePmsTables extends Migration
                     $table->float('other_charges')->nullable();
                     $table->float('net_amt')->nullable();
                     $table->string('comments')->nullable();
-                    $table->unsignedBigInteger('grn_id')->nullable();
-                    $table->unsignedSmallInteger('sup_org_id')->nullable();
-                    $table->unsignedBigInteger('store_id')->nullable();
+                    $table->unsignedSmallInteger('client_id')->nullable();
                     $table->unsignedBigInteger('supplier_id');
                     $table->unsignedBigInteger('return_reason_id');
                     $table->string('return_no')->nullable();
-                    $table->unsignedBigInteger('requested_store_id')->nullable();
-
                     $table->string('return_date')->nullable();
                     $table->unsignedBigInteger('approved_by')->nullable();
                     $table->unsignedBigInteger('status_id');
@@ -325,12 +341,8 @@ class CreatePmsTables extends Migration
                     $table->unsignedInteger('deleted_uq_code')->default(1);
                     $table->dateTime('deleted_at')->nullable();
                     
-                    $table->foreign('sup_org_id')->references('id')->on('sup_organizations')->cascadeOnDelete()->cascadeOnUpdate();
-                    $table->foreign('store_id')->references('id')->on('mst_stores')->onDelete('restrict')->onUpdate('cascade');
-                    $table->foreign('supplier_id')->references('id')->on('mst_suppliers')->onDelete('restrict')->onUpdate('cascade');
-                    $table->foreign('return_reason_id')->references('id')->on('return_reasons')->onDelete('restrict')->onUpdate('cascade');
-                    $table->foreign('requested_store_id')->references('id')->on('mst_stores')->onDelete('restrict')->onUpdate('cascade');
-                    $table->foreign('grn_id')->references('id')->on('grns')->onDelete('restrict')->onUpdate('cascade');
+                    $table->foreign('client_id')->references('id')->on('app_clients')->cascadeOnDelete()->cascadeOnUpdate();
+                    $table->foreign('supplier_id')->references('id')->on('phr_mst_suppliers')->onDelete('restrict')->onUpdate('cascade');
                     $table->foreign('status_id')->references('id')->on('sup_status')->onDelete('restrict')->onUpdate('cascade');
                     $table->foreign('created_by')->references('id')->on('users')->onDelete('restrict')->onUpdate('cascade');
                     $table->foreign('approved_by')->references('id')->on('users')->onDelete('restrict')->onUpdate('cascade');
@@ -354,11 +366,10 @@ class CreatePmsTables extends Migration
                     $table->string('batch_no')->nullable();
                     $table->float('tax_vat')->nullable();
                     
-                    $table->unsignedInteger('purchase_return_id')->nullable();
+                    $table->text('purchase_return',500)->nullable();
                     $table->unsignedBigInteger('discount_mode_id')->nullable();
-                    $table->unsignedBigInteger('mst_items_id')->nullable();
-                    $table->unsignedSmallInteger('sup_org_id')->nullable();
-                    $table->unsignedSmallInteger('store_id')->nullable();
+                    $table->unsignedBigInteger('phr_items_id')->nullable();
+                    $table->unsignedSmallInteger('client_id')->nullable();
 
 
                     $table->timestamps();
@@ -369,15 +380,30 @@ class CreatePmsTables extends Migration
                     $table->unsignedInteger('deleted_uq_code')->default(1);
 
                     $table->foreign('discount_mode_id')->references('id')->on('mst_discount_modes')->onDelete('restrict')->onUpdate('cascade');
-                    $table->foreign('mst_items_id')->references('id')->on('mst_items')->onDelete('restrict')->onUpdate('cascade');
-                    $table->foreign('sup_org_id')->references('id')->on('sup_organizations')->cascadeOnDelete()->cascadeOnUpdate();
-                    $table->foreign('purchase_return_id')->references('id')->on('purchase_returns')->cascadeOnDelete()->cascadeOnUpdate();
+                    $table->foreign('phr_items_id')->references('id')->on('phr_items')->onDelete('restrict')->onUpdate('cascade');
+                    $table->foreign('client_id')->references('id')->on('app_clients')->cascadeOnDelete()->cascadeOnUpdate();
                     $table->foreign('created_by')->references('id')->on('users')->onDelete('restrict')->onUpdate('cascade');
-                    $table->foreign('store_id')->references('id')->on('mst_stores')->cascadeOnDelete()->cascadeOnUpdate();
-
-                    
              });
 
+             Schema::create('mst_sequences', function (Blueprint $table) {
+                $table->increments('id');
+                $table->string('code');
+                $table->string('name_en');
+                $table->string('name_lc')->nullable();
+                $table->integer('sequence_type');
+                $table->string('sequence_code');
+                $table->integer('starting_no')->nullable();
+                $table->boolean('is_consumed')->default(false);
+                $table->boolean('is_active')->default(true);
+                $table->unsignedSmallInteger('client_id')->nullable();
+                $table->unsignedSmallInteger('created_by')->nullable();
+                $table->unsignedSmallInteger('updated_by')->nullable();
+                $table->unsignedSmallInteger('deleted_by')->nullable();
+                $table->unsignedInteger('deleted_uq_code')->default(1);
+                $table->timestamp('deleted_at')->nullable();
+                $table->timestamps();
+                $table->foreign('client_id')->references('id')->on('app_clients')->cascadeOnDelete()->cascadeOnUpdate();
+            });
     }
 
     /**

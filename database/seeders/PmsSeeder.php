@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -17,6 +18,7 @@ class PmsSeeder extends Seeder
         $this->clean_tables();
         $this->phr_mst_unit();
         $this->phr_mst_categories();
+        $this->mst_discount_modes();
 
     }
 
@@ -74,5 +76,35 @@ class PmsSeeder extends Seeder
             array('id' => 26,'client_id' => $client_id,'code' => '26','title_en' =>'SURGICAL ITEMS' , 'title_lc' => 'SURGICAL ITEMS'),
             array('id' => 27,'client_id' => $client_id,'code' => '27','title_en' =>'GENERAL MEDICINE' , 'title_lc' => 'GENERAL MEDICINE'),
         ]);
+        // DB::table('sup_status')->insert([   
+        //     array('id' => 1, 'code' => '1', 'name_en' => 'created', 'created_at' => Carbon::now()->format('d-m-Y') ),
+        //     array('id' => 2, 'code' => '2', 'name_en' => 'approved', 'created_at' => Carbon::now()->format('d-m-Y')),
+        //     array('id' => 3, 'code' => '3', 'name_en' => 'cancelled', 'created_at' => Carbon::now()->format('d-m-Y')),
+        //     array('id' => 4, 'code' => '4', 'name_en' => 'partial_return', 'created_at' => Carbon::now()->format('d-m-Y')),
+        //     array('id' => 5, 'code' => '5', 'name_en' => 'full_return', 'created_at' => Carbon::now()->format('d-m-Y')),
+        // ]);
+
+        // DB::statement("SELECT SETVAL('sup_status_id_seq',100)");
+
+       
+    }
+
+    private function mst_discount_modes(){
+
+        DB::table('mst_discount_modes')->insert([
+            ['id' => 1, 'code' => '01', 'name_en' => '%', 'name_lc' => ' %', 'is_active' => 'true',  'created_at' => Carbon::now()->format('d-m-Y') ],
+            ['id' => 2, 'code' => '02', 'name_en' => 'NRS', 'name_lc' => ' NRS', 'is_active' => 'true',  'created_at' => Carbon::now()->format('d-m-Y')],
+        ]);
+        DB::statement("SELECT SETVAL('mst_discount_modes_id_seq',100)");
+
+        DB::table('sup_status')->insert([
+            array('id' => 1, 'code' => '1', 'name_en' => 'created', 'created_at' => Carbon::now()->format('d-m-Y')),
+            array('id' => 2, 'code' => '2', 'name_en' => 'approved', 'created_at' => Carbon::now()->format('d-m-Y')),
+            array('id' => 3, 'code' => '3', 'name_en' => 'cancelled', 'created_at' => Carbon::now()->format('d-m-Y')),
+            array('id' => 4, 'code' => '4', 'name_en' => 'partial_return', 'created_at' => Carbon::now()->format('d-m-Y')),
+            array('id' => 5, 'code' => '5', 'name_en' => 'full_return', 'created_at' => Carbon::now()->format('d-m-Y')),
+        ]);
+
+        DB::statement("SELECT SETVAL('sup_status_id_seq',100)");
     }
 }

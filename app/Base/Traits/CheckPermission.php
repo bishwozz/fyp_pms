@@ -42,6 +42,11 @@ trait CheckPermission
         'fetchMstbrand'=>'index',
         'getItemsInfo'=>'index',
         'loadItems'=>'index',
+        'purchaseOrderHistoryDetails'=>'index',
+        'poDetails'=>'index',
+        'getContactDetails'=>'index',
+        'sequenceCodeCheck'=>'index',
+        'inlineStore'=>'index',
     ];
 
     public function checkPermission($include_extra_permissions=NULL)

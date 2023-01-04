@@ -2,9 +2,11 @@
 
 namespace App\Base;
 
+use App\Models\Pms\Item;
 use App\Models\AppClient;
 use App\Base\Traits\ParentData;
 use App\Base\Traits\CheckPermission;
+use App\Base\Traits\MasterArrayData;
 use App\Base\Traits\UserLevelFilter;
 use App\Base\Operations\ListOperation;
 use App\Base\Operations\ShowOperation;
@@ -16,9 +18,9 @@ use App\Models\CoreMaster\MstFiscalYear;
 use App\Models\CoreMaster\MstFedDistrict;
 use App\Models\CoreMaster\MstFedProvince;
 use App\Models\CoreMaster\MstFedLocalLevel;
+use App\Base\Operations\InlineCreateOperation;
 use App\Models\CoreMaster\MstFedLocalLevelType;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
-use App\Base\Operations\InlineCreateOperation;
 
 
 
@@ -34,6 +36,8 @@ class BaseCrudController extends CrudController
     use CheckPermission;
     use InlineCreateOperation;
     use ActivityLogTraits;
+    use MasterArrayData;
+
 
 
     protected $activity = ['index','create','edit','update','store','show','destroy'];
@@ -603,5 +607,25 @@ class BaseCrudController extends CrudController
             $res[] = $arr;
         }
         return $res;
+    }
+    //Items list for stock entry
+    public function getItemList($conditions = [])
+    {
+
+
+        $filtered_items=[];
+        $items= Item::where(['is_active' => 'true'])->get();
+        // dd($items,'-');
+        foreach($items as $item){
+
+            array_push($filtered_items, [
+                'id' => $item->id,
+                'code' => $item->code,
+                'name' => $item->name,
+                'qty' => $item->itemQtyDetail->item_qty ?? 0
+            ]);
+        }
+
+        return $filtered_items;
     }
 }
