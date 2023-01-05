@@ -13,45 +13,6 @@ class CreateHrMasterTables extends Migration
      */
     public function up()
     {
-        Schema::create('hr_mst_departments', function (Blueprint $table) {
-            $table->smallIncrements('id');            
-            $table->unsignedSmallInteger('client_id')->nullable();
-            $table->string('code',20);
-            $table->string('title',200);
-            $table->boolean('is_active')->nullable()->default(true);
-
-            $table->timestamps();
-            $table->unsignedSmallInteger('display_order')->nullable()->default(0);
-            $table->unsignedSmallInteger('created_by')->nullable();
-            $table->unsignedSmallInteger('updated_by')->nullable();
-
-            $table->unique('code','uq_hr_mst_departments_code');
-            $table->foreign('client_id','fk_hr_mst_departments_client_id')->references('id')->on('app_clients');
-
-            $table->foreign('created_by','fk_hr_mst_departments_created_by')->references('id')->on('users');
-            $table->foreign('updated_by','fk_hr_mst_departments_updated_by')->references('id')->on('users');
-        });
-
-        Schema::create('hr_mst_sub_departments', function (Blueprint $table) {
-            $table->smallIncrements('id');            
-            $table->unsignedSmallInteger('client_id')->nullable();
-            $table->unsignedSmallInteger('department_id');
-            $table->string('code',20);
-            $table->string('title',200);
-            $table->boolean('is_active')->nullable()->default(true);
-
-            $table->timestamps();
-            $table->unsignedSmallInteger('display_order')->nullable()->default(0);
-            $table->unsignedSmallInteger('created_by')->nullable();
-            $table->unsignedSmallInteger('updated_by')->nullable();
-
-            $table->unique('code','uq_hr_mst_sub_departments_code');
-            $table->foreign('client_id','fk_hr_mst_sub_departments_client_id')->references('id')->on('app_clients');
-            $table->foreign('department_id','fk_hr_mst_sub_departments_department_id')->references('id')->on('hr_mst_departments');
-
-            $table->foreign('created_by','fk_hr_mst_sub_departments_created_by')->references('id')->on('users');
-            $table->foreign('updated_by','fk_hr_mst_sub_departments_updated_by')->references('id')->on('users');
-        });
 
         Schema::create('hr_mst_employees', function (Blueprint $table) {
             $table->smallIncrements('id');
@@ -113,9 +74,7 @@ class CreateHrMasterTables extends Migration
 
         Schema::table('users',function (Blueprint $table){
             $table->unsignedSmallInteger('employee_id')->nullable();
-            $table->unsignedSmallInteger('patient_id')->nullable();
             $table->foreign('employee_id','fk_users_employee_id')->references('id')->on('hr_mst_employees')->onDelete('cascade');
-            $table->foreign('patient_id','fk_users_patient_id')->references('id')->on('patients')->onDelete('cascade');
         });
 
     }

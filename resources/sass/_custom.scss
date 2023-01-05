@@ -219,10 +219,7 @@ div.DTFC_RightBodyWrapper {
   align-items: center;
 }
 
-/* css for sidebar*/
-.sidebar {
-  background: linear-gradient(0deg, rgb(86, 182, 241) 10%, rgb(86, 122, 163)25%, rgb(33, 124, 194) 84%) !important;
-}
+
 
 .sidebar .nav-dropdown-toggle:before{
   color:white !important;
@@ -379,7 +376,7 @@ li.nav-item {
 }
 
 .app-header {
-  background: linear-gradient(0deg, rgb(50, 146, 205) 2%, rgb(112, 165, 225)15%, rgb(19, 110, 180) 84%) !important;
+  // background: linear-gradient(0deg, rgb(50, 146, 205) 2%, rgb(112, 165, 225)15%, rgb(19, 110, 180) 84%) !important;
   height: unset !important;
   justify-self: center;
   padding: 6px 0;
