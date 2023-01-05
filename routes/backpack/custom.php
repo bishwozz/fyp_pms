@@ -55,9 +55,9 @@ Route::group([
     Route::crud('mst-religion', 'MstReligionCrudController');
     Route::get('/patient', 'PatientCrudController@getAllPatients');
     Route::get('/patient/search_patient','PatientCrudController@searchPatient');
-    
+
     Route::get('/patient/list-all-patients','PatientCrudController@listAllPatients');
-    
+
     Route::crud('referral', 'ReferralCrudController');
 
     Route::crud('emergency-patient', 'EmergencyPatientCrudController');
@@ -69,11 +69,11 @@ Route::group([
     Route::get('reports/print', 'ReportController@getData');
     Route::post('getreportdata', 'ReportController@getLmsReportData');
     Route::get('getreportdata', 'ReportController@getLmsReportData');
-    
+
     Route::get('getexceldata', 'ReportController@getLmsReportData');
 
     Route::crud('mst-bank', 'MstBankCrudController');
-    
+
 
     Route::get('excel-upload', 'ExcelUploadController@index');
     Route::post('excel-upload', 'ExcelUploadController@excelUpload')->name('excel-upload');
@@ -82,7 +82,7 @@ Route::group([
     Route::post('/patient-appointment/approve-save', 'PatientAppointmentCrudController@patientApproveSave');
 
 
-    
+
 
 });
 
@@ -110,7 +110,7 @@ Route::group([
     Route::post('/billing/patient-billing/{custom_param?}/store-bill', 'PatientBillingCrudController@storeBill');
     Route::get('/billing/patient-billing/{custom_param?}/{bill_id}/bill-cancel-view', 'PatientBillingCrudController@billCancelView');
     Route::post('/billing/patient-billing/{custom_param?}/update-bill-cancel-status', 'PatientBillingCrudController@updateBillCancelStatus');
-    
+
     Route::get('/billing/patient-billing/{custom_param?}/{bill_id}/due-collection-view', 'PatientBillingCrudController@dueCollectionView');
     Route::post('/billing/patient-billing/{custom_param?}/update-due-collection', 'PatientBillingCrudController@updateDueCollection');
 
@@ -135,7 +135,7 @@ Route::group([
     Route::crud('lab/lab-mst-categories/{lab_category_id}/lab-mst-items', 'LabMstItemsCrudController');
     Route::crud('lab/lab-panel', 'LabPanelCrudController');
     Route::get('lab-panel/fetch-lab-category-items', 'LabPanelCrudController@fetchLabCategoryItemsAndGroups');
-    
+
     Route::crud('lab/lab-group', 'LabGroupCrudController');
     Route::get('lab-group/fetch-lab-category-items', 'LabGroupCrudController@fetchLabCategoryItems');
 
@@ -204,25 +204,25 @@ Route::group([
 		Route::crud('/mstcategory', 'MstCategoryCrudController');
 		Route::crud('/mstpharmaceutical', 'MstPharmaceuticalCrudController');
 		Route::crud('/mstsupplier', 'MstSupplierCrudController');
-	  
+
 		Route::crud('/item', 'ItemCrudController');
-        
+
 		Route::crud('/inventory', 'InventoryCrudController');
 		Route::get('/inventory/printReport', 'InventoryCrudController@printInventoryReport');
-        
+
         Route::crud('/mstgenericname', 'MstGenericNameCrudController');
-        
+
 		Route::crud('/sales', 'SalesCrudController');
         Route::get('/sales/get-item-info','SalesCrudController@getItemsInfo');
     	Route::get('/sales/items','SalesCrudController@loadItems');
     	Route::get('/sales/get-item-rate','SalesCrudController@getItemRate');
-        
+
 		Route::post('/sales/store-bill', 'SalesCrudController@storeBill');
     	Route::get('/sales/{bill_id}/bill-cancel-view', 'SalesCrudController@billCancelView');
     	Route::post('/sales/update-bill-cancel-status', 'SalesCrudController@updateBillCancelStatus');
-        
+
 		Route::get('/sales/check-item-qty','SalesCrudController@checkItemsQty');
-        
+
 		Route::crud('/purchase-order-detail', 'PurchaseOrderDetailCrudController');
 
 
@@ -233,6 +233,10 @@ Route::group([
         Route::get('po-item-details/{item}', 'PurchaseOrderDetailCrudController@poDetails')->name('custom.po-details');
         Route::get('purchase-history-details/{id}/{to}/{from}', 'PurchaseOrderDetailCrudController@purchaseOrderHistoryDetails')->name('custom.poh-details');
 
- 	 // this should be the last line donot remove this
+ 	    // this should be the last line donot remove this
 
+        Route::crud('stock-entry', 'StockEntryCrudController');
+        Route::get('stock-item/{item}', 'StockEntryCrudController@stockItem')->name('custom.stock-item');
+        Route::get('search-stock/{id}/{to}/{from}', 'StockEntryCrudController@StockItemHistory')->name('custom.stock-item-search');
+    Route::crud('stock-items', 'StockItemsCrudController');
 });

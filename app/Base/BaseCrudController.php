@@ -66,7 +66,7 @@ class BaseCrudController extends CrudController
         // parent::__construct();
     }
 
-    
+
     protected function addCodeField()
     {
         return [
@@ -129,7 +129,7 @@ class BaseCrudController extends CrudController
                 ],
             ];
         }
-       
+
     }
     protected function addPlainHtml()
     {
@@ -225,7 +225,7 @@ class BaseCrudController extends CrudController
             ],
         ];
     }
- 
+
     protected function addProvinceField()
     {
         return [
@@ -460,9 +460,9 @@ class BaseCrudController extends CrudController
             'label' => trans('common.province'),
         ];
     }
-    
 
-    
+
+
     protected function addDistrictColumn()
     {
         return [
@@ -487,8 +487,8 @@ class BaseCrudController extends CrudController
         ];
     }
 
-    
-   
+
+
     protected function addDateBsColumn()
     {
         return  [
@@ -558,10 +558,10 @@ class BaseCrudController extends CrudController
                 'orderable'=>false
         ];
         }
-       
+
     }
 
-   
+
 
     //common filters
 
@@ -611,21 +611,34 @@ class BaseCrudController extends CrudController
     //Items list for stock entry
     public function getItemList($conditions = [])
     {
-
-
         $filtered_items=[];
         $items= Item::where(['is_active' => 'true'])->get();
-        // dd($items,'-');
         foreach($items as $item){
-
             array_push($filtered_items, [
                 'id' => $item->id,
                 'code' => $item->code,
                 'name' => $item->name,
-                'qty' => $item->itemQtyDetail->item_qty ?? 0
+                'qty' => $item->itemQtyDetail->item_qty ?? 0,
             ]);
         }
-
         return $filtered_items;
+    }
+
+    public function getClientList($conditions = [])
+    {
+        $filtered_items=[];
+        $items= AppClient::where(['is_active' => 'true'])->get();
+        // foreach($items as $item){
+        //     array_push($filtered_items, [
+        //         'id' => $item->id,
+        //         'code' => $item->code,
+        //         'name' => $item->name,
+        //         'qty' => $item->itemQtyDetail->item_qty ?? 0
+        //     ]);
+        // }
+
+        return $items;
+
+        // return $filtered_items;
     }
 }

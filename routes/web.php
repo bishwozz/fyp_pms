@@ -33,3 +33,6 @@ Route::get('/lab-patient-test-data/{test_id}/print-test-report', 'App\Http\Contr
 
 Route::get('send', 'PatientAppointmentCrudController@sendNotification');
 
+
+Route::view('/a', 'customAdmin.stockEntry.form');
+

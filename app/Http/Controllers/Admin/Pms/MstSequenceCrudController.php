@@ -19,7 +19,7 @@ use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
  */
 class MstSequenceCrudController extends BaseCrudController
 {
-
+    protected $user;
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
      *
@@ -134,11 +134,7 @@ class MstSequenceCrudController extends BaseCrudController
     {
         $this->crud->hasAccessOrFail('create');
         $request = request()->only(['name_en', 'sequence_code', 'sequence_type']);
-        $request['sup_org_id'] = $this->user->sup_org_id;
-        $request['store_id'] = $this->user->store_id;
-        if (backpack_user()->isSystemUser()) {
-            $request["is_super_data"] = true;
-        }
+        $request['client_id'] = $this->user->client_id;
         $sequence = MstSequence::create($request);
         return response()->json(
             [

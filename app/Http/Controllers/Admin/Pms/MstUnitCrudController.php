@@ -33,8 +33,8 @@ class MstUnitCrudController extends BaseCrudController
             'type' => 'text',
             'name' => 'name_en',
             'label'=> trans('MstUnit.name_en')
-          ], 
-          false, 
+          ],
+          false,
           function($value) { // if the filter is active
             $this->crud->addClause('where', 'name_en', 'iLIKE', "%$value%");
           });
@@ -42,8 +42,8 @@ class MstUnitCrudController extends BaseCrudController
             'type' => 'text',
             'name' => 'name_lc',
             'label'=> trans('MstUnit.name_lc')
-          ], 
-          false, 
+          ],
+          false,
           function($value) { // if the filter is active
             $this->crud->addClause('where', 'name_lc', 'iLIKE', "%$value%");
           });
@@ -69,9 +69,9 @@ class MstUnitCrudController extends BaseCrudController
             [
                 'label'=>trans('MstUnit.dependent_unit'),
                 'type' => 'select',
-                'name' => 'dependent_unit_id', 
-                'entity' => 'dependent_unit', 
-                'attribute' => 'name_lc', 
+                'name' => 'dependent_unit_id',
+                'entity' => 'dependent_unit',
+                'attribute' => 'name_lc',
                 'model' => MstUnit::class,
             ],
         ];
@@ -84,7 +84,7 @@ class MstUnitCrudController extends BaseCrudController
         $arr=[
             $this->addCodeField(),
             $this->addClientIdField(),
-        
+
             [
                 'name' => 'name_en',
                 'type' => 'text',
@@ -114,21 +114,21 @@ class MstUnitCrudController extends BaseCrudController
                     'class' => 'form-group col-md-6',
                 ],
             ],
-            [
-                'label'=>trans('MstUnit.dependent_unit'),
-                'type' => 'select2',
-                'name' => 'dependent_unit_id', 
-                'entity' => 'dependent_unit', 
-                'attribute' => 'name_lc', 
-                'model' => MstUnit::class,
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-6',
-                ],
-            ],
+            // [
+            //     'label'=>trans('MstUnit.dependent_unit'),
+            //     'type' => 'select2',
+            //     'name' => 'dependent_unit_id',
+            //     'entity' => 'dependent_unit',
+            //     'attribute' => 'name_lc',
+            //     'model' => MstUnit::class,
+            //     'wrapperAttributes' => [
+            //         'class' => 'form-group col-md-6',
+            //     ],
+            // ],
             $this->addIsActiveField(),
         ];
         $arr = array_filter($arr);
-        $this->crud->addFields($arr); 
+        $this->crud->addFields($arr);
     }
 
     protected function setupUpdateOperation()

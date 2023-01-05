@@ -46,7 +46,7 @@
                     class='la la-user nav-icon'></i>{{ trans('MstSupplier') }}</a>
             <a href="{{ backpack_url('mstsupplier/create') }}"><i class="fa fa-plus"></i></a>
         </li>
-   
+
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('mstpharmaceutical') }}'><i
                     class='la la-user nav-icon'></i>{{ trans('MstPharmaceutical') }}</a>
             <a href="{{ backpack_url('mstpharmaceutical/create') }}"><i class="fa fa-plus"></i></a>
@@ -201,3 +201,5 @@
 <hr class="hr-line">
 @endhasanyrole
 @endhasanyrole
+
+<li class="nav-item"><a class="nav-link" href="{{ backpack_url('stock-entry') }}"><i class="nav-icon la la-question"></i> Stock entries</a></li>

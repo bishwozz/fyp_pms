@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
     {
         $now = Carbon::now()->toDateTimeString();
         $this->time = $now;
-        
+
         $this->call(CoreTableSeeder::class);
         $this->call(RoleTableSeeder::class);
         $this->call(UserTableSeeder::class);
@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
         $this->call(SalesTableSeeder::class);
         $this->call(LabTableSeeder::class);
         $this->call(MasterTableSeeder::class);
+        $this->call(MasterDataSeeder::class);
         // $this->call(ResetSequenceSeeder::class);
     }
 }
