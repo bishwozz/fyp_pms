@@ -13,7 +13,7 @@ class MstCategory extends BaseModel
 
     protected $table = 'phr_mst_categories';
     protected $guarded = ['id','created_by'];
-    protected $fillable = ['code','client_id','title_en','title_lc','description_en','description_lc','is_active','updated_by','client_id'];
+    protected $fillable = ['code','client_id','title','description','is_active','updated_by','client_id'];
 
     public function client()
     {

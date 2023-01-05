@@ -47,10 +47,13 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
     public function setup()
     {
         $this->user = backpack_user();
-        // $this->crud->enableExportButtons();
+        $this->crud->enableExportButtons();
         CRUD::setModel(\App\Models\Pms\PurchaseOrderDetail::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/purchase-order-detail');
         CRUD::setEntityNameStrings('', 'Purchase Order');
+        $this->crud->allowAccess('show');
+        $this->crud->denyAccess('delete');
+
     }
 
     /**
@@ -72,6 +75,12 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
                 'model' => MstSupplier::class,
 
             ],
+            [
+                'name' => 'purchase_order_num',
+                'type' => 'text',
+                'label' => 'PO Number',
+
+            ],
      
             [
                 'name' => 'po_date',
@@ -88,12 +97,7 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
                 'label' => 'Expected Delivery',
 
             ],
-            [
-                'name' => 'purchase_order_num',
-                'type' => 'text',
-                'label' => 'PO Number',
-
-            ],
+           
             [
                 'name' => 'approved_by',
                 'type' => 'select',

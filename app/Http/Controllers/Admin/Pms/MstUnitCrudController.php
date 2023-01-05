@@ -12,9 +12,9 @@ class MstUnitCrudController extends BaseCrudController
     {
         $this->crud->setModel(MstUnit::class);
         $this->crud->setRoute('admin/mstunit');
-        $this->crud->setEntityNameStrings(trans('menu.MstUnit'), trans('menu.MstUnit'));
+        $this->crud->setEntityNameStrings(trans('Unit'), trans('MstUnit'));
         $this->crud->clearFilters();
- $this->setFilters();
+        $this->setFilters();
     }
 
     protected function setFilters(){
@@ -52,28 +52,21 @@ class MstUnitCrudController extends BaseCrudController
     protected function setupListOperation()
     {
         $col=[
-            $this->addCodeColumn(),
             $this->addRowNumber(),
+            $this->addCodeColumn(),
             [
                 'name' => 'name_en',
-                'label' => trans('MstUnit.name_en'),
-            ],
-            [
-                'name' => 'name_lc',
-                'label' => trans('MstUnit.name_lc'),
+                'label' => trans('Unit Name'),
             ],
             [
                 'name' => 'count',
-                'label' => trans('MstUnit.count'),
+                'label' => 'Count',
             ],
             [
-                'label'=>trans('MstUnit.dependent_unit'),
-                'type' => 'select',
-                'name' => 'dependent_unit_id', 
-                'entity' => 'dependent_unit', 
-                'attribute' => 'name_lc', 
-                'model' => MstUnit::class,
+                'name' => 'name',
+                'label' => 'Name',
             ],
+            
         ];
         $this->crud->addColumns(array_filter($col));
     }
@@ -86,17 +79,9 @@ class MstUnitCrudController extends BaseCrudController
             $this->addClientIdField(),
         
             [
-                'name' => 'name_en',
+                'name' => 'name',
                 'type' => 'text',
                 'label' => trans('PhrMstUnit.name_en'),
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-6',
-                ],
-            ],
-            [
-                'name' => 'name_lc',
-                'type' => 'text',
-                'label' => trans('PhrMstUnit.name_lc'),
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-6',
                 ],
@@ -109,22 +94,12 @@ class MstUnitCrudController extends BaseCrudController
             [
                 'name' => 'count',
                 'type' => 'number',
-                'label' => trans('PhrMstUnit.count'),
+                'label' => trans('Count'),
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-6',
                 ],
             ],
-            [
-                'label'=>trans('PhrMstUnit.dependent_unit'),
-                'type' => 'select2',
-                'name' => 'dependent_unit_id', 
-                'entity' => 'dependent_unit', 
-                'attribute' => 'name_lc', 
-                'model' => MstUnit::class,
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-6',
-                ],
-            ],
+            
             $this->addIsActiveField(),
         ];
         $arr = array_filter($arr);

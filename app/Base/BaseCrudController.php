@@ -37,7 +37,6 @@ class BaseCrudController extends CrudController
     use InlineCreateOperation;
     use ActivityLogTraits;
     use MasterArrayData;
-    use ShowOperation;
 
 
 

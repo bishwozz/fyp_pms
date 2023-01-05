@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Pms;
 
 use App\Models\Pms\MstSupplier;
 use App\Base\BaseCrudController;
+use App\Http\Requests\Pms\MstSupplierRequest;
 
 class MstSupplierCrudController extends BaseCrudController
 {
@@ -11,7 +12,7 @@ class MstSupplierCrudController extends BaseCrudController
     {
         $this->crud->setModel(MstSupplier::class);
         $this->crud->setRoute('admin/mstsupplier');
-        $this->crud->setEntityNameStrings(trans('menu.MstSupplier'), trans('menu.MstSupplier'));
+        $this->crud->setEntityNameStrings('Supplier', 'MstSupplier');
         $this->crud->clearFilters();
  $this->setFilters();
     }
@@ -21,7 +22,7 @@ class MstSupplierCrudController extends BaseCrudController
             [ // simple filter
                 'type' => 'text',
                 'name' => 'code',
-                'label' => trans('कोड')
+                'label' => 'Code',
             ],
             false,
             function ($value) { // if the filter is active
@@ -32,7 +33,7 @@ class MstSupplierCrudController extends BaseCrudController
           $this->crud->addFilter([
             'type' => 'text',
             'name' => 'name',
-            'label'=> trans('MstSupplier.title_lc')
+            'label'=> 'Suppiler Name',
           ], 
           false, 
           function($value) { // if the filter is active
@@ -43,32 +44,28 @@ class MstSupplierCrudController extends BaseCrudController
     protected function setupListOperation()
     {
         $col=[
-            $this->addCodeColumn(),
             $this->addRowNumber(),
+            $this->addCodeColumn(),
             [
                 'name' => 'name',
-                'label' => trans('MstSupplier.title_en'),
+                'label' => 'Suppiler Name',
             ],
         
             [
                 'name' => 'address',
-                'label' => trans('MstSupplier.address')
+                'label' => trans('Address')
             ],
             [
                 'name' => 'email',
-                'label' => trans('MstSupplier.email')
-            ],
-            [
-                'name' => 'contact_person',
-                'label' => trans('MstSupplier.contact_person')
+                'label' => trans('Email')
             ],
             [
                 'name' => 'phone_number',
-                'label' => trans('MstSupplier.phone_number')
+                'label' => trans('Phone Number')
             ],
             [
                 'name' => 'website',
-                'label' => trans('MstSupplier.website')
+                'label' => trans('Website url')
             ],
         ];
         $this->crud->addColumns(array_filter($col));
@@ -76,14 +73,14 @@ class MstSupplierCrudController extends BaseCrudController
 
     protected function setupCreateOperation()
     {
-        // $this->crud->setValidation(MstSupplierRequest::class);
+        $this->crud->setValidation(MstSupplierRequest::class);
         $arr=[
             $this->addCodeField(),
             $this->addClientIdField(),
             [
                 'name' => 'name',
                 'type' => 'text',
-                'label' => trans('MstSupplier.title_lc'),
+                'label' => 'Supplier Name',
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-4',
                 ],
@@ -92,7 +89,7 @@ class MstSupplierCrudController extends BaseCrudController
             [
                 'name' => 'address',
                 'type' => 'text',
-                'label' => trans('MstSupplier.address'),
+                'label' => trans('Address'),
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-4',
                 ],
@@ -100,7 +97,7 @@ class MstSupplierCrudController extends BaseCrudController
             [
                 'name' => 'email',
                 'type' => 'text',
-                'label' => trans('MstSupplier.email'),
+                'label' => trans('Email'),
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-4',
                 ],
@@ -108,7 +105,7 @@ class MstSupplierCrudController extends BaseCrudController
             [
                 'name' => 'contact_person',
                 'type' => 'text',
-                'label' => trans('MstSupplier.contact_person'),
+                'label' => trans('Contact Person'),
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-4',
                 ],
@@ -116,7 +113,7 @@ class MstSupplierCrudController extends BaseCrudController
             [
                 'name' => 'phone_number',
                 'type' => 'text',
-                'label' => trans('MstSupplier.phone_number'),
+                'label' => trans('Phone Number'),
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-4',
                 ],
@@ -124,7 +121,7 @@ class MstSupplierCrudController extends BaseCrudController
             [
                 'name' => 'website',
                 'type' => 'text',
-                'label' => trans('MstSupplier.website'),
+                'label' => trans('Website url'),
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-4',
                 ],
@@ -132,7 +129,7 @@ class MstSupplierCrudController extends BaseCrudController
             [
                 'name' => 'description',
                 'type' => 'textarea',
-                'label' => trans('MstSupplier.description_en'),
+                'label' => trans('Description'),
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-12',
                 ],

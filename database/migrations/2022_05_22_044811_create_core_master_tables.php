@@ -251,6 +251,10 @@ class CreateCoreMasterTables extends Migration
             $table->unsignedSmallInteger('display_order')->nullable()->default(0);
             $table->unsignedSmallInteger('created_by')->nullable();
             $table->unsignedSmallInteger('updated_by')->nullable();
+            $table->unsignedInteger('deleted_uq_code')->default(1);
+
+            $table->unique(['code','deleted_uq_code'],'uq_mst_banks_code');
+
     
             $table->unique('name','uq_mst_banks_name');
 

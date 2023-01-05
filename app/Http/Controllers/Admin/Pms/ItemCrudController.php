@@ -18,6 +18,7 @@ use App\Models\Pms\MstGenericName;
 use Illuminate\Support\Facades\DB;
 use Prologue\Alerts\Facades\Alert;
 use App\Models\Pms\MstPharmaceutical;
+use App\Http\Requests\Pms\ItemRequest;
 use App\Base\Operations\FetchOperation;
 
 
@@ -31,7 +32,7 @@ class ItemCrudController extends BaseCrudController
        
         $this->crud->setModel(Item::class);
         $this->crud->setRoute('admin/item');
-        $this->crud->setEntityNameStrings(trans('Item Details'), trans('Item Details'));
+        $this->crud->setEntityNameStrings(trans('Item'), trans('Item Details'));
         $this->crud->clearFilters();
         $this->setFilters();
 
@@ -50,7 +51,7 @@ class ItemCrudController extends BaseCrudController
             [ // simple filter
                 'type' => 'text',
                 'name' => 'code',
-                'label' => trans('कोड')
+                'label' => 'Code',
             ],
             false,
             function ($value) { // if the filter is active
@@ -65,7 +66,7 @@ class ItemCrudController extends BaseCrudController
           ], 
           false, 
           function($value) { // if the filter is active
-            $this->crud->addClause('where', 'brand_name', 'iLIKE', "%$value%");
+            $this->crud->addClause('where', 'name', 'iLIKE', "%$value%");
           });
 
           $this->crud->addFilter([
@@ -160,10 +161,8 @@ class ItemCrudController extends BaseCrudController
 
     protected function setupCreateOperation()
     {
-        // $this->crud->setValidation(ItemRequest::class);
+        $this->crud->setValidation(ItemRequest::class);
         $arr=[
-
-
             $this->addCodeField(),
             $this->addClientIdField(),
             [
@@ -200,7 +199,7 @@ class ItemCrudController extends BaseCrudController
             [
                 'name'=>'brand_id',
                 'type'=>'relationship',
-                'label'=>trans('common.band_id'),
+                'label'=>trans('Brand'),
                 'entity'=>'mstbrand',
                 'model'=>MstBrand::class,
                 'attribute'=>'name_en',
@@ -215,7 +214,7 @@ class ItemCrudController extends BaseCrudController
             ],
          
             [
-                'label'=>trans('unit_id'),
+                'label'=>trans('Unit'),
                 'type' => 'select2',
                 'name' => 'unit_id', 
                 'entity' => 'mstunit', 
@@ -237,7 +236,7 @@ class ItemCrudController extends BaseCrudController
             [
 				'name' => 'tax_vat',
 				'type' => 'number',
-				'label' => trans('common.tax_vat'),
+				'label' => trans('Tax Vat'),
 				'wrapper' => [
 					'class' => 'form-group col-md-4',
 				],
@@ -248,7 +247,7 @@ class ItemCrudController extends BaseCrudController
 			],
             [
 				'name' => 'is_taxable',
-				'label' => trans('common.is_taxable'),
+				'label' => trans('Is Taxable?'),
 				'type' => 'radio',
 				'default' => 1,
 				'inline' => true,
@@ -267,7 +266,7 @@ class ItemCrudController extends BaseCrudController
 			],
             [
 				'name' => 'is_free',
-				'label' => trans('common.is_free'),
+				'label' => trans('Is Free ?'),
 				'type' => 'radio',
 				'default' => 1,
 				'inline' => true,
@@ -282,7 +281,7 @@ class ItemCrudController extends BaseCrudController
 			],
             [
 				'name' => 'is_deprecated',
-				'label' => trans('common.is_deprecated'),
+				'label' => trans('Is Deprecated?'),
 				'type' => 'radio',
 				'default' => 1,
 				'inline' => true,

@@ -142,15 +142,17 @@ Route::group([
         
 		Route::crud('/purchase-order-detail', 'PurchaseOrderDetailCrudController');
 		Route::post('/purchase-order-detail/{order_id}', 'PurchaseOrderDetailCrudController@update')->name('purchase.order-edit');
-
-
+        
+        
         Route::get('/mst-sequence/sequence-code-check', [MstSequenceCrudController::class, 'sequenceCodeCheck'])->name('sequence.code-check');
         Route::post('/mst-sequence/inline-create', [MstSequenceCrudController::class, 'inlineStore'])->name('sequence.inlineStore');
-
+        
         Route::get('get-contact-details/{detail}', 'PurchaseOrderDetailCrudController@getContactDetails')->name('custom.contact-details');
         Route::get('po-item-details/{item}', 'PurchaseOrderDetailCrudController@poDetails')->name('custom.po-details');
         Route::get('purchase-history-details/{id}/{to}/{from}', 'PurchaseOrderDetailCrudController@purchaseOrderHistoryDetails')->name('custom.poh-details');
-
+        
+		Route::crud('/purchase-return', 'PurchaseReturnCrudController');
+        
  	 // this should be the last line donot remove this
 
 });

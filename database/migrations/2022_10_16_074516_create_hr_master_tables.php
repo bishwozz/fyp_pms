@@ -69,6 +69,10 @@ class CreateHrMasterTables extends Migration
 
             $table->foreign('created_by','fk_hr_mst_employees_created_by')->references('id')->on('users');
             $table->foreign('updated_by','fk_hr_mst_employees_updated_by')->references('id')->on('users');
+            $table->unsignedInteger('deleted_uq_code')->default(1);
+            $table->unique(['code','deleted_uq_code'],'uq_hr_mst_employees_code');
+
+
 
         });
 

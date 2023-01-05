@@ -73,6 +73,10 @@
                     class='la la-user nav-icon'></i>{{ trans('Purchase Order') }}</a>
             <a href="{{ backpack_url('purchase-order-detail/create') }}"><i class="fa fa-plus"></i></a>
         </li>
+        <li class='nav-item'><a class='nav-link' href='{{ backpack_url('purchase-return') }}'><i
+                    class='la la-user nav-icon'></i>{{ trans('Purchase Return') }}</a>
+            <a href="{{ backpack_url('purchase-return/create') }}"><i class="fa fa-plus"></i></a>
+        </li>
     </ul>
  </li>
  <hr class="hr-line">

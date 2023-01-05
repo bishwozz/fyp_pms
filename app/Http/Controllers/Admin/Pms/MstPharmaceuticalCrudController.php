@@ -11,9 +11,9 @@ class MstPharmaceuticalCrudController extends BaseCrudController
     {
         $this->crud->setModel(MstPharmaceutical::class);
         $this->crud->setRoute('admin/mstpharmaceutical');
-        $this->crud->setEntityNameStrings(trans('menu.MstPharmaceutical'), trans('menu.MstPharmaceutical'));
+        $this->crud->setEntityNameStrings(trans('Pharmaceutical'), trans('MstPharmaceutical'));
         $this->crud->clearFilters();
- $this->setFilters();
+        $this->setFilters();
     }
 
     protected function setFilters(){
@@ -21,7 +21,7 @@ class MstPharmaceuticalCrudController extends BaseCrudController
             [ // simple filter
                 'type' => 'text',
                 'name' => 'code',
-                'label' => trans('कोड')
+                'label' => 'Code',
             ],
             false,
             function ($value) { // if the filter is active
@@ -31,7 +31,7 @@ class MstPharmaceuticalCrudController extends BaseCrudController
         $this->crud->addFilter([
             'type' => 'text',
             'name' => 'name',
-            'label'=> trans('MstPharmaceutical.name')
+            'label'=> trans('Name')
           ], 
           false, 
           function($value) { // if the filter is active
@@ -40,7 +40,7 @@ class MstPharmaceuticalCrudController extends BaseCrudController
           $this->crud->addFilter([
             'type' => 'text',
             'name' => 'address',
-            'label'=> trans('MstPharmaceutical.address')
+            'label'=> trans('Address')
           ], 
           false, 
           function($value) { // if the filter is active
@@ -55,23 +55,23 @@ class MstPharmaceuticalCrudController extends BaseCrudController
             $this->addRowNumber(),
             [
                 'name' => 'name',
-                'label' => trans('MstPharmaceutical.name'),
+                'label' => trans('Pharmaceutical Name'),
             ],
             [
                 'name' => 'address',
-                'label' => trans('MstPharmaceutical.address'),
+                'label' => trans('Address'),
             ],
             [
                 'name' => 'contact_person',
-                'label' => trans('MstPharmaceutical.contact_person'),
+                'label' => trans('Contact Person'),
             ],
             [
                 'name' => 'email',
-                'label' => trans('MstPharmaceutical.email'),
+                'label' => trans('Email'),
             ],
             [
                 'name' => 'contact_number',
-                'label' => trans('MstPharmaceutical.contact_phone'),
+                'label' => trans('Contact Phone'),
             ],
         ];
         $this->crud->addColumns(array_filter($col));
@@ -86,42 +86,42 @@ class MstPharmaceuticalCrudController extends BaseCrudController
             [
                 'name' => 'name',
                 'text' => 'text',
-                'label'=>trans('MstPharmaceutical.name'),
+                'label'=>trans('Pharmaceutical Name'),
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-4',
                 ],
             ],
             [
                 'name' => 'address',
-                'label'=>trans('MstPharmaceutical.address'),
+                'label'=>trans('Address'),
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-4',
                 ],
             ],
             [
                 'name' => 'contact_person',
-                'label' => trans('MstPharmaceutical.contact_person'),
+                'label' => trans('Contact Person'),
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-4',
                 ],
             ],
             [
                 'name' => 'email',
-                'label'=>trans('MstPharmaceutical.email'),
+                'label'=>trans('Email'),
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-4',
                 ],
             ],
             [
                 'name' => 'contact_number',
-                'label' => trans('MstPharmaceutical.contact_phone'),
+                'label' => trans('Contact Phone'),
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-4',
                 ],
             ],
             [
                 'name' => 'website',
-                'label' => trans('MstPharmaceutical.website'),
+                'label' => trans('Website'),
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-4',
                 ],
