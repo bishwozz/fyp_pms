@@ -246,7 +246,7 @@ class CreateCoreMasterTables extends Migration
             $table->string('registration_number')->nullable();
             $table->string('pan_vat_no',50)->nullable();
 
-            $table->string('patient_seq_key',20)->nullable();
+            $table->string('purchase_order_seq_key',20)->nullable();
             $table->string('bill_seq_key',20)->nullable();
             $table->string('order_seq_key',20)->nullable();
             $table->string('sample_seq_key',20)->nullable();

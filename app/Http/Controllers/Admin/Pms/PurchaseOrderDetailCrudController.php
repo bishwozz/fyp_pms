@@ -63,18 +63,16 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
     {
         $cols = [
             $this->addRowNumberColumn(),
-
-            
             [
                 'name' => 'supplier_id',
                 'label'=>'Supplier',
                 'type' => 'select',
                 'entity' => 'supplierEntity',
-                'attribute' => 'name_en',
+                'attribute' => 'name',
                 'model' => MstSupplier::class,
 
             ],
-           
+     
             [
                 'name' => 'po_date',
                 'label' => 'PO Date',
@@ -120,6 +118,7 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
             ],
         ];
         $this->crud->addColumns(array_filter($cols));
+        $this->crud->allowAccess('show');
 
     }
 
@@ -132,7 +131,6 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
         $discount_modes = MstDiscMode::all();
 
         $suppliers = MstSupplier::where('is_active', true)
-            // ->where('client_id', $this->user->client_id)
             ->select('id', 'name')
             ->get();
 
@@ -162,7 +160,6 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
         $this->crud->hasAccessOrFail('create');
 
         $request = $this->crud->validateRequest();
-        // dd($request->all());
         if (isset($request)) {
             $purchaseOrderDetails = $request->only([
                 'status_id',
@@ -177,18 +174,22 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
                 'supplier_id',
             ]);
 
-            $sequenceCodes = $request->only('purchase_order_num');
+            // $sequenceCodes = $request->only('purchase_order_num');
+            // dd($sequenceCodes);
 
             if ($request->status_id == SupStatus::APPROVED) {
-                // if(!$this->user->is_po_approver) abort(401);
-                    if(!array_key_exists('purchase_order_num', $sequenceCodes)){
-                        return response()->json([
-                            'status' => 'failed',
-                            'message' => "Failed to approve Purchase Order. PO Sequence is not created."
-                        ]);
+                if($pod['status_id']==2){
+                    $query = DB::table('purchase_order_details')->where('client_id',$this->user->client_id)->latest('created_at')->pluck('purchase_order_num')->first();
+                    $prefix_key = appSetting()->purchase_order_seq_key;
+                    $purchase_order_num = $prefix_key.'1';
+                    if ($query != null) {
+                        $explode = explode('-',$query);
+                        $num = end($explode);
+                        $purchase_order_num = $prefix_key.(intval($num) + 1);
                     }
-
-                $purchaseOrderDetails['purchase_order_num'] = $sequenceCodes['purchase_order_num'];
+                }
+        
+                $purchaseOrderDetails['purchase_order_num'] = $purchase_order_num;
                 $purchaseOrderDetails['po_date'] = dateToday();
                 $purchaseOrderDetails['approved_by'] = $this->user->id;
             }
@@ -196,8 +197,9 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
             $purchaseOrderDetails['client_id'] = $this->user->client_id;
 
 
-            DB::beginTransaction();
+            // dd($podId);
             try {
+                DB::beginTransaction();
                 $podId = PurchaseOrderDetail::create($purchaseOrderDetails);
 
                 foreach ($request->items_id as $key => $val) {
@@ -219,8 +221,14 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
                 }
                 DB::commit();
       
-                \Alert::success(trans('SUCCESS'))->flash();
-                return redirect()->back();
+                // \Alert::success(trans('SUCCESS'))->flash();
+                // return redirect('admin/purchase-order-detail');
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Stock added successfully',
+                    'route' => url($this->crud->route)
+                ]);
+             
                 
             } catch (\Throwable $th) {
                 DB::rollback();
@@ -283,6 +291,20 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
 
         $pod['status_id'] = SupStatus::APPROVED;
         $pod['po_date'] = dateToday();
+        // dd($pod['status_id']);
+        if($pod['status_id']==2){
+            $query = DB::table('purchase_order_details')->where('client_id',$this->user->client_id)->latest('created_at')->pluck('purchase_order_num')->first();
+            $prefix_key = appSetting()->purchase_order_seq_key;
+            $purchase_order_num = $prefix_key.'1';
+            if ($query != null) {
+                $explode = explode('-',$query);
+                $num = end($explode);
+                $purchase_order_num = $prefix_key.(intval($num) + 1);
+            }
+        }
+
+        $pod['purchase_order_num'] = $purchase_order_num;
+
 
 
         try {
@@ -348,11 +370,13 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
 
 
             DB::commit();
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Stock added successfully',
-                'route' => url($this->crud->route)
-            ]);
+            \Alert::success(trans('SUCCESS'))->flash();
+            return redirect('admin/purchase-order-detail');
+            // return response()->json([
+            //     'status' => 'success',
+            //     'message' => 'Stock added successfully',
+            //     'route' => url($this->crud->route)
+            // ]);
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json([

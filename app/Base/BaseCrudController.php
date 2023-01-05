@@ -37,6 +37,8 @@ class BaseCrudController extends CrudController
     use InlineCreateOperation;
     use ActivityLogTraits;
     use MasterArrayData;
+    use ShowOperation;
+
 
 
 
@@ -59,7 +61,7 @@ class BaseCrudController extends CrudController
             $this->checkPermission();
             $this->setLogs();
             // $this->isAllowed(['show' => 'list']);
-            $this->crud->denyAccess('show');
+            // $this->crud->denyAccess('show');
             $this->setupConfigurationForCurrentOperation();
             return $next($request);
         });

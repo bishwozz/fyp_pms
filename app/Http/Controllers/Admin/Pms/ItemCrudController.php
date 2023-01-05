@@ -130,6 +130,11 @@ class ItemCrudController extends BaseCrudController
             $this->addRowNumber(),
             $this->addCodeColumn(),
             [
+                'label'=>trans('Item Name'),
+                'type' => 'text',
+                'name' => 'name', 
+            ],
+            [
                 'label'=>trans('Supplier'),
                 'type' => 'select',
                 'name' => 'supplier_id', 
@@ -139,9 +144,13 @@ class ItemCrudController extends BaseCrudController
             ],
             [
                 'label'=>trans('Brand Name'),
-                'type' => 'text',
-                'name' => 'brand_name', 
+                'type' => 'select',
+                'name' => 'brand_id', 
+                'entity' => 'mstbrand', 
+                'attribute' => 'name_en', 
+                'model' => MstBrand::class,
             ],
+            
         ];
         $this->crud->addColumns(array_filter($col));
         $this->crud->orderBy('created_at',"DESC");
@@ -204,24 +213,7 @@ class ItemCrudController extends BaseCrudController
                     'class' => 'form-group col-md-4',
                 ],
             ],
-           
-            // [
-            //     'name'=>'unit_id',
-            //     'type'=>'relationship',
-            //     'label'=>trans('common.unit_id'),
-            //     'entity'=>'mstunit',
-            //     'model'=>MstUnit::class,
-            //     'attribute'=>'name_en',
-            //     'ajax'=>TRUE,
-            //     'inline_create'=>[
-            //         'entity'=>'/mstunit',
-            //         'modal_class' => 'modal-dialog modal-xl',
-            //     ],
-            //     'data_source' => '/admin/item/fetch/mstunit',
-            //     'wrapperAttributes' => [
-            //         'class' => 'form-group col-md-4',
-            //     ],
-            // ],
+         
             [
                 'label'=>trans('unit_id'),
                 'type' => 'select2',
@@ -241,14 +233,7 @@ class ItemCrudController extends BaseCrudController
                     'class' => 'form-group col-md-4',
                 ],
             ],
-            [
-                'name' => 'price',
-                'type' => 'number',
-                'label' => 'price',
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-4',
-                ],
-            ],
+     
             [
 				'name' => 'tax_vat',
 				'type' => 'number',
@@ -258,8 +243,6 @@ class ItemCrudController extends BaseCrudController
 				],
 				'attributes' => [
 					'id' => 'tax_vat',
-					// 'onKeyup' => 'INVENTORY.fetchSalesReceipt()',
-					// 'step' => 'any'
 				],
 
 			],

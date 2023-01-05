@@ -47,6 +47,7 @@ trait CheckPermission
         'getContactDetails'=>'index',
         'sequenceCodeCheck'=>'index',
         'inlineStore'=>'index',
+        'index'=>'show',
     ];
 
     public function checkPermission($include_extra_permissions=NULL)
@@ -89,9 +90,9 @@ trait CheckPermission
         //         goto jump;
 
             // Deny Access For any operation
-            if (!backpack_user()->can($new_permissions[$action])) {
-                $this->crud->denyAccess($this->permissions[$action]);
-            }
+            // if (!backpack_user()->can($new_permissions[$action])) {
+            //     $this->crud->denyAccess($this->permissions[$action]);
+            // }
         // }
 
 

@@ -224,6 +224,7 @@ Route::group([
 		Route::get('/sales/check-item-qty','SalesCrudController@checkItemsQty');
         
 		Route::crud('/purchase-order-detail', 'PurchaseOrderDetailCrudController');
+		Route::post('/purchase-order-detail/{order_id}', 'PurchaseOrderDetailCrudController@update')->name('purchase.order-edit');
 
 
         Route::get('/mst-sequence/sequence-code-check', [MstSequenceCrudController::class, 'sequenceCodeCheck'])->name('sequence.code-check');

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,4 +33,7 @@ Route::get('/lab-patient-test-data/{test_id}/print-test-report', 'App\Http\Contr
 // Route::get('/patient-dashboard', 'App\Http\Controllers\Patient\PatientDashboardController@index');
 
 Route::get('send', 'PatientAppointmentCrudController@sendNotification');
+
+//Fetch Super Data to Other Organizations
+Route::post('fetch-super-data/{modelPath}', [AdminController::class, 'fetchMasterData'])->name('fetch.superData');
 

@@ -957,8 +957,18 @@
                     // console.log(url, "jhfhjsdfsdfsfjhsfjsd")
                     // debugger;
                     axios.post(url, data).then((response) => {
-                        console.log(data)
-                        document.location = response.data.url;
+                        if(response.data['status'] == 'failed'){
+                            Swal.fire(
+                                    icon: 'error',
+                                    text: response.data['message'],
+                                )
+                        }else{
+                            Swal.fire(
+                                    icon: 'success',
+                                    text: response.data['message'],
+                                )
+                            document.location = response.data['route'];
+                        }
                         // INVENTORY.inventoryLoading(false, $('#po_form'));
                     }, (error) => {
                         // swal("Error !", error.response.data.message, "error")

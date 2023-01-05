@@ -134,8 +134,7 @@ class MstSequenceCrudController extends BaseCrudController
     {
         $this->crud->hasAccessOrFail('create');
         $request = request()->only(['name_en', 'sequence_code', 'sequence_type']);
-        $request['sup_org_id'] = $this->user->sup_org_id;
-        $request['store_id'] = $this->user->store_id;
+        $request['client_id'] = $this->user->client_id;
         if (backpack_user()->isSystemUser()) {
             $request["is_super_data"] = true;
         }

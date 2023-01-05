@@ -13,19 +13,11 @@
     </section>
 @endsection
 @section('content')
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<link rel="stylesheet" href="{{url('css/style.css')}}">
 
-
-<link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
-<link rel="stylesheet" href="/resources/demos/style.css">
-<title>Purchase Order</title>
 
 </head>
 
 
-<body>
 {{-- start of Purchase order history modal --}}
     <div class="modal fade bd-example-modal-xl" id="purchase_order_modal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
@@ -65,8 +57,9 @@
         </div>
     </div>
     {{-- end of the modal content --}}
-    <form action="{{ url($crud->route).'/'.$po->id}}" role="form" method="PUT" id="po_form">
-        @method('PUT')
+    <form action="{{ url($crud->route).'/'.$po->id}}" role="form" method="POST" id="po_form">
+        @method('POST')
+        @csrf
 
         <div class="po_navbar">
             <div class="billing_nav">
@@ -106,13 +99,13 @@
                 <div class="col-md-4">
                     <div class="input-group mb-3">
                         <span class="input-group-text">Contact No</span>
-                        <input type="text" class="form-control" value="{{ isset($po)?$po->supplierEntity->phone_number:''}}" id="phone" name="phone" placeholder="Contact No" readonly>
+                        <input type="text" class="form-control" value="{{ isset($po->supplierEntity)?$po->supplierEntity->phone_number:''}}" id="phone" name="phone" placeholder="Contact No" readonly>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="input-group mb-3">
                         <span class="input-group-text">Contact Email</span>
-                        <input type="text" class="form-control" value="{{ isset($po)?$po->supplierEntity->email:''}}" id="email" name="email" placeholder="Email" readonly>
+                        <input type="text" class="form-control" value="{{ isset($po->supplierEntity)?$po->supplierEntity->email:''}}" id="email" name="email" placeholder="Email" readonly>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -126,7 +119,7 @@
                         <label class="input-group-text" for="purchase_order_num">PO Number</label>
                         <select class="form-select" id="purchase_order_num" name="purchase_order_num">
                             @foreach ($purchaseOrderNumbers as $code => $codeId)
-                                <option value="{{ $codeId }}" {{ ($codeId == $stock->purchase_order_num) ? 'selected' : ''  }}>{{ $code }}</option>
+                                <option value="{{ $codeId }}" {{ ($codeId) ? 'selected' : ''  }}>{{ $code }}</option>
                             @endforeach
                         </select>
                         <span class="input-group-text bg-primary text-white" onclick="loadModal(this, '4')">

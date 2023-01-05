@@ -16,14 +16,14 @@ class CreateVwTable extends Migration
         DB::statement("DROP VIEW IF EXISTS vw_lab_test_items");
         DB::statement("DROP VIEW IF EXISTS vw_items");
         
-        DB::statement("CREATE VIEW vw_items as 
-        SELECT row_number() OVER () AS id,a.* from(
-            SELECT  lmi.id as item_id,lmi.client_id as client_id,lmi.code,
-            lmi.price as amount
-            from phr_items lmi
-            Where lmi.is_active = true
-         )a
-        ");
+        // DB::statement("CREATE VIEW vw_items as 
+        // SELECT row_number() OVER () AS id,a.* from(
+        //     SELECT  lmi.id as item_id,lmi.client_id as client_id,lmi.code,
+        //     lmi.price as amount
+        //     from phr_items lmi
+        //     Where lmi.is_active = true
+        //  )a
+        // ");
     }
 
 
@@ -43,6 +43,7 @@ class CreateVwTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('vw');
+        DB::statement("DROP VIEW IF EXISTS vw_lab_test_items");
+        DB::statement("DROP VIEW IF EXISTS vw_items");
     }
 }

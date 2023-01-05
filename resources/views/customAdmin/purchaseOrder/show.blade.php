@@ -54,21 +54,22 @@
 @endphp
 
 @section('content')
+{{-- {{ dd($entry->statusEntity) }} --}}
     <div class="card shadow px-3 mt-4">
         <!-- store name section -->
         <div class="mt-3">
             <div class="row">
                 <div class="col-lg-3 col-md-4">
                     <div class="mb-3">
-                        <span class="me-1" style="font-weight: bold;"> Status: </span> <span class="{{ isset($entry->status_id)? $status[$entry->status_id] : ''}}" style="font-weight: bold;"> {{ucfirst($entry->statusEntity->name_en)}}</span>
+                        <span class="me-1" style="font-weight: bold;"> Status: </span> <span class="{{ isset($entry->status_id)? $status[$entry->status_id] : ''}}" style="font-weight: bold;"> {{isset($entry->statusEntity->name_en)?ucfirst($entry->statusEntity->name_en):'-' }}</span>
                     </div>
                 </div>
                 
-                <div class="col-lg-3 col-md-4">
+                {{-- <div class="col-lg-3 col-md-4">
                     <div class="mb-3">
                         <span class="me-1" style="font-weight: bold;">Store Name: </span> <span>{{$entry->storeEntity->name_en}}</span>
                     </div>
-                </div>
+                </div> --}}
                
                
              
@@ -90,7 +91,7 @@
                 </div>
                 <div class="col-lg-3 col-md-4">
                     <div class="mb-3">
-                        <span class="me-1" style="font-weight: bold;">Approved By:</span> <span>{{$entry->approvedByEntity->name}}</span>
+                        <span class="me-1" style="font-weight: bold;">Approved By:</span> <span>{{isset($entry->approvedByEntity)?$entry->approvedByEntity->name:'-'}}</span>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-4">

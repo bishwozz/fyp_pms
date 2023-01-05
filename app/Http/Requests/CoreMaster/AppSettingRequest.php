@@ -30,7 +30,6 @@ class AppSettingRequest extends FormRequest
             'remarks' => 'max:500',
             'fiscal_year_id' =>'required',
             'address_name' => 'required',
-            'patient_seq_key' => 'required',
             'bill_seq_key' => 'required',
             'order_seq_key' => 'required',
             'sample_seq_key' => 'required',
