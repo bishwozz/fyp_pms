@@ -3,13 +3,13 @@
 	class="btn btn-sm btn-danger delete-btn" data-button-type="delete" tooltip><i class="la la-trash"
 		data-toggle="tooltip" title="Delete"></i></a>
 @endif --}}
-
+{{-- {{ DD($entry->sup_status_id) }} --}}
 @if ($crud->hasAccess('delete'))
-	@if(isset($crud->reporting_module))
-		@if($entry->is_approved == false)
-		<a href="javascript:void(0)" onclick="deleteEntry(this)" data-route="{{ url($crud->route.'/'.$entry->getKey()) }}"
-			class="btn btn-sm btn-danger delete-btn" data-button-type="delete" tooltip><i class="la la-trash"
-				data-toggle="tooltip" title="Delete"></i></a>
+	@if(isset($crud->sup_status))
+		@if($entry->sup_status_id != \App\Models\Pms\SupStatus::APPROVED)
+		        <a href="javascript:void(0)" onclick="deleteEntry(this)" data-route="{{ url($crud->route.'/'.$entry->getKey()) }}" class="btn btn-sm btn-danger delete-btn" data-button-type="delete" tooltip>
+                    <i class="la la-trash" data-toggle="tooltip" title="Delete"></i>
+                </a>
 		@endif
 	<!-- Single Delete button -->
 	@else
@@ -64,10 +64,10 @@
 			              // Hide the modal, if any
 			              $('.modal').modal('hide');
 			          } else {
-			              // if the result is an array, it means 
+			              // if the result is an array, it means
 			              // we have notification bubbles to show
 			          	  if (result instanceof Object) {
-			          	  	// trigger one or more bubble notifications 
+			          	  	// trigger one or more bubble notifications
 			          	  	Object.entries(result).forEach(function(entry, index) {
 			          	  	  var type = entry[0];
 			          	  	  entry[1].forEach(function(message, i) {
@@ -85,7 +85,7 @@
 				              	timer: 4000,
 				              	buttons: false,
 				              });
-			          	  }			          	  
+			          	  }
 			          }
 			      },
 			      error: function(result) {

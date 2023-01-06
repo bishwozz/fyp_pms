@@ -7,7 +7,17 @@
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="text/javascript" src="{{ asset('js/nepali.datepicker.v2.2.min.js') }}"></script>
 
+    @isset($stock)
+        <script type="text/javascript">
+            $(document).ready(function () {
+                var itemId = $("#itemStock-1").val();
+                $('#availableQty-1').val(ui.item.qty);
+            });
+        </script>
+    @endisset
+
     <script>
+
         $(document).on('show.bs.modal', '.modal', function() {
             $(this).appendTo('body');
         })
@@ -302,7 +312,6 @@
             @if (isset($stock))
                 let totalItems = {{ $stock->items->count() }};
                 let selectedItems = {{ $stock->items->pluck('id') }};
-
                 for (let i = 1; i <= totalItems; i++) {
                     counterArray.push(i)
                     listOfItems.push(selectedItems[i-1]);

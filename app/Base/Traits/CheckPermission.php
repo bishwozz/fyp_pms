@@ -47,6 +47,7 @@ trait CheckPermission
         'getContactDetails'=>'index',
         'sequenceCodeCheck'=>'index',
         'inlineStore'=>'index',
+        'show'=>'index',
     ];
 
     public function checkPermission($include_extra_permissions=NULL)

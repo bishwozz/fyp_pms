@@ -4,6 +4,8 @@ namespace App\Base;
 
 use App\Models\Pms\Item;
 use App\Models\AppClient;
+use App\Models\StockItems;
+use App\Models\Pms\SupStatus;
 use App\Base\Traits\ParentData;
 use App\Base\Traits\CheckPermission;
 use App\Base\Traits\MasterArrayData;
@@ -618,27 +620,54 @@ class BaseCrudController extends CrudController
                 'id' => $item->id,
                 'code' => $item->code,
                 'name' => $item->name,
-                'qty' => $item->itemQtyDetail->item_qty ?? 0,
+                'qty' => $this->getItemQty($item->id),
             ]);
         }
         return $filtered_items;
     }
 
+        //Items list for sales / billing
+        public function getStockItemList($conditions = [])
+        {
+            $filtered_items=[];
+            $stockItems = StockItems::where('client_id', $this->user->client_id)->whereNotNull('phr_item_id')->get();
+            $itemsId = [];
+            foreach($stockItems as $item){
+                if($item->stock->sup_status_id == SupStatus::APPROVED){
+                    array_push($itemsId, $item->phr_item_id);
+                }
+            }
+
+            $items= Item::where(['is_active' => 'true'])->whereIn('id', array_unique($itemsId))->get();
+            foreach($items as $item){
+                array_push($filtered_items, [
+                    'id' => $item->id,
+                    'code' => $item->code,
+                    'name' => $item->name,
+                    'qty' => $this->getItemQty($item->id),
+                ]);
+            }
+
+            dd($filtered_items);
+            return $filtered_items;
+        }
+
     public function getClientList($conditions = [])
     {
         $filtered_items=[];
         $items= AppClient::where(['is_active' => 'true'])->get();
-        // foreach($items as $item){
-        //     array_push($filtered_items, [
-        //         'id' => $item->id,
-        //         'code' => $item->code,
-        //         'name' => $item->name,
-        //         'qty' => $item->itemQtyDetail->item_qty ?? 0
-        //     ]);
-        // }
-
         return $items;
+    }
 
-        // return $filtered_items;
+    public function getItemQty($itemid)
+    {
+        $avlQty = 0;
+        $stockItems = StockItems::where([['phr_item_id', $itemid], ['client_id', $this->user->client_id]])->get();
+        foreach ($stockItems as $stock){
+            if($stock->stock->sup_status_id ==  SupStatus::APPROVED){
+                $avlQty += $stock->add_qty;
+            }
+        }
+        return $avlQty;
     }
 }

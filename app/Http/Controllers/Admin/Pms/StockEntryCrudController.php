@@ -57,6 +57,8 @@ class StockEntryCrudController extends BaseCrudController
         $this->crud->setEntityNameStrings('stock entry', 'stock entries');
         $this->user = backpack_user();
         $this->crud->allowAccess('show');
+        // $this->crud->sup_status = true;
+        $this->crud->sup_status = true;
     }
 
     /**
@@ -98,6 +100,9 @@ class StockEntryCrudController extends BaseCrudController
         $this->crud->addColumns(array_filter($columns));
         $this->crud->allowAccess('show');
         $this->crud->moveButton('show', 'after', 'delete');
+        // if($this->crud->entry){
+
+        // }
     }
 
     /**
@@ -168,7 +173,7 @@ class StockEntryCrudController extends BaseCrudController
                 $itemArr = array_merge($itemArr, [
                     'stock_id' => $stock->id,
                     'client_id' => $this->user->client_id,
-                    'mst_item_id' => $request->itemStockHidden[$key],
+                    'phr_item_id' => $request->itemStockHidden[$key],
                     'available_total_qty' => $request->available_total_qty[$key],
                     'add_qty' => $request->custom_Qty[$key],
                     'total_qty' => $request->total_qty[$key],
@@ -179,6 +184,7 @@ class StockEntryCrudController extends BaseCrudController
                     'tax_vat' => $request->tax_vat[$key],
                     'item_total' => $request->item_total[$key],
                 ]);
+
                 if ($statusCheck) {
                     if(!array_key_exists('batch_number',$sequenceCodes)){
                         return response()->json([
@@ -188,6 +194,7 @@ class StockEntryCrudController extends BaseCrudController
                     }
                     $itemArr['batch_no'] = $sequenceCodes['batch_number'];
                 }
+                // dd($itemArr);
                 $this->stockItems->create($itemArr);
             }
 
@@ -217,16 +224,19 @@ class StockEntryCrudController extends BaseCrudController
     {
         $this->crud->allowAccess('update');
 
-        $stock = $this->stockEntries->find($id);
-        if (!isset($stock))
+        $this->data['stock'] = $this->stockEntries->find($id);
+        if (!isset($this->data['stock']))
             abort(404);
 
         $this->data['crud'] = $this->crud;
         $this->data['sequenceCodes'] = $this->sequence_type();
         $this->data['batchNumbers'] = $this->getSequenceCode(1);
-        $this->data['item_lists'] = $this->getItemList();
+        // $this->data['item_lists'] = $this->getItemList();
+        $this->data['item_lists'] = $this->getStockItemList();
         $this->data['clientLists'] = $this->getClientList();
-        return view('customAdmin.stockEntry.form', $this->data);
+
+        // dd($this->data['clientLists']);
+        return view('customAdmin.stockEntry.form_update', $this->data);
     }
 
     /**
@@ -275,7 +285,6 @@ class StockEntryCrudController extends BaseCrudController
             $statusCheck = $request->sup_status_id == SupStatus::APPROVED;
 
             if ($statusCheck && $currentStock->sup_status_id != SupStatus::APPROVED) {
-
                 if(empty($sequenceCodes)){
                     return response()->json([
                         'status' => 'failed',
@@ -285,13 +294,12 @@ class StockEntryCrudController extends BaseCrudController
             }
             $currentStock->update($stockInput);
             $this->stockItems->destroy($currentStock->items->pluck('id'));
-
             foreach ($request->mst_item_id as $key => $val) {
                 $itemArr = [];
                 $itemArr = array_merge($itemArr, [
                     'stock_id' => $currentStock->id,
                     'client_id' => $this->user->client_id,
-                    'mst_item_id' => $request->itemStockHidden[$key],
+                    'phr_item_id' => $request->itemStockHidden[$key],
                     'available_total_qty' => $request->available_total_qty[$key],
                     'add_qty' => $request->custom_Qty[$key],
                     'total_qty' => $request->total_qty[$key],
@@ -312,14 +320,11 @@ class StockEntryCrudController extends BaseCrudController
                     }
                     $itemArr['batch_no'] = $sequenceCodes['batch_number'];
                 }
+
                 $this->stockItems->create($itemArr);
             }
 
             DB::commit();
-
-            Artisan::call('barcode-list:generate', ['super_org_id' => $this->user->sup_org_id]);
-
-            session()->forget('barcode');
 
             return response()->json([
                 'status' => 'success',
@@ -345,16 +350,11 @@ class StockEntryCrudController extends BaseCrudController
         $this->crud->hasAccessOrFail('delete');
         try {
             DB::beginTransaction();
-
             $id = $this->crud->getCurrentEntryId() ?? $id;
             $stock = $this->stockEntries->find($id);
-
-            // $batchNo = $stock->items->pluck('batch_no');
-
-            // $relatedStockItemIds = $stock->items->pluck('id');
-            // $this->stockEntries->destroy($id);
-            // $this->stockItems->destroy($relatedStockItemIds);
-
+            $relatedStockItemIds = $stock->items->pluck('id');
+            $this->stockEntries->destroy($id);
+            $this->stockItems->destroy($relatedStockItemIds);
             DB::commit();
             return true;
         } catch (\Exception $e) {

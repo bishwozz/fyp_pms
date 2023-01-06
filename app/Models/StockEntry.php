@@ -54,6 +54,11 @@ class StockEntry extends BaseModel
         return $this->entry_date_bs ? dateToString($this->entry_date_bs) : '';
     }
 
+    public function items()
+    {
+        return $this->hasMany(StockItems::class, 'stock_id', 'id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
