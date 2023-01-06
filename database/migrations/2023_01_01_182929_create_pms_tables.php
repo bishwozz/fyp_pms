@@ -144,7 +144,7 @@ class CreatePmsTables extends Migration
             $table->unsignedSmallInteger('pharmaceutical_id')->nullable();
             $table->unsignedSmallInteger('brand_id');
             $table->string('name',100)->nullable();
-            $table->float('price')->nullable();
+            $table->string('tax_vat')->nullable();
 
             $table->unsignedSmallInteger('unit_id');
             $table->unsignedSmallInteger('stock_alert_minimun')->default(0);

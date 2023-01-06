@@ -88,7 +88,7 @@ class MstUnitCrudController extends BaseCrudController
             [
                 'name' => 'name_en',
                 'type' => 'text',
-                'label' => trans('MstUnit.name_en'),
+                'label' => trans('PhrMstUnit.name_en'),
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-6',
                 ],
@@ -96,7 +96,7 @@ class MstUnitCrudController extends BaseCrudController
             [
                 'name' => 'name_lc',
                 'type' => 'text',
-                'label' => trans('MstUnit.name_lc'),
+                'label' => trans('PhrMstUnit.name_lc'),
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-6',
                 ],
@@ -109,7 +109,7 @@ class MstUnitCrudController extends BaseCrudController
             [
                 'name' => 'count',
                 'type' => 'number',
-                'label' => trans('MstUnit.count'),
+                'label' => trans('PhrMstUnit.count'),
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-6',
                 ],

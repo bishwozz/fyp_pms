@@ -207,7 +207,8 @@ trait MasterArrayData{
     public function getSequenceCode($sequenceId)
     {
         $this->user = backpack_user();
-        $data = MstSequence::where([['client_id', $this->user->client_id], ['sequence_type', $sequenceId]])->pluck('id', 'sequence_code');
+        $data = MstSequence::where('sequence_type', $sequenceId)->pluck('id', 'sequence_code');
+        // dd($data);
         return $data;
     }
 

@@ -21,7 +21,7 @@ class Item extends BaseModel
     protected $table = 'phr_items';
      protected $keyType = 'string';
     protected $guarded = ['id','created_by'];
-    protected $fillable = ['client_id','code','supplier_id','category_id','brand_id','name','unit_id',
+    protected $fillable = ['client_id','code','supplier_id','category_id','brand_id','name','unit_id','tax_vat',
     'pharmaceutical_id','stock_alert_minimun','is_free','is_deprecated','description','is_active','updated_by'];
 
     public function supplier() {

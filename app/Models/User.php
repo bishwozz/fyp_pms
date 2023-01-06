@@ -107,4 +107,13 @@ class User extends Authenticatable
     public function routeNotificationForLog ($notifiable) {
         return 'identifier-from-notification-for-log: ' . $this->id;
     }
+
+    public function isOrgUser()
+    {
+        if(isset($this->client_id)){
+            return true;
+        }else{
+            return false;
+        }
+    }
 }

@@ -169,28 +169,6 @@ class CreateCoreMasterTables extends Migration
             $table->unique(['name','deleted_uq_code'],'uq_mst_genders_name');
         });
 
-        Schema::create('mst_blood_groups', function (Blueprint $table) {
-            $table->smallIncrements('id');
-            $table->string('type');
-            $table->timestamps();
-        });
-
-        // Schema::create('mst_hospitals', function(Blueprint $table) {
-        //     $table->smallIncrements('id');
-        //     $table->string('code',20);
-        //     $table->string('name',200);
-
-        //     $table->timestamps();
-        //     $table->unsignedInteger('created_by')->nullable();
-        //     $table->unsignedInteger('updated_by')->nullable();
-        //     $table->softDeletes();
-        //     $table->unsignedSmallInteger('deleted_by')->nullable();
-        //     $table->boolean('is_deleted')->nullable();
-        //     $table->unsignedInteger('deleted_uq_code')->nullable()->default(1);
-
-        //     $table->unique(['code','deleted_uq_code'],'uq_mst_hospitals_code');
-        //     $table->unique(['name','deleted_uq_code'],'uq_mst_hospitals_name');
-        // });
 
 
         Schema::create('app_clients', function (Blueprint $table) {
@@ -246,7 +224,7 @@ class CreateCoreMasterTables extends Migration
             $table->string('registration_number')->nullable();
             $table->string('pan_vat_no',50)->nullable();
 
-            $table->string('patient_seq_key',20)->nullable();
+            $table->string('purchase_order_seq_key',20)->nullable();
             $table->string('bill_seq_key',20)->nullable();
             $table->string('order_seq_key',20)->nullable();
             $table->string('sample_seq_key',20)->nullable();
@@ -264,20 +242,7 @@ class CreateCoreMasterTables extends Migration
             $table->foreign('client_id','fk_app_settings_client_id')->references('id')->on('app_clients')->cascadeOnUpdate()->cascadeOnDelete();
 
         });
-        Schema::create('mst_religions', function (Blueprint $table) {
-            $table->smallIncrements('id');
-            $table->string('code',20);
-            $table->string('name',200);
-    
-            $table->timestamps();
-            $table->unsignedSmallInteger('display_order')->nullable()->default(0);
-            $table->string('remarks',500)->nullable();
-            $table->unsignedSmallInteger('created_by')->nullable();
-            $table->unsignedSmallInteger('updated_by')->nullable();
-    
-            $table->unique('name','uq_mst_religions_name');
 
-        });
         Schema::create('mst_banks', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('code',20);

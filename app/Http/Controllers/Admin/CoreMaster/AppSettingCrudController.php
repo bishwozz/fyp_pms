@@ -245,9 +245,9 @@ class AppSettingCrudController extends BaseCrudController
                 ],
             ],
             [
-                'name' => 'patient_seq_key',
+                'name' => 'purchase_order_seq_key',
                 'type' => 'text',
-                'label' => 'Patient Sequence Key',
+                'label' => 'Purchase Order Sequence Key',
                 'wrapper' => [
                     'class' => 'form-group col-md-4',
                 ],

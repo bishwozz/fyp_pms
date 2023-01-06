@@ -52,33 +52,21 @@ class CoreTableSeeder extends Seeder
     {
         DB::table('app_clients')->insert([
             array('id' =>  1,'code' => 'sys','name' => 'System'),
-            array('id' =>  2,'code' => 'bidh_lab','name' => 'Bidh Lab'),
+            array('id' =>  2,'code' => 'pharmacy_lab','name' => 'Pharmacy Lab'),
         ]);
         DB::statement("SELECT SETVAL('app_clients_id_seq',2)");
     }
     private function app_setting()
     {
         DB::table('app_settings')->insert([
-            array('id' =>  1,'client_id'=> 2,'code' => 1 ,'office_name' => 'Bidh Lab','address_name' => 'Jwagal, UN Park Lane, LalitpurMetro-10,Bagmati,Nepal','fiscal_year_id'=>3,'phone'=>'15260149','email'=>'info@bidhlab.com','is_active'=>true,
+            array('id' =>  1,'client_id'=> 2,'code' => 1 ,'office_name' => 'Pharmacy Lab','address_name' => 'Jwagal, UN Park Lane, LalitpurMetro-10,Bagmati,Nepal','fiscal_year_id'=>3,'phone'=>'15260149','email'=>'info@pharmacylab.com','is_active'=>true,
         'letter_head_title_1'=>'Bidh Lab Pvt. Ltd',
-        'letter_head_title_2'=>'Nepal Government(NPHL) Approved "A" Grade Lab',
+        'letter_head_title_2'=>'Nepal Government(NPHL) Approved "A" Grade Pharmacy',
         'letter_head_title_3'=>'Jwagal, Un Park Lane, Kupondole-10, Lalitpurmetro, Nepal',
-        'letter_head_title_4'=>'www.bidhlab.com.np E-mail: info@bidhlab.com Phone No:+977-1-5260149'
+        'letter_head_title_4'=>'www.pharmacylab.com.np E-mail: info@pharmacy.com Phone No:+977-1-5260149'
         ),
         ]);
         DB::statement("SELECT SETVAL('app_settings_id_seq',1)");
-    }
-    private function mst_gender()
-    {
-        DB::table('mst_genders')->insert(
-            [
-                array('id' => 1, 'code' => 'm', 'name' => 'Male'),
-                array('id' => 2, 'code' => 'f', 'name' => 'Female'),
-                array('id' => 3, 'code' => 't', 'name' => 'Third Gender'),
-                array('id' => 4, 'code' => 'o', 'name' => 'Others'),
-            ]
-        );
-        DB::statement("SELECT SETVAL('mst_genders_id_seq',1000)");
     }
 
     private function mst_fed_province(){
@@ -981,29 +969,6 @@ class CoreTableSeeder extends Seeder
             ]
         );
         DB::statement("SELECT SETVAL('mst_nepali_months_id_seq',1000)");
-    }
-    private function mst_blood_group(){
-        DB::table('mst_blood_groups')->insert([
-            array('id' => 1,'type'=>'A+'),
-            array('id' => 2,'type'=>'A-'),
-            array('id' => 3,'type'=>'B+'),
-            array('id' => 4,'type'=>'B-'),
-            array('id' => 5,'type'=>'AB+'),
-            array('id' => 6,'type'=>'AB-'),
-            array('id' => 7,'type'=>'O+'),
-            array('id' => 8,'type'=>'O-'),
-        ]);
-    }
-    private function mst_religion(){
-        DB::table('mst_religions')->insert([
-            array('id' => 1,'code' => '1','name' => 'MUSLIM'),
-            array('id' => 2,'code' => '2','name' => 'CHRISTIAN'),
-            array('id' => 3,'code' => '3','name' => 'KIRANT'),
-            array('id' => 4,'code' => '4','name' => 'BONPO'),
-            array('id' => 5,'code' => '5','name' => 'HINDU'),
-            array('id' => 6,'code' => '6','name' => 'BUDDHIST'),
-            array('id' => 7,'code' => '7','name' => 'Others'),
-        ]);
     }
 
     private function mst_banks(){

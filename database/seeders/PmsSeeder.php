@@ -42,7 +42,9 @@ class PmsSeeder extends Seeder
             array('id' => 5,'client_id' => $client_id,'code' => '05','name_en' => 'Phile_15','name_lc' => '१५ को पत्ता', 'count' => '15', 'is_active' => true),
         ];
         
+        
         DB::table('phr_mst_units')->insert($arr);
+        DB::statement("SELECT SETVAL('phr_mst_units_id_seq',100)");
     }
     private function phr_mst_categories(){
         $client_id = DB::table('app_clients')->where('code', 'sys')->pluck('id')->first();
@@ -76,16 +78,7 @@ class PmsSeeder extends Seeder
             array('id' => 26,'client_id' => $client_id,'code' => '26','title_en' =>'SURGICAL ITEMS' , 'title_lc' => 'SURGICAL ITEMS'),
             array('id' => 27,'client_id' => $client_id,'code' => '27','title_en' =>'GENERAL MEDICINE' , 'title_lc' => 'GENERAL MEDICINE'),
         ]);
-        // DB::table('sup_status')->insert([   
-        //     array('id' => 1, 'code' => '1', 'name_en' => 'created', 'created_at' => Carbon::now()->format('d-m-Y') ),
-        //     array('id' => 2, 'code' => '2', 'name_en' => 'approved', 'created_at' => Carbon::now()->format('d-m-Y')),
-        //     array('id' => 3, 'code' => '3', 'name_en' => 'cancelled', 'created_at' => Carbon::now()->format('d-m-Y')),
-        //     array('id' => 4, 'code' => '4', 'name_en' => 'partial_return', 'created_at' => Carbon::now()->format('d-m-Y')),
-        //     array('id' => 5, 'code' => '5', 'name_en' => 'full_return', 'created_at' => Carbon::now()->format('d-m-Y')),
-        // ]);
-
-        // DB::statement("SELECT SETVAL('sup_status_id_seq',100)");
-
+        DB::statement("SELECT SETVAL('phr_mst_categories_id_seq',100)");
        
     }
 

@@ -37,8 +37,8 @@ class UserTableSeeder extends Seeder
             array(
                 'id' => 2,
                 'client_id' => $bidh_client_id,
-                'name' => 'Bidh Lab Admin',
-                'email' => 'bidh@gmail.com',
+                'name' => 'Pharmacy Lab Admin',
+                'email' => 'pharmacy@gmail.com',
                 'password' => bcrypt('Admin@1234'),
                 'created_at'=>$now,
                 'updated_at'=>$now,
@@ -54,56 +54,23 @@ class UserTableSeeder extends Seeder
 
         $permissions = Permission::all();
         $super_admin_role = Role::find(1);
-        $bidh_admin_role = Role::find(2);
+        $phar_admin_role = Role::find(2);
         $admin = Role::find(3);
-        $reception = Role::find(4);
-        $doctor = Role::find(5);
-        $lab_admin = Role::find(6);
-        $lab_technician = Role::find(7);
-        $lab_technologist = Role::find(8);
+        $salesperson = Role::find(4);
+       
 
         $super_admin_role->givePermissionTo($permissions);
-        $bidh_admin_role->givePermissionTo($permissions);
+        $phar_admin_role->givePermissionTo($permissions);
         $admin->givePermissionTo($permissions);
 
-        $reception->givePermissionTo(
-            'list patient','create patient','update patient',
-            'list patientappointment','create patientappointment','update patientappointment',
-            'list patientbilling','create patientbilling','update patientbilling',
-            'list labpatienttestdata','create labpatienttestdata','update labpatienttestdata',
-        );
-        $doctor->givePermissionTo(
-            'list labpatienttestdata','create labpatienttestdata','update labpatienttestdata',
-            'list labpatienttestresult','create labpatienttestresult','update labpatienttestresult',
-        );
-        $lab_admin->givePermissionTo(
-            'list mstbank','create mstbank','update mstbank',
-            'list patient','create patient','update patient',
-            'list patientappointment','create patientappointment','update patientappointment',
-            'list referral','create referral','update referral',
-            'list user','create user','update user',
-            'list patientbilling','create patientbilling','update patientbilling',
-            'list hrmstdepartments','create hrmstdepartments','update hrmstdepartments',
-            'list hrmstemployees','create hrmstemployees','update hrmstemployees',
-            'list hrmstsubdepartments','create hrmstsubdepartments','update hrmstsubdepartments',
-            'list labpanel','create labpanel','update labpanel',
-            'list labpatienttestdata','create labpatienttestdata','update labpatienttestdata',
-            'list labpatienttestresult','create labpatienttestresult','update labpatienttestresult',
+        // $salesperson->givePermissionTo();
 
-        );
-        $lab_technician->givePermissionTo(
-            'list labpatienttestdata','create labpatienttestdata',
-
-        );
-        $lab_technologist->givePermissionTo(
-            'list labpatienttestdata','create labpatienttestdata',
-        );
 
         //assign role for superadmin
         $user = User::findOrFail(1);
-        $bidh_user = User::findOrFail(2);
+        $phar_user = User::findOrFail(2);
 
         $user->assignRoleCustom("superadmin", $user->id);
-        $bidh_user->assignRoleCustom("clientadmin", $bidh_user->id);
+        $phar_user->assignRoleCustom("clientadmin", $phar_user->id);
     }
 }

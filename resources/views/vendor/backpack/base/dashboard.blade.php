@@ -19,134 +19,103 @@ $count = 0;
     }
   }
 @endphp
-<link rel="stylesheet" type="text/css" href="{{ asset('css/dashboard/dashboard.css') }}">
-    <div class="container">
-            <div class="card main-content">
-              <div class="header my-4">
-                <div class="container-fluid">
-                  <h2 class="mb-3 dash">Dashboard</h2>
-                  @if(backpack_user()->hasAnyRole('superadmin|clientadmin|admin|lab_admin|reception'))
-                    <div class="header-body">
-                      <div class="row">
-                        <div class="col-xl-3 col-lg-6">
-                          <a href="{{backpack_url('patient')}}">
-                            <div class="card card-stats mb-4 mb-xl-0">
-                              <div class="card-body">
-                                <div class="row">
-                                  <div class="col">
-                                    <span class="card-title text-uppercase text-dark mb-0">Registration</span>
-                                  </div>
-                                  <div class="col-auto">
-                                    <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
-                                      <i class="fas fa-chart-bar"></i>
-                                    </div>
-                                  </div>
-                                </div>
-                                <p class="mt-3 mb-0 text-dark text-sm">
-                                  <span class="text-danger mr-2"><i class="fa fa-arrow-right"></i></span>
-                                  <span class="text-nowrap"><a href="{{ backpack_url('patient') }}">Visit</a></span>
-                                </p>
-                              </div>
-                            </div>
-                          </a>
-                        </div>
+<style>
+    .dashboard-heading{
+        width: 100%;
+        color: #192840 !important;
+        margin:20px 20px;
+        padding-left: 10px;
+    }
+</style>
 
-                        <div class="col-xl-3 col-lg-6">
-                          <a href="{{backpack_url('emergency-patient')}}">
-                            <div class="card card-stats mb-4 mb-xl-0">
-                              <div class="card-body">
-                                <div class="row">
-                                  <div class="col">
-                                    <h5 class="card-title text-uppercase text-dark mb-0">Emergency Registration</h5>
-                                  </div>
-                                  <div class="col-auto">
-                                    <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
-                                      <i class="fas fa-chart-pie"></i>
-                                    </div>
-                                  </div>
-                                </div>
-                                <p class="mt-3 mb-0 text-dark text-sm">
-                                  <span class="text-warning mr-2"><i class="fas fa-arrow-right"></i></span>
-                                  <span class="text-nowrap"><a href="{{ backpack_url('emergency-patient') }}">Visit</a></span>
-                                </p>
-                              </div>
-                            </div>
-                          </a>
-                        </div>
-
-                        <div class="col-xl-3 col-lg-6">
-                          <a href="{{backpack_url('billing/patient-billing')}}">
-                            <div class="card card-stats mb-4 mb-xl-0">
-                            <div class="card-body">
-                              <div class="row">
-                                <div class="col">
-                                  <h5 class="card-title text-uppercase text-dark mb-0">Lab Billing</h5>
-                                </div>
-                                <div class="col-auto">
-                                  <div class="icon icon-shape bg-info text-white rounded-circle shadow">
-                                    <i class="fas fa-percent"></i>
-                                  </div>
-                                </div>
-                              </div>
-                              <p class="mt-3 mb-0 text-dark text-sm">
-                                <span class="text-primary mr-2"><i class="fas fa-arrow-right"></i></span>
-                                <span class="text-nowrap"><a href="{{ backpack_url('billing/patient-billing') }}">Visit</a></span>
-                              </p>
-                            </div>
-                            </div>
-                          </a>
-                        </div>
-
-                        <div class="col-xl-3 col-lg-6">
-                          <a href="{{backpack_url('reports')}}">
-                            <div class="card card-stats mb-4 mb-xl-0">
-                            <div class="card-body">
-                              <div class="row">
-                                <div class="col">
-                                  <h5 class="card-title text-uppercase text-dark mb-0">Reports</h5>
-                                </div>
-                                <div class="col-auto">
-                                  <div class="icon icon-shape bg-success text-white rounded-circle shadow">
-                                    <i class="fas fa-id-card"></i>
-                                  </div>
-                                </div>
-                              </div>
-                              <p class="mt-3 mb-0 text-dark text-sm">
-                                <span class="text-success mr-2"><i class="fas fa-arrow-right"></i></span>
-                                <span class="text-nowrap"><a href="{{ backpack_url('reports') }}">Visit</a></span>
-                              </p>
-                            </div>
-                            </div>
-                          </a>
-                        </div>
-                        <div class="col-xl-3 col-lg-6 mt-4">
-                          <a href="{{backpack_url('patient-appointment')}}">
-                            <div class="card card-stats mb-4 mb-xl-0">
-                            <div class="card-body">
-                              <div class="row">
-                                <div class="col">
-                                  <h5 class="card-title text-uppercase text-dark mb-0">Appointment</h5>
-                                </div>
-                                <div class="col-auto">
-                                  <div class="rounded-circle" style="box-shadow: 2px 4px 5px 2px rgb(0 0 0 / 50%);">
-                                    @include('notification.notification')
-                                    {{-- <i class="fas fa-users"></i> --}}
-                                  </div>
-                                </div>
-                              </div>
-                              <p class="mt-3 mb-0 text-dark text-sm">
-                                <span class="text-warning mr-2"><i class="fas fa-arrow-right"></i></span>
-                                <span class="text-nowrap"><a href="{{ backpack_url('patient-appointment') }}">Visit</a></span>
-                              </p>
-                            </div>
-                            </div>
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  @endif
-                </div>
-              </div>
+{{-- <div style="height:5vh;"></div> --}}
+{{-- Organization Overview --}}
+<div class="container-fluid m-0 p-0 pb-5 px-3 mb-3" style="background: white;">
+        <div class="row">
+            <div class="dashboard-heading">
+                <h3>
+                    Organization Overview
+                </h3>
             </div>
-    </div>
+            @if(isset($organizations))
+            <div class="col-lg-4 col-md-6 col-xs-12">
+                <a href="{{ backpack_url('sup-organization') }}">
+                    <div class="card-counter primary">
+                        <i class="fa fa-building"></i>
+                        <span class="count-numbers" id="">{{ $organizations }}</span>
+                        <span class="count-name">Total Organizations</span>
+                    </div>
+                </a>
+            </div>
+            @endif
+            <div class="col-lg-4 col-md-6 col-xs-12">
+                <a href="{{backpack_url('mst-store')}}">
+                    <div class="card-counter success">
+                        <i class="fa fa-shopping-bag"></i>
+                        <span class="count-numbers" id="">{{ $stores }}</span>
+                        <span class="count-name">Total Stores</span>
+                    </div>
+                </a>
+            </div>
+            <div class="col-lg-4 col-md-6 col-xs-12">
+                <a href="{{backpack_url('mst-item')}}">
+                    <div class="card-counter info" style="background:black; color:white;">
+                        <i class="fa fa-sitemap"></i>
+                        <span class="count-numbers" id="">{{ $items }}</span>
+                        <span class="count-name">Total Items</span>
+                    </div>
+                </a>
+            </div>
+            @if(isset($users))
+            <div class="col-lg-4 col-md-6 col-xs-12">
+                <a href="{{backpack_url('user')}}">
+                    <div class="card-counter purple">
+                        <i class="fa fa-user"></i>
+                        <span class="count-numbers" id="">{{ $users }}</span>
+                        <span class="count-name">Total Users</span>
+                    </div>
+                </a>
+            </div>
+            @endif
+        </div>
+</div>
+
+    {{-- Organization Barcodes Details Row --}}
+        <div class="container-fluid m-0 p-0 pb-5 px-3" style="background: white;">
+            <div class="row">
+                <div class="dashboard-heading">
+                    <h3>
+                        Organization Stock Details
+                    </h3>
+                </div>
+                <div class="col-lg-4 col-md-6 col-xs-12">
+                    <a href="#">
+                        <div class="card-counter primary">
+                            <i class="fa fa-barcode"></i>
+                            <span class="count-numbers" id="">{{ $total_barcodes }}</span>
+                            <span class="count-name">Total Stocks</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-4 col-md-6 col-xs-12">
+                    <a href="#">
+                        <div class="card-counter success">
+                            <i class="fa fa-check"></i>
+                            <span class="count-numbers" id="">{{ $active_barcodes }}</span>
+                            <span class="count-name">Total Active Stocks</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-4 col-md-6 col-xs-12">
+                    <a href="#">
+                        <div class="card-counter danger">
+                            <i class="fa fa-window-close"></i>
+                            <span class="count-numbers" id="">{{ $inactive_barcodes }}</span>
+                            <span class="count-name">Total Inactive Stocks</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
 @endsection

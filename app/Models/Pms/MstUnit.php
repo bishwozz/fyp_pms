@@ -13,7 +13,7 @@ class MstUnit extends BaseModel
 
     protected $table = 'phr_mst_units';
     protected $guarded = ['id','created_by'];
-    protected $fillable = ['code','name_en','name_lc','dependent_unit_id','count','is_active','client_id','updated_by'];
+    protected $fillable = ['code','name_en','name_lc','count','is_active','client_id','updated_by'];
 
     public function dependent_unit() {
         return $this->belongsTo(MstUnit::class);

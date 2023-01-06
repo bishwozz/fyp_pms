@@ -48,10 +48,6 @@
   color: white !important;
   border-radius: 5px 5px 5px 5px;
 }
-.app-header{
-  /* background: #741c98 !important; */
-}
-
 
 .reports-card {
   border-radius: 20px;
@@ -70,12 +66,6 @@
 }
 
 
-.sidebar {
-  /* background: #741c98 !important; */
-}
-/* .print_export_button.buttons-colvis {
-  background-color: red !important;
-} */
 
 @media only screen and (min-width: 600px) and (max-width:1499px) {
   .login-container {
@@ -107,14 +97,6 @@
   }
 }
 
-/* css for sidebar */
-/* .sidebar .nav-dropdown:hover>.nav-dropdown-items {
-  max-height: 1500px;
-} */
-
-/* .sidebar .nav-dropdown:hover>.nav-dropdown-toggle:before {
-  transform: rotate(-90deg);
-} */
 
 /* css for setting-tab */
 .setting-tab {

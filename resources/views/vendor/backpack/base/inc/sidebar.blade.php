@@ -1,8 +1,9 @@
 <style>
   .profile-card{
-    background: linear-gradient(0deg, rgb(33, 95, 134) 2%, rgb(76, 112, 152)15%, rgb(19, 110, 180) 84%) !important;
+    background: rebeccapurple;
+    /* background: linear-gradient(0deg, rgb(23 112 168) 2%, rgb(18 131 255)15%, rgb(28 222 52) 84%) !important; */
     border: 1px solid linear-gradient(0deg, rgb(50, 146, 205) 2%, rgb(112, 165, 225)15%, rgb(19, 110, 180) 84%) !important;
-    border-bottom: 2px solid rgb(28, 111, 138) !important;
+    /* border-bottom: 2px solid rgb(28, 111, 138) !important; */
     border-radius: 12px !important;
     box-shadow: none !important;
 

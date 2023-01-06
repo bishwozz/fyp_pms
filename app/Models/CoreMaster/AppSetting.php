@@ -18,7 +18,7 @@ class AppSetting extends BaseModel
     protected $fillable = ['code','client_id','office_name','address_name','phone','fax','email','registration_number','pan_vat_no',
                             'letter_head_title_1','letter_head_title_2','letter_head_title_3','letter_head_title_4',
                             'client_logo','client_stamp','remarks','is_active','fiscal_year_id',
-                        'patient_seq_key','bill_seq_key','order_seq_key','sample_seq_key'];
+                        'purchase_order_seq_key','bill_seq_key','order_seq_key','sample_seq_key'];
 
     public function client(){
         return $this->belongsTo(AppClient::class,'client_id','id');
