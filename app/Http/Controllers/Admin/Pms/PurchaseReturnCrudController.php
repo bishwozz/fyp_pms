@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Pms;
 
 use App\Utils\PdfPrint;
+use App\Models\Pms\MstSupplier;
 use App\Base\BaseCrudController;
 use App\Models\Pms\PurchaseReturn;
 use Illuminate\Support\Facades\DB;
@@ -28,11 +29,10 @@ class PurchaseReturnCrudController extends BaseCrudController
     public function setup()
     {
         $this->user = backpack_user();
-
         CRUD::setModel(PurchaseReturn::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/purchase-return');
-        CRUD::setEntityNameStrings('', 'purchase returns');
-        // $this->crud->enableExportButtons();
+        CRUD::setEntityNameStrings(' ', 'Purchase Return');
+
     }
 
     protected function setupListOperation()
@@ -89,17 +89,23 @@ class PurchaseReturnCrudController extends BaseCrudController
 
     public function create()
     {
+
         $this->crud->hasAccessOrFail('create');
 
 
         $suppliers = MstSupplier::where('client_id', $this->user->client_id)->pluck('id', 'name');
-        $reasons = ReturnReason::whereSupOrgId($this->user->sup_org_id)->whereIsActive(true)->get();
+        // $reasons = ReturnReason::whereSupOrgId($this->user->sup_org_id)->whereIsActive(true)->get();
+        // $reasons = ReturnReason::whereSupOrgId($this->user->sup_org_id)->whereIsActive(true)->get();
+        $reasons = ['1,2'];
 
         // $item_lists = Item::where('client_id', $this->user->client_id)->where('status_id',2)->get();
         $crud = $this->crud;
-        dd();
+        $item_lists = $this->getItemList();
 
-        return view('customAdmin.purchaseReturn.purchase_return', compact('item_lists', 'reasons', 'stores', 'suppliers','multiple_barcode','crud'));
+        // $grn_items = Item::where('client_id', $this->user->client_id)->where('status_id',2)->get();
+
+
+        return view('customAdmin.purchaseReturn.purchase_return', compact('item_lists', 'reasons', 'suppliers','crud'));
     }
 
     public function store()

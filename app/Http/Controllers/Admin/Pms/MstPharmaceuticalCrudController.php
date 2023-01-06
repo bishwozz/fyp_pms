@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Pms;
 use App\Base\BaseCrudController;
 use App\Models\Pms\MstPharmaceutical;
+use App\Http\Requests\Pms\MstPharmaceuticalRequest;
 
 
 class MstPharmaceuticalCrudController extends BaseCrudController
@@ -79,7 +80,7 @@ class MstPharmaceuticalCrudController extends BaseCrudController
 
     protected function setupCreateOperation()
     {
-        // $this->crud->setValidation(MstPharmaceuticalRequest::class);
+        $this->crud->setValidation(MstPharmaceuticalRequest::class);
         $arr=[
             $this->addCodeField(),
             $this->addClientIdField(),

@@ -297,9 +297,12 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
         $pod['po_date'] = dateToday();
         // dd($pod['status_id']);
         if($pod['status_id']==2){
-            $query = DB::table('purchase_order_details')->where('client_id',$this->user->client_id)->latest('created_at')->pluck('purchase_order_num')->first();
+            $query = DB::table('purchase_order_details')->select('purchase_order_num')->where('client_id',$this->user->client_id)
+            ->where('status_id',2)
+            ->latest('created_at')->pluck('purchase_order_num')->first();
             $prefix_key = appSetting()->purchase_order_seq_key;
             $purchase_order_num = $prefix_key.'1';
+            // dd($query,$purchase_order_num,$prefix_key,$this->user->client_id);
             if ($query != null) {
                 $explode = explode('-',$query);
                 $num = end($explode);
@@ -308,6 +311,7 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
         }
 
         $pod['purchase_order_num'] = $purchase_order_num;
+        // dd($purchase_order_num);
 
 
 
@@ -324,17 +328,7 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
 
                 // if ($initialSupStatus == SupStatus::APPROVED && !$this->user->is_po_approver) abort(401, "masdjasdsa");
                 if ($request->status_id == SupStatus::APPROVED &&  $initialSupStatus != SupStatus::APPROVED) {
-                    if(empty($sequenceCodes)){
-                        return response()->json([
-                            'status' => 'failed',
-                            'message' => "Failed to approve stock. Sequence Codes are not available"
-                        ]);
-                    }elseif(!array_key_exists('purchase_order_num',$sequenceCodes)){
-                        return response()->json([
-                            'status' => 'failed',
-                            'message' => "Failed to approve stock. Stock Adjustment Sequence is not created."
-                        ]);
-                    }
+   
 
                     $stockInput['purchase_order_num'] = $sequenceCodes['purchase_order_num'];
                     $pod['po_date'] = dateToday();

@@ -14,7 +14,7 @@ class MstCategoryCrudController extends BaseCrudController
         $this->crud->setRoute('admin/mstcategory');
         $this->crud->setEntityNameStrings('Category', 'MstCategory');
         $this->crud->clearFilters();
- $this->setFilters();
+        $this->setFilters();
     }
 
     protected function setFilters(){
@@ -32,12 +32,12 @@ class MstCategoryCrudController extends BaseCrudController
 
         $this->crud->addFilter([
             'type' => 'text',
-            'name' => 'title',
+            'name' => 'title_en',
             'label'=> 'Title'
           ], 
           false, 
           function($value) { // if the filter is active
-            $this->crud->addClause('where', 'title', 'iLIKE', "%$value%");
+            $this->crud->addClause('where', 'title_en', 'iLIKE', "%$value%");
           });
     }
 
@@ -48,7 +48,8 @@ class MstCategoryCrudController extends BaseCrudController
             $this->addCodeColumn(),
             [
                 'name'=>'title',
-                'label'=> 'Title ',
+                'label'=> 'title_en',
+                'type'=>'text',
             ],
         ];
         $this->crud->addColumns(array_filter($col));
@@ -62,6 +63,14 @@ class MstCategoryCrudController extends BaseCrudController
             $this->addClientIdField(),
             [
                 'name' => 'title_en',
+                'type' => 'text',
+                'label' => 'Title',
+                'wrapperAttributes' => [
+                    'class' => 'form-group col-md-6',
+                ],
+            ],
+            [
+                'name' => 'title_lc',
                 'type' => 'text',
                 'label' => 'Title',
                 'wrapperAttributes' => [

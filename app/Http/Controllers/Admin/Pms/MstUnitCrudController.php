@@ -76,10 +76,17 @@ class MstUnitCrudController extends BaseCrudController
         // $this->crud->setValidation(MstUnitRequest::class);
         $arr=[
             $this->addCodeField(),
-            $this->addClientIdField(),
-        
+            $this->addReadOnlyCodeField(),
             [
-                'name' => 'name',
+                'name' => 'name_lc',
+                'type' => 'text',
+                'label' => trans('PhrMstUnit.name_lc'),
+                'wrapperAttributes' => [
+                    'class' => 'form-group col-md-6',
+                ],
+            ],
+            [
+                'name' => 'name_en',
                 'type' => 'text',
                 'label' => trans('PhrMstUnit.name_en'),
                 'wrapperAttributes' => [

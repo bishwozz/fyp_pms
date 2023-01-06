@@ -958,15 +958,18 @@
                     // debugger;
                     axios.post(url, data).then((response) => {
                         if(response.data['status'] == 'failed'){
-                            Swal.fire(
-                                    icon: 'error',
-                                    text: response.data['message'],
-                                )
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Something went wrong!',
+                                footer: '<a href="">'+ response.data['message'] +'</a>'
+                            })
+                           
                         }else{
-                            Swal.fire(
-                                    icon: 'success',
-                                    text: response.data['message'],
-                                )
+                            Swal.fire({
+                                icon: 'success',
+                                text: response.data['message'],
+                            })
                             document.location = response.data['route'];
                         }
                         // INVENTORY.inventoryLoading(false, $('#po_form'));

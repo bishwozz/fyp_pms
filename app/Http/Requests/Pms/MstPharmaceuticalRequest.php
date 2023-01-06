@@ -4,7 +4,7 @@ namespace App\Http\Requests\Pms;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class MstCategoryRequest extends FormRequest
+class MstPharmaceuticalRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,14 +27,18 @@ class MstCategoryRequest extends FormRequest
 
 
         $id_check = request()->request->get('id') ? ",".request()->request->get('id') : ",NULL";
-        $name = $this->request->get('title_en');
-        $name_check =$id_check.",id,title_en,".$name.",deleted_uq_code,1";
+        $name = $this->request->get('name');
+        $name_check =$id_check.",id,name,".$name.",deleted_uq_code,1";
         $code = $this->request->get('code');
         $code_check = $id_check.",id,code,".$code.",deleted_uq_code,1";
         
         return [
-            'code' => 'required|max:20|unique:phr_mst_categories,code'.$code_check,
-            'title_en'=>'required|max:200|unique:phr_mst_categories,title_en'.$name_check,
+            'code' => 'required|max:20|unique:phr_mst_suppliers,code'.$code_check,
+            'name'=>'required|max:200|unique:phr_mst_suppliers,name'.$name_check,
+            'address'=>'required',
+            'email'=>'required',
+            'contact_person'=>'required',
+            'contact_number'=>'required|max:10|min:6',
             'description'=>'max:500',
         ];
 
@@ -48,8 +52,12 @@ class MstCategoryRequest extends FormRequest
     public function attributes()
     {
         return [
-            'code' => 'Code',
-            'title_en' => 'Title',
+            'code' => 'code',
+            'name' => 'Name',
+            'address'=>'Address',
+            'email'=>'Email',
+            'contact_person'=>'Contact Person',
+            'contact_number'=>'Phone Number',
             'description' => 'Description',
         ];
     }
@@ -65,7 +73,7 @@ class MstCategoryRequest extends FormRequest
             'required' => 'The :attribute field is required.',
             'unique' => 'The :attribute has already been taken.',
             'max' => 'The :attribute must not be greater than :max.',
-
+            'min' => 'The :attribute must not be less than :min.',
         ];
     }
 }

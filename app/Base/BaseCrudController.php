@@ -615,7 +615,7 @@ class BaseCrudController extends CrudController
 
 
         $filtered_items=[];
-        $items= Item::where(['is_active' => 'true'])->get();
+        $items= Item::where(['is_active' => 'true','client_id'=> backpack_user()->client_id])->get();
         // dd($items,'-');
         foreach($items as $item){
 
@@ -623,7 +623,6 @@ class BaseCrudController extends CrudController
                 'id' => $item->id,
                 'code' => $item->code,
                 'name' => $item->name,
-                'qty' => $item->itemQtyDetail->item_qty ?? 0
             ]);
         }
 

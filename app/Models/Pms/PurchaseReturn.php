@@ -21,8 +21,8 @@ class PurchaseReturn extends BaseModel
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     protected $guarded = ['id'];
-    protected $fillable = ['total_discount','sup_org_id','tax_total','net_amount','other_charge','taxable_amount','purchase_order_id','return_no','return_date','return_type','approved_by','gross_amt','discount_amt','tax_amt','other_charges',
-    'net_amt','comments','store_id','supplier_id','grn_id','return_reason_id','requested_store_id','status_id','grn_sequences_id','store_id'];
+    protected $fillable = ['total_discount','tax_total','net_amount','other_charge','taxable_amount','purchase_order_id','return_no','return_date','return_type','approved_by','gross_amt','discount_amt','tax_amt','other_charges',
+    'net_amt','comments','supplier_id','grn_id','return_reason_id','status_id','grn_sequences_id'];
     // protected $hidden = [];
     // protected $dates = [];
 

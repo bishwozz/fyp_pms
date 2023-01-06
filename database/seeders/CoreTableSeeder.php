@@ -18,15 +18,13 @@ class CoreTableSeeder extends Seeder
         $this->clean_tables();
 
         $this->app_client();
-        $this->mst_blood_group();
-        $this->mst_religion();
         $this->mst_fed_province();
         $this->mst_fed_district();
         $this->mst_fed_local_level_type();
         $this->mst_fed_local_level();
         $this->mst_fiscal_year();
         $this->mst_nepali_month();
-        $this->mst_gender();
+        // $this->mst_gender();
         $this->app_setting();
         $this->mst_banks();
 
@@ -42,8 +40,6 @@ class CoreTableSeeder extends Seeder
         DB::table('mst_fiscal_years')->delete();
         DB::table('mst_nepali_months')->delete();
         DB::table('mst_genders')->delete();
-        DB::table('mst_religions')->delete();
-        DB::table('mst_blood_groups')->delete();
         DB::table('app_clients')->delete();
         DB::table('mst_banks')->delete();
     }

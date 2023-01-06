@@ -152,6 +152,11 @@ Route::group([
         Route::get('purchase-history-details/{id}/{to}/{from}', 'PurchaseOrderDetailCrudController@purchaseOrderHistoryDetails')->name('custom.poh-details');
         
 		Route::crud('/purchase-return', 'PurchaseReturnCrudController');
+
+
+        Route::get('get-batch/{itemId}', 'SalesCrudController@getBatchItem')->name('custom.get-batch');
+        Route::get('get-batch-detail/{itemId}/{batchId}', 'SalesCrudController@getBatchDetail')->name('custom.get-batch-detail');
+        Route::get('get-batch-item-detail/{itemId}/{batchNo}', 'PurchaseReturnCrudController@getBatchDetail')->name('custom.get-batch-item-detail');
         
  	 // this should be the last line donot remove this
 

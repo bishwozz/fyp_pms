@@ -59,8 +59,6 @@ class CreateHrMasterTables extends Migration
 
             $table->foreign('client_id','fk_hr_mst_employees_client_id')->references('id')->on('app_clients');
             $table->foreign('gender_id','fk_hr_mst_employees_gender_id')->references('id')->on('mst_genders');
-            $table->foreign('department_id','fk_hr_mst_employees_department_id')->references('id')->on('hr_mst_departments');
-            $table->foreign('sub_department_id','fk_hr_mst_employees_sub_department_id')->references('id')->on('hr_mst_sub_departments');
             $table->foreign('country_id','fk_hr_mst_employees_country_id')->references('id')->on('mst_countries');
             $table->foreign('province_id','fk_hr_mst_employees_province_id')->references('id')->on('mst_fed_provinces');
             $table->foreign('district_id','fk_hr_mst_employees_district_id')->references('id')->on('mst_fed_districts');
@@ -70,10 +68,6 @@ class CreateHrMasterTables extends Migration
             $table->foreign('created_by','fk_hr_mst_employees_created_by')->references('id')->on('users');
             $table->foreign('updated_by','fk_hr_mst_employees_updated_by')->references('id')->on('users');
             $table->unsignedInteger('deleted_uq_code')->default(1);
-            $table->unique(['code','deleted_uq_code'],'uq_hr_mst_employees_code');
-
-
-
         });
 
         Schema::table('users',function (Blueprint $table){

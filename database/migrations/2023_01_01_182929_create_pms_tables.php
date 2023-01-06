@@ -42,7 +42,7 @@ class CreatePmsTables extends Migration
             $table->unsignedSmallInteger('client_id');
             $table->string('code',20);
             $table->string('name_en',200);
-            $table->string('name_lc',200);
+            $table->string('name_lc',200)->nullable();
             $table->unsignedInteger('count')->nullable();
             $table->timestamps();
             $table->boolean('is_active')->nullable()->default(true);
@@ -63,7 +63,8 @@ class CreatePmsTables extends Migration
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('client_id');
             $table->string('code',20);
-            $table->string('title',200);
+            $table->string('title_en',200);
+            $table->string('title_lc',200)->nullable();
             $table->string('description',500)->nullable();
             $table->boolean('is_active')->nullable()->default(true);
             $table->timestamps();
@@ -75,7 +76,6 @@ class CreatePmsTables extends Migration
 
 
 
-            $table->unique('code','uq_phr_mst_categories_code');
             $table->foreign('client_id','fk_phr_mst_categories_client_id')->references('id')->on('app_clients');
 
         });
@@ -97,10 +97,6 @@ class CreatePmsTables extends Migration
             $table->unsignedInteger('updated_by')->nullable();
             $table->unsignedInteger('deleted_uq_code')->default(1);
             $table->unique(['code','deleted_uq_code'],'uq_hr_phr_mst_pharmaceuticals_code');
-
-
-
-            $table->unique('code','uq_phr_mst_pharmaceuticals_code');
             $table->foreign('client_id','fk_phr_mst_pharmaceuticals_client_id')->references('id')->on('app_clients');
 
         });
@@ -142,11 +138,7 @@ class CreatePmsTables extends Migration
             $table->unsignedInteger('created_by')->nullable();
             $table->unsignedInteger('updated_by')->nullable();
             $table->unsignedInteger('deleted_uq_code')->default(1);
-            $table->unique(['code','deleted_uq_code'],'uq_hr_phr_mst_pharmaceuticals_code');
-
-
-    
-            $table->unique('code','uq_phr_mst_generic_names_code');
+            $table->unique(['code','deleted_uq_code'],'uq_phr_mst_generic_names_code');
             $table->foreign('client_id','fk_phr_mst_generic_names_client_id')->references('id')->on('app_clients');
 
         });
@@ -174,20 +166,15 @@ class CreatePmsTables extends Migration
 
             $table->unsignedInteger('created_by')->nullable();
             $table->unsignedInteger('updated_by')->nullable();
-
-            $table->unique('code','uq_phr_items_code');
             $table->index('brand_id','idx_phr_items_brand_name');
             $table->unsignedInteger('deleted_uq_code')->default(1);
-            $table->unique(['code','deleted_uq_code'],'uq_hr_phr_mst_pharmaceuticals_code');
-
-
+            $table->unique(['code','deleted_uq_code'],'uq_phr_items_code');
 
             $table->foreign('supplier_id','fk_phr_items_supplier_id')->references('id')->on('phr_mst_suppliers');
             $table->foreign('category_id','fk_phr_items_category_id')->references('id')->on('phr_mst_categories');
             $table->foreign('pharmaceutical_id','fk_phr_items_pharmaceutical_id')->references('id')->on('phr_mst_pharmaceuticals');
             $table->foreign('unit_id','fk_phr_items_group_unit_id')->references('id')->on('phr_mst_units');
             $table->foreign('client_id','fk_phr_items_client_id')->references('id')->on('app_clients');
-
             $table->foreign('brand_id','fk_phr_items_brand_id')->references('id')->on('mst_brands');
 
         });
@@ -203,8 +190,7 @@ class CreatePmsTables extends Migration
             $table->unsignedInteger('created_by')->nullable();
             $table->unsignedInteger('updated_by')->nullable();
             $table->unsignedInteger('deleted_uq_code')->default(1);
-            $table->unique(['code','deleted_uq_code'],'uq_phr_item_units_code');
-
+            $table->unique(['id','deleted_uq_code'],'uq_phr_item_units_id');
 
 
             $table->foreign('item_id','fk_phr_item_units_item+id')->references('id')->on('phr_items');
@@ -221,7 +207,7 @@ class CreatePmsTables extends Migration
             $table->unsignedInteger('created_by')->nullable();
             $table->unsignedInteger('updated_by')->nullable();
             $table->unsignedInteger('deleted_uq_code')->default(1);
-            $table->unique(['code','deleted_uq_code'],'uq_phr_item_stocks_code');
+            $table->unique(['id','deleted_uq_code'],'uq_phr_item_stocks_id');
 
 
 
@@ -266,26 +252,20 @@ class CreatePmsTables extends Migration
             $table->float('net_amt')->nullable();
             $table->string('comments')->nullable();
 
-
-
             $table->timestamps();
-
             $table->unsignedBigInteger('supplier_id')->nullable();
             $table->unsignedBigInteger('status_id');
             $table->unsignedSmallInteger('client_id')->nullable();
-
             $table->foreign('supplier_id')->references('id')->on('phr_mst_suppliers')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('client_id')->references('id')->on('app_clients')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('status_id')->references('id')->on('sup_status')
                    ->onDelete('restrict')->onUpdate('cascade');
-
-
             $table->dateTime('deleted_at')->nullable();
             $table->unsignedInteger('created_by')->nullable();
             $table->unsignedInteger('updated_by')->nullable();
             $table->unsignedInteger('deleted_by')->nullable();
             $table->unsignedInteger('deleted_uq_code')->default(1);
-            $table->unique(['code','deleted_uq_code'],'uq_purchase_order_details_code');
+            $table->unique(['id','deleted_uq_code'],'uq_purchase_order_details_id');
 
      });
 
@@ -344,7 +324,7 @@ class CreatePmsTables extends Migration
             $table->unsignedInteger('updated_by')->nullable();
             $table->unsignedInteger('deleted_by')->nullable();
             $table->unsignedInteger('deleted_uq_code')->default(1);
-            $table->unique(['code','deleted_uq_code'],'uq_hr_purchase_items_code');
+            $table->unique(['id','deleted_uq_code'],'uq_hr_purchase_items_code_id');
 
             
      });
@@ -382,7 +362,7 @@ class CreatePmsTables extends Migration
         $table->foreign('status_id')->references('id')->on('sup_status')->onDelete('restrict')->onUpdate('cascade');
         $table->foreign('created_by')->references('id')->on('users')->onDelete('restrict')->onUpdate('cascade');
         $table->foreign('approved_by')->references('id')->on('users')->onDelete('restrict')->onUpdate('cascade');
-        $table->unique(['code','deleted_uq_code'],'uq_purchase_returns_code');
+        $table->unique(['id','deleted_uq_code'],'uq_purchase_returns_id');
         
     });
             //End of purchase return migration
@@ -420,7 +400,7 @@ class CreatePmsTables extends Migration
             $table->foreign('phr_items_id')->references('id')->on('phr_items')->onDelete('restrict')->onUpdate('cascade');
             $table->foreign('client_id')->references('id')->on('app_clients')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('created_by')->references('id')->on('users')->onDelete('restrict')->onUpdate('cascade');
-            $table->unique(['code','deleted_uq_code'],'uq_purchase_return_items_code');
+            $table->unique(['id','deleted_uq_code'],'uq_purchase_return_items_id');
         
         });
 
