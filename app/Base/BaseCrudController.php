@@ -39,7 +39,6 @@ class BaseCrudController extends CrudController
     use InlineCreateOperation;
     use ActivityLogTraits;
     use MasterArrayData;
-    use ShowOperation;
 
 
 
@@ -616,13 +615,13 @@ class BaseCrudController extends CrudController
     public function getItemList($conditions = [])
     {
         $filtered_items=[];
-        $items= Item::where(['is_active' => 'true'])->get();
+        $items= Item::where(['is_active' => 'true','client_id'=> backpack_user()->client_id])->get();
+        // dd($items,'-');
         foreach($items as $item){
             array_push($filtered_items, [
                 'id' => $item->id,
                 'code' => $item->code,
                 'name' => $item->name,
-                'qty' => $this->getItemQty($item->id),
             ]);
         }
         return $filtered_items;

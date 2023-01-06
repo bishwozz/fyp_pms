@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Pms;
 
 use App\Models\Pms\MstCategory;
 use App\Base\BaseCrudController;
+use App\Http\Requests\Pms\MstCategoryRequest;
 
 class MstCategoryCrudController extends BaseCrudController
 {
@@ -11,9 +12,9 @@ class MstCategoryCrudController extends BaseCrudController
     {
         $this->crud->setModel(MstCategory::class);
         $this->crud->setRoute('admin/mstcategory');
-        $this->crud->setEntityNameStrings(trans('menu.mstcategory'), trans('menu.mstcategory'));
+        $this->crud->setEntityNameStrings('Category', 'MstCategory');
         $this->crud->clearFilters();
- $this->setFilters();
+        $this->setFilters();
     }
 
     protected function setFilters(){
@@ -21,30 +22,22 @@ class MstCategoryCrudController extends BaseCrudController
             [ // simple filter
                 'type' => 'text',
                 'name' => 'code',
-                'label' => trans('कोड')
+                'label' => 'Code',
             ],
             false,
             function ($value) { // if the filter is active
                 $this->crud->addClause('where', 'code', '=', "$value");
             }
         );
+
         $this->crud->addFilter([
             'type' => 'text',
             'name' => 'title_en',
-            'label'=> trans('MstCategory.title_en')
+            'label'=> 'Title'
           ], 
           false, 
           function($value) { // if the filter is active
             $this->crud->addClause('where', 'title_en', 'iLIKE', "%$value%");
-          });
-          $this->crud->addFilter([
-            'type' => 'text',
-            'name' => 'name_lc',
-            'label'=> trans('MstCategory.title_lc')
-          ], 
-          false, 
-          function($value) { // if the filter is active
-            $this->crud->addClause('where', 'title_lc', 'iLIKE', "%$value%");
           });
     }
 
@@ -54,12 +47,9 @@ class MstCategoryCrudController extends BaseCrudController
             $this->addRowNumber(),
             $this->addCodeColumn(),
             [
-                'name'=>'title_en',
-                'label'=>trans('MstCategory.title_en'),
-            ],
-            [
-                'name'=>'title_lc',
-                'label'=>trans('MstCategory.title_lc'),
+                'name'=>'title',
+                'label'=> 'title_en',
+                'type'=>'text',
             ],
         ];
         $this->crud->addColumns(array_filter($col));
@@ -67,14 +57,14 @@ class MstCategoryCrudController extends BaseCrudController
 
     protected function setupCreateOperation()
     {
-        // $this->crud->setValidation(MstCategoryRequest::class);
+        $this->crud->setValidation(MstCategoryRequest::class);
         $arr=[
             $this->addCodeField(),
             $this->addClientIdField(),
             [
                 'name' => 'title_en',
                 'type' => 'text',
-                'label' => trans('MstCategory.title_en'),
+                'label' => 'Title',
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-6',
                 ],
@@ -82,23 +72,16 @@ class MstCategoryCrudController extends BaseCrudController
             [
                 'name' => 'title_lc',
                 'type' => 'text',
-                'label' => trans('MstCategory.title_lc'),
+                'label' => 'Title',
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-6',
                 ],
             ],
+            
             [
-                'name' => 'description_en',
+                'name' => 'description',
                 'type' => 'textarea',
-                'label' => trans('MstCategory.description_en'),
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-12',
-                ],
-            ],
-            [
-                'name' => 'description_lc',
-                'type' => 'textarea',
-                'label' => trans('MstCategory.description_ln'),
+                'label' => 'Description',
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-12',
                 ],

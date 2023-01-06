@@ -22,7 +22,7 @@ class UserTableSeeder extends Seeder
     {
         $now = Carbon::now()->toDateTimeString();
         $client_id = DB::table('app_clients')->where('code', 'sys')->pluck('id')->first();
-        $bidh_client_id = DB::table('app_clients')->where('code', 'bidh_lab')->pluck('id')->first();
+        $bidh_client_id = DB::table('app_clients')->where('code', 'pharmacy_lab')->pluck('id')->first();
 
         DB::table('users')->insert([
             array(

@@ -141,16 +141,23 @@ Route::group([
 
 		Route::crud('/purchase-order-detail', 'PurchaseOrderDetailCrudController');
 		Route::post('/purchase-order-detail/{order_id}', 'PurchaseOrderDetailCrudController@update')->name('purchase.order-edit');
-
-
+        
+        
         Route::get('/mst-sequence/sequence-code-check', [MstSequenceCrudController::class, 'sequenceCodeCheck'])->name('sequence.code-check');
         Route::post('/mst-sequence/inline-create', [MstSequenceCrudController::class, 'inlineStore'])->name('sequence.inlineStore');
-
+        
         Route::get('get-contact-details/{detail}', 'PurchaseOrderDetailCrudController@getContactDetails')->name('custom.contact-details');
         Route::get('po-item-details/{item}', 'PurchaseOrderDetailCrudController@poDetails')->name('custom.po-details');
         Route::get('purchase-history-details/{id}/{to}/{from}', 'PurchaseOrderDetailCrudController@purchaseOrderHistoryDetails')->name('custom.poh-details');
+        
+		Route::crud('/purchase-return', 'PurchaseReturnCrudController');
 
- 	    // this should be the last line donot remove this
+
+        Route::get('get-batch/{itemId}', 'SalesCrudController@getBatchItem')->name('custom.get-batch');
+        Route::get('get-batch-detail/{itemId}/{batchId}', 'SalesCrudController@getBatchDetail')->name('custom.get-batch-detail');
+        Route::get('get-batch-item-detail/{itemId}/{batchNo}', 'PurchaseReturnCrudController@getBatchDetail')->name('custom.get-batch-item-detail');
+        
+ 	 // this should be the last line donot remove this
 
         Route::crud('stock-entry', 'StockEntryCrudController');
         Route::get('stock-item/{item}', 'StockEntryCrudController@stockItem')->name('custom.stock-item');

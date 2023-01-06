@@ -73,7 +73,7 @@ class UserCrudController extends BaseCrudController
         $this->data['list_tab_header_view'] = 'tab.custom_tab_links';
 
         $links[] = ['label' => 'Main', 'icon' => 'la la-cogs', 'href' => backpack_url('user/main')];
-        $links[] = ['label' => 'Patients', 'icon' => 'la la-cogs', 'href' => backpack_url('user/patients')];
+        $links[] = ['label' => 'Patients', 'icon' => 'la la-cogs', 'href' => backpack_url('')];
 
         $this->data['links'] = $links;
     }
@@ -81,13 +81,9 @@ class UserCrudController extends BaseCrudController
     {
             
         $custom_param = $this->parent('custom_param');
-        // $accepted_bill_ids = LabPatientTestData::where('collection_status',1)->whereNotNull('collection_datetime')->pluck('bill_id')->toArray();
-        // $accepted_bill_ids = \array_unique($accepted_bill_ids);
     
         switch ($custom_param) {
             case 'main':
-                $this->crud->query->whereNull('patient_id');
-                
             break;
 
             case 'patients':
@@ -95,7 +91,6 @@ class UserCrudController extends BaseCrudController
             break;
 
             default:
-                $this->crud->query->whereNull('patient_id');
             break;
 
 
