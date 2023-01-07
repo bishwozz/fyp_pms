@@ -3,16 +3,25 @@
 namespace App\Http\Controllers\Admin\Pms;
 
 use Carbon\Carbon;
+use App\Models\User;
 use App\Utils\PdfPrint;
 use App\Models\Pms\Sales;
+use App\Models\Pms\MstItem;
+use App\Models\Pms\MstUnit;
 use App\Utils\NumberToWords;
 use Illuminate\Http\Request;
 use App\Models\Pms\SaleItems;
+use App\Models\Pms\SupStatus;
+use App\Models\Pms\MstCustomer;
+use App\Models\Pms\MstDiscMode;
+use App\Models\Pms\MstSequence;
 use App\Base\BaseCrudController;
 use Illuminate\Support\Facades\DB;
 use Prologue\Alerts\Facades\Alert;
 use App\Http\Requests\SalesRequest;
 use App\Models\Pms\StockItemDetails;
+use App\Models\Pms\ItemQuantityDetail;
+use App\Models\Pms\BatchQuantityDetail;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
@@ -43,30 +52,23 @@ class SalesCrudController extends BaseCrudController
         CRUD::setRoute(config('backpack.base.route_prefix') . '/sales');
         CRUD::setEntityNameStrings('Sales', 'Sales');
         $this->user = backpack_user();
-        // $this->crud->enableExportButtons();
         $this->crud->enableResponsiveTable();
-        $this->multiple_barcode = backpack_user()->superOrganizationEntity->multiple_barcode;
-        $this->isAllowed([
-            'stockItem' => 'list',
-            'getBatchDetail' => 'list',
-            'getBatchItem' => 'list',
-            'barcodeSessionStore' => 'list',
-            'barcodeSessionFlush' => 'list',
-            'setSessions' => 'list'
-        ]);
+        $this->crud->denyAccess('update');
+        $this->crud->denyAccess('delete');
+        // $this->isAllowed([
+        //     'stockItem' => 'list',
+        //     'getBatchDetail' => 'list',
+        //     'getBatchItem' => 'list',
+        //     'barcodeSessionStore' => 'list',
+        //     'barcodeSessionFlush' => 'list',
+        //     'setSessions' => 'list'
+        // ]);
 
     }
 
     protected function setupListOperation()
     {
         $cols = [
-            [
-                'name' => 'customer_id',
-                'type' => 'model_function',
-                'label' => 'Full Name',
-                'function_name' => 'getCustomerName',
-            ],
-            $this->addStoreColumn(),
 
             [
                 'name' => 'bill_no',
@@ -123,18 +125,9 @@ class SalesCrudController extends BaseCrudController
                     '5' => 'Full Return'
                 ]
             ],
-            [
-                'label'     => 'Organization',
-                'type'      => 'select',
-                'name'      => 'sup_org_id', // the column that contains the ID of that connected entity;
-                'entity'    => 'superOrganizationEntity', // the method that defines the relationship in your Model
-                'attribute' => 'name_en', // foreign key attribute that is shown to user
-                'model'     => SupOrganization::class
-            ],
         ];
 
         $this->crud->addColumns(array_filter($cols));
-        $this->filterListByUserLevel();
 
         $this->crud->addButtonFromModelFunction('line', 'printInvoice', 'printInvoice', 'beginning');
         $this->crud->addButtonFromModelFunction('line', 'printInvoiceNoHeader', 'printInvoiceNoHeader', 'beginning');
@@ -162,35 +155,13 @@ class SalesCrudController extends BaseCrudController
         $this->crud->hasAccessOrFail('create');
         $item_lists = $this->getItemList();
         $discount_modes = MstDiscMode::all();
-        $discount_approver = User::where('sup_org_id', $this->user->sup_org_id)
-            ->where('store_id', $this->user->store_id)
-            ->where('is_discount_approver', true)->get();
-        $due_approver = User::where('sup_org_id', $this->user->sup_org_id)
-            ->where('store_id', $this->user->store_id)
-            ->where('is_due_approver', true)->get();
-
+        $discount_approver = User::where('client_id', $this->user->client_id)->get();
+        $due_approver = User::where('client_id', $this->user->client_id)->get();
         $this->data['crud'] = $this->crud;
         $this->data['item_lists'] = $item_lists;
-
         $this->data['discount_modes'] = $discount_modes;
         $this->data['discount_approver'] = $discount_approver;
         $this->data['due_approver'] = $due_approver;
-        $this->data['multiple_barcode'] = $this->multiple_barcode;
-
-        $this->data['customers'] = MstCustomer::where([['is_customer', true], ['is_active', true], ['is_coorporate', false]])->get();
-        $this->data['coorporateCustomers'] = MstCustomer::where([['is_customer', true], ['is_active', true], ['is_coorporate', true]])->get()->unique('company_name');
-
-        // Json Categories
-        $this->data['jsonCustomers'] = json_encode(
-            MstCustomer::where([['is_customer', true], ['is_active', true]])
-                ->pluck('name_en')
-        );
-
-        $this->data['jsonCustomersCompanyName'] = json_encode(
-            MstCustomer::where([['is_customer', true], ['is_active', true], ['is_coorporate', true]])
-                ->pluck('company_name')
-        );
-
         $this->data['sequenceCodes'] = $this->sequence_type();
         $this->data['invoiceSequences'] = $this->getsequenceCode(3);
 
@@ -217,7 +188,6 @@ class SalesCrudController extends BaseCrudController
                 'tax_vat',
                 'item_discount',
                 'item_total',
-                'store_id',
                 'discount',
                 'receipt_amt',
                 'discount_amt',
@@ -241,17 +211,7 @@ class SalesCrudController extends BaseCrudController
                 'due_approver_id'
             ]);
 
-            $customerInput = $request->only([
-                'bill_type',
-                'full_name',
-                'hidden_bill_type',
-                'hidden_gender_id',
-                'customer_id',
-                'address',
-                'contact_number',
-                'company_name',
-                'pan_vat',
-            ]);
+
 
             $sequenceCodes = $request->only('invoice_sequence');
 
@@ -268,8 +228,7 @@ class SalesCrudController extends BaseCrudController
                 $salesInput['bill_date_bs'] = convert_bs_from_ad($salesInput['bill_date_ad']);
             }
 
-            $salesInput['store_id'] = $this->user->store_id;
-            $salesInput['sup_org_id'] = $this->user->sup_org_id;
+            $salesInput['client_id'] = $this->user->client_id;
             if ($request->payment_type == 2) {
                 $salesInput['discount_approver_id'] = $request->discount_approver_id;
                 $salesInput['due_approver_id'] = null;
@@ -280,43 +239,19 @@ class SalesCrudController extends BaseCrudController
                 $salesInput['discount_approver_id'] = null;
                 $salesInput['due_approver_id'] = null;
             }
-            if($customerInput['bill_type'] == 1){
-                $bill_type = false;
-            }else{
-                $bill_type = true;
-            }
 
             try {
                 DB::beginTransaction();
-                if($customerInput['customer_id']){
-                    $customer = MstCustomer::find($customerInput['customer_id']);
-                }else{
-                    $customer = new MstCustomer();
-                }
-                $customer->is_customer = true;
-                $customer->is_coorporate = $bill_type;
-                $customer->name_en = $customerInput['full_name'];
-                $customer->address = $customerInput['address'];
-                $customer->contact_number = $customerInput['contact_number'];
-                $customer->company_name = $customerInput['company_name'];
-                $customer->pan_no = $customerInput['pan_vat'];
-                $customer->sup_org_id = $this->user->sup_org_id;
-                $customer->save();
-                $salesInput['customer_id'] = $customer->id;
                 $stock = $this->salesEntries->create($salesInput);
                 $saleItem = [];
                 foreach ($request->item_id as $key => $val) {
-                    // dd($request->batch_qty[$key]);
-                    // dd($request->all());
                     $unit = MstUnit::where('name_en', $request->unit_id[$key])->first();
                     $selectedBatch = $request->batch_no[$key];
                     $selectedBatchQty = $request->batch_qty[$key];
                     $sequenceId = MstSequence::where('sequence_code', $selectedBatch)->first()->id;
                     $selectedItem = $request->itemSalesHidden[$key];
                     $customSelectedItem = explode('#',$request->item_id[$key]);
-                    // $customSelectedItem = intval($customSelectedItem[0]);
 
-                    dump($selectedItem,$customSelectedItem);
                     if(!$selectedItem){
                         $batchQty = BatchQuantityDetail::where('item_id', $customSelectedItem)->where('batch_no', $sequenceId)->select('id', 'batch_qty')->first();
                         $itemArr = [
@@ -354,9 +289,6 @@ class SalesCrudController extends BaseCrudController
     
                     }
 
-
-                    
-
                     if ($request->status_id == SupStatus::APPROVED) {
                         if($request->total_qty[$key] ==0){
                             $totalQty = $request->custom_Qty[$key];
@@ -376,7 +308,7 @@ class SalesCrudController extends BaseCrudController
                         if(!$selectedItem){
                             $salesQty = ItemQuantityDetail::where('item_id', $customSelectedItem )->select('id', 'item_qty')->first();
                         }else{
-                            $salesQty = ItemQuantityDetail::where('item_id', $selectedItem )->where('store_id', backpack_user()->store_id)->where('sup_org_id', backpack_user()->sup_org_id)->select('id', 'item_qty')->first();
+                            $salesQty = ItemQuantityDetail::where('item_id', $selectedItem )->where('client_id', backpack_user()->client_id)->select('id', 'item_qty')->first();
                         }
                         $new_sales = $salesQty->item_qty - $totalQty;
                         if ($new_sales < 0) {
@@ -393,24 +325,10 @@ class SalesCrudController extends BaseCrudController
                     }
 
                     $stockItem =  $this->salesItems->create($itemArr);
-                    if ($request->session()->has('barcode.barcode-' . $selectedItem )) {
-                        $stockBarcodeDetails = $request->session()->get('barcode.barcode-' . $selectedItem );
-                        foreach ($stockBarcodeDetails as $barcode => $barcodeItem) {
-                            $barcodeId = $this->barcodeDetails::where('barcode_details', $barcode)->pluck('id')->first();
-                            $currentPo = $this->barcodeDetails->find($barcodeId);
-                            $currentPo->update([
-                                'is_active' => $statusCheck ? false : true,
-                                'sales_item_id' => $stockItem->id,
-                            ]);
-                        }
-                    }
                 }
 
                 DB::commit();
 
-                Artisan::call('barcode-list:generate', [
-                    'super_org_id' => $this->user->sup_org_id
-                ]);
                 session()->forget('barcode');
 
                 return response()->json([
@@ -437,8 +355,8 @@ class SalesCrudController extends BaseCrudController
         $this->crud->allowAccess('edit');
         $this->setSessions($sales->saleItems);
         $discount_modes = MstDiscMode::all();
-        $discount_approver = User::where('sup_org_id', $this->user->sup_org_id)->where('store_id', $this->user->store_id)->where('is_discount_approver', true)->get();
-        $due_approver = User::where('sup_org_id', $this->user->sup_org_id)->where('store_id', $this->user->store_id)->where('is_due_approver', true)->get();
+        $discount_approver = User::where('client_id', $this->user->client_id)->get();
+        $due_approver = User::where('client_id', $this->user->client_id)->get();
         $this->data['crud'] = $this->crud;
         $item_lists = $this->getItemList();
         $this->data['item_lists'] = $item_lists;
@@ -447,8 +365,6 @@ class SalesCrudController extends BaseCrudController
         $this->data['discount_approver'] = $discount_approver;
         $this->data['due_approver'] = $due_approver;
         $this->data['multiple_barcode'] = $this->multiple_barcode;
-        $this->data['customers'] = MstCustomer::where([['is_customer', true], ['is_active', true], ['is_coorporate', false]])->get();
-        $this->data['coorporateCustomers'] = MstCustomer::where([['is_customer', true], ['is_active', true], ['is_coorporate', true]])->get()->unique('company_name');
         $this->data['sequenceCodes'] = $this->sequence_type();
         $this->data['invoiceSequences'] = $this->getsequenceCode(3);
 
@@ -475,7 +391,6 @@ class SalesCrudController extends BaseCrudController
             'tax_vat',
             'item_discount',
             'item_total',
-            'store_id',
             'discount',
             'receipt_amt',
             'discount_amt',
@@ -499,17 +414,6 @@ class SalesCrudController extends BaseCrudController
             'due_approver_id'
         ]);
 
-        $customerInput = $request->only([
-            'bill_type',
-            'full_name',
-            'hidden_bill_type',
-            'hidden_gender_id',
-            'customer_id',
-            'address',
-            'contact_number',
-            'company_name',
-            'pan_vat',
-        ]);
 
         $sequenceCodes = $request->only('invoice_sequence');
         if ($request->status_id == SupStatus::APPROVED) {
@@ -522,7 +426,7 @@ class SalesCrudController extends BaseCrudController
             $salesInput['bill_no'] = $sequenceCodes['invoice_sequence'];
             $salesInput['bill_date_ad'] = dateToday();
         }
-        $salesInput['sup_org_id'] = $this->user->sup_org_id;
+        $salesInput['client_id'] = $this->user->client_id;
         if ($request->payment_type == 2) {
             $salesInput['discount_approver_id'] = $request->discount_approver_id;
             $salesInput['due_approver_id'] = null;
@@ -533,33 +437,12 @@ class SalesCrudController extends BaseCrudController
             $salesInput['discount_approver_id'] = null;
             $salesInput['due_approver_id'] = null;
         }
-        if($customerInput['bill_type'] == 1){
-            $bill_type = false;
-        }else{
-            $bill_type = true;
-        }
+
 
         try {
             DB::beginTransaction();
             $currentSales = $this->salesEntries->find($this->crud->getCurrentEntryId());
-            if($customerInput['customer_id']){
-                $customer = MstCustomer::find($customerInput['customer_id']);
-            }else{
-                $customer = new MstCustomer();
-            }
-            $customer->is_customer = true;
-            $customer->is_coorporate = $bill_type;
-            $customer->name_en = $customerInput['full_name'];
-            $customer->address = $customerInput['address'];
-            $customer->contact_number = $customerInput['contact_number'];
-            $customer->company_name = $customerInput['company_name'];
-            $customer->pan_no = $customerInput['pan_vat'];
-            $customer->sup_org_id = $this->user->sup_org_id;
-            $customer->save();
-
-            $salesInput['customer_id'] = $customer->id;
-
-
+ 
             // For cancelling the bill
             if ($salesInput['status_id'] == 3) {
                 $currentSales->update(['status_id' => SupStatus::CANCELLED]);
@@ -574,7 +457,7 @@ class SalesCrudController extends BaseCrudController
                     $batchQty = BatchQuantityDetail::where('item_id', $request->itemSalesHidden[$key])->where('id', $selectedBatch)->select('id', 'batch_qty')->first();
                     $newQty = $batchQty->batch_qty + $totalQty;
                     $newBatch = BatchQuantityDetail::find($batchQty->id);
-                    $salesQty = ItemQuantityDetail::where('item_id', $request->itemSalesHidden[$key])->where('store_id', backpack_user()->store_id)->where('sup_org_id', backpack_user()->sup_org_id)->select('id', 'item_qty')->first();
+                    $salesQty = ItemQuantityDetail::where('item_id', $request->itemSalesHidden[$key])->where('client_id', backpack_user()->client_id)->select('id', 'item_qty')->first();
                     $new_sales = $salesQty->item_qty + $totalQty;
                     $salesQty->item_qty = $new_sales;
                     $newBatch->batch_qty = $newQty;
@@ -629,7 +512,7 @@ class SalesCrudController extends BaseCrudController
                         ]);
                     }
                     $newBatch = BatchQuantityDetail::find($batchQty->id);
-                    $salesQty = ItemQuantityDetail::where('item_id', $request->itemSalesHidden[$key])->where('store_id', backpack_user()->store_id)->where('sup_org_id', backpack_user()->sup_org_id)->select('id', 'item_qty')->first();
+                    $salesQty = ItemQuantityDetail::where('item_id', $request->itemSalesHidden[$key])->where('client_id', backpack_user()->client_id)->select('id', 'item_qty')->first();
                     $new_sales = $salesQty->item_qty - $totalQty;
                     if ($new_sales < 0) {
                         return response()->json([
@@ -657,9 +540,9 @@ class SalesCrudController extends BaseCrudController
             }
 
             DB::commit();
-            // Artisan::call('barcode-list:generate', ['super_org_id' => $this->user->sup_org_id]);
+            // Artisan::call('barcode-list:generate', ['super_org_id' => $this->user->client_id]);
             Artisan::call('barcode-list:generate', [
-                'super_org_id' => $this->user->sup_org_id
+                'super_org_id' => $this->user->client_id
             ]);
             session()->forget('barcode');
 
@@ -743,8 +626,7 @@ class SalesCrudController extends BaseCrudController
         $unit = $item->mstUnitEntity->name_en;
         $availableQty = ItemQuantityDetail::select('id', 'item_qty')
             ->where('item_id', $item->id)
-            ->where('store_id', $this->user->store_id)
-            ->where('sup_org_id', $this->user['sup_org_id'])
+            ->where('client_id', $this->user->client_id)
             ->orderBy('id', 'desc')
             ->first();
         if (!$availableQty || $availableQty->item_qty <= 0) {
@@ -754,8 +636,7 @@ class SalesCrudController extends BaseCrudController
             ]);
         }
         $batch_detail = BatchQuantityDetail::where('item_id', $item->id)
-            ->where('store_id', $this->user->store_id)
-            ->where('sup_org_id', $this->user['sup_org_id'])
+            ->where('client_id', $this->user['client_id'])
             ->orderBy('id', 'desc')
             ->first();
 
@@ -772,11 +653,10 @@ class SalesCrudController extends BaseCrudController
     public function getBatchItem($itemId)
     {
         $batchNumber = BatchQuantityDetail::where('item_id', $itemId)
-            ->where('sup_org_id', $this->user['sup_org_id'])
-            ->where('store_id', $this->user->store_id)
-            ->where('batch_qty', '<>', 0)
-            ->pluck('batch_no');
-
+        ->where('client_id', $this->user->client_id)
+        ->where('batch_qty', '<>', 0)
+        ->pluck('batch_no');
+        
         $batchNumber = MstSequence::findMany($batchNumber)->pluck('sequence_code');
 
         return response()->json([
@@ -789,16 +669,14 @@ class SalesCrudController extends BaseCrudController
         $sequenceId = MstSequence::where('sequence_code', $batchId)->first()->id;
         $batchDetailQty = BatchQuantityDetail::where('item_id', $itemId)
             ->where('batch_no', $sequenceId)
-            ->where('sup_org_id', $this->user['sup_org_id'])
-            ->where('store_id', $this->user->store_id)
+            ->where('client_id', $this->user['client_id'])
             ->orderBy('id', 'desc')
             ->sum('batch_qty');
 
         $batchDetailPrice = BatchQuantityDetail::where('item_id', $itemId)
             ->select('batch_price')
             ->where('batch_no', $sequenceId)
-            ->where('sup_org_id', $this->user['sup_org_id'])
-            ->where('store_id', $this->user->store_id)
+            ->where('client_id', $this->user['client_id'])
             ->orderBy('id', 'desc')->first();
 
         return response()->json([
@@ -878,7 +756,7 @@ class SalesCrudController extends BaseCrudController
             return response()->json([
                 'status' => 'success',
                 'count' => $count,
-                'barcodeList' => getBarcodeJson($this->user->sup_org_id)
+                'barcodeList' => getBarcodeJson($this->user->client_id)
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -897,8 +775,8 @@ class SalesCrudController extends BaseCrudController
             abort(404);
         $this->setSessions($sales->saleItems);
         $discount_modes = MstDiscMode::all();
-        $discount_approver = User::where('sup_org_id', $this->user->sup_org_id)->where('store_id', $this->user->store_id)->where('is_discount_approver', true)->get();
-        $due_approver = User::where('sup_org_id', $this->user->sup_org_id)->where('store_id', $this->user->store_id)->where('is_due_approver', true)->get();
+        $discount_approver = User::where('client_id', $this->user->client_id)->get();
+        $due_approver = User::where('client_id', $this->user->client_id)->get();
 
         $this->data['crud'] = $this->crud;
         $item_lists = $this->getItemList();
@@ -910,9 +788,6 @@ class SalesCrudController extends BaseCrudController
         $this->data['due_approver'] = $due_approver;
         $this->data['multiple_barcode'] = $this->multiple_barcode;
         $this->data['edit_sales'] = true;
-
-        $this->data['customers'] = MstCustomer::where([['is_customer', true], ['is_active', true], ['is_coorporate', false]])->get();
-        $this->data['coorporateCustomers'] = MstCustomer::where([['is_customer', true], ['is_active', true], ['is_coorporate', true]])->get()->unique('company_name');
 
         $this->data['sequenceCodes'] = $this->sequence_type();
         $this->data['returnSequences'] = $this->getsequenceCode(7);
@@ -939,7 +814,6 @@ class SalesCrudController extends BaseCrudController
             'tax_vat',
             'item_discount',
             'item_total',
-            'store_id',
             'discount',
             'receipt_amt',
             'discount_amt',
@@ -964,17 +838,6 @@ class SalesCrudController extends BaseCrudController
             'return_type',
         ]);
 
-        $customerInput = $request->only([
-            'bill_type',
-            'full_name',
-            'hidden_bill_type',
-            'hidden_gender_id',
-            'customer_id',
-            'address',
-            'contact_number',
-            'company_name',
-            'pan_vat',
-        ]);
 
         $sequenceCodes = $request->only('return_sequence');
 
@@ -1072,8 +935,7 @@ class SalesCrudController extends BaseCrudController
                 $newBatch = BatchQuantityDetail::find($batchQty->id);
 
                 $salesQty = ItemQuantityDetail::where('item_id', $request->itemSalesHidden[$key])
-                    ->where('store_id', backpack_user()->store_id)
-                    ->where('sup_org_id', backpack_user()->sup_org_id)
+                    ->where('client_id', backpack_user()->client_id)
                     ->select('id', 'item_qty')
                     ->first();
 
@@ -1122,7 +984,7 @@ class SalesCrudController extends BaseCrudController
 
             DB::commit();
             Artisan::call('barcode-list:generate', [
-                'super_org_id' => $this->user->sup_org_id
+                'super_org_id' => $this->user->client_id
             ]);
             session()->forget('barcode');
 
@@ -1203,9 +1065,8 @@ class SalesCrudController extends BaseCrudController
         $sales[0]->netAmtWords = NumberToWords::ConvertToEnglishWord($sales[0]->net_amt);
         $sales_bill = Sales::find($id);
         $bill_no = $sales_bill->bill_no;
-        $sup_id = $sales_bill->sup_org_id;
-        $store_id = $sales_bill->store_id;
-        $header_footer_data = AppSetting::where('sup_org_id', $sup_id)->where('store_id', $store_id)->first();
+        $sup_id = $sales_bill->client_id;
+        $header_footer_data = AppSetting::where('client_id', $sup_id)->first();
         if (isset($header_footer_data->background)) {
             //background
             $background_encoded = "";
@@ -1254,9 +1115,8 @@ class SalesCrudController extends BaseCrudController
         $sales[0]->netAmtWords = NumberToWords::ConvertToEnglishWord($sales[0]->net_amt);
         $sales_bill = Sales::find($id);
         $bill_no = $sales_bill->bill_no;
-        $sup_id = $sales_bill->sup_org_id;
-        $store_id = $sales_bill->store_id;
-        $header_footer_data = AppSetting::where('sup_org_id', $sup_id)->where('store_id', $store_id)->first();
+        $sup_id = $sales_bill->client_id;
+        $header_footer_data = AppSetting::where('client_id', $sup_id)->first();
 
         if (isset($header_footer_data->background)) {
             //background
@@ -1290,9 +1150,8 @@ class SalesCrudController extends BaseCrudController
         $sales[0]->netAmtWords = NumberToWords::ConvertToEnglishWord($sales[0]->net_amt);
         $sales_bill = Sales::find($id);
         $bill_no = $sales_bill->bill_no;
-        $sup_id = $sales_bill->sup_org_id;
-        $store_id = $sales_bill->store_id;
-        $header_footer_data = AppSetting::where('sup_org_id', $sup_id)->where('store_id', $store_id)->first();
+        $sup_id = $sales_bill->client_id;
+        $header_footer_data = AppSetting::where('client_id', $sup_id)->first();
 
         if (isset($header_footer_data->background)) {
             //background
@@ -1342,9 +1201,8 @@ class SalesCrudController extends BaseCrudController
         $sales[0]->netAmtWords = NumberToWords::ConvertToEnglishWord($sales[0]->net_amt);
         $sales_bill = Sales::find($id);
         $bill_no = $sales_bill->bill_no;
-        $sup_id = $sales_bill->sup_org_id;
-        $store_id = $sales_bill->store_id;
-        $header_footer_data = AppSetting::where('sup_org_id', $sup_id)->where('store_id', $store_id)->first();
+        $sup_id = $sales_bill->client_id;
+        $header_footer_data = AppSetting::where('client_id', $sup_id)->first();
 
         if (isset($header_footer_data->background)) {
             //background
@@ -1392,11 +1250,6 @@ class SalesCrudController extends BaseCrudController
             sl.bill_date_bs as bill_date_bs,
             sl.transaction_date_ad as transaction_date,
             sl.payment_type as payment_type,
-            ct.name_en as buyer_name,
-            ct.company_name as buyer_company_name,
-            ct.address as buyer_address,
-            ct.pan_no as buyer_pan,
-            ct.contact_number as contact_number,
             sl.receipt_amt as receipt_amt,
             sl.gross_amt as gross_amt,
             sl.discount_amt as discount_amt,
@@ -1411,16 +1264,11 @@ class SalesCrudController extends BaseCrudController
             ss.id,
 
             u.name as user_name,
-            ms.name_lc as store_name,
-            ms.email as store_email,
-            ms.phone_no as store_phone
 
             FROM sales as sl
 
             LEFT JOIN sup_status as ss on sl.status_id = ss.id
             LEFT JOIN users as u on sl.created_by = u.id
-            LEFT JOIN mst_stores as ms on sl.store_id = ms.id
-            LEFT JOIN mst_suppliers as ct on sl.customer_id = ct.id
             WHERE sl.id = ?
         ";
     }
@@ -1466,11 +1314,6 @@ class SalesCrudController extends BaseCrudController
             sl.bill_date_bs as bill_date_bs,
             sl.transaction_date_ad as transaction_date,
             sl.payment_type as payment_type,
-            ct.name_en as buyer_name,
-            ct.company_name as buyer_company_name,
-            ct.address as buyer_address,
-            ct.pan_no as buyer_pan,
-            ct.contact_number as contact_number,
             sl.receipt_amt as receipt_amt,
             sl.gross_amt as gross_amt,
             sl.discount_amt as discount_amt,
@@ -1486,16 +1329,10 @@ class SalesCrudController extends BaseCrudController
             ss.id,
 
             u.name as user_name,
-            ms.name_lc as store_name,
-            ms.email as store_email,
-            ms.phone_no as store_phone
-
             FROM sales as sl
 
             LEFT JOIN sup_status as ss on sl.status_id = ss.id
             LEFT JOIN users as u on sl.created_by = u.id
-            LEFT JOIN mst_stores as ms on sl.store_id = ms.id
-            LEFT JOIN mst_suppliers as ct on sl.customer_id = ct.id
 
 
             WHERE sl.id = ?
@@ -1534,51 +1371,4 @@ class SalesCrudController extends BaseCrudController
         ";
     }
 
-    public function getCustomerInfo(Request $request){
-        $data = [];
-        $customer_id = $request->customer_id;
-        if($customer_id != null){
-            $this->data['customer'] = MstCustomer::find($customer_id);
-        }
-
-        session()->forget('barcode');
-
-        $this->crud->hasAccessOrFail('create');
-        $item_lists = $this->getItemList();
-        $discount_modes = MstDiscMode::all();
-        $discount_approver = User::where('sup_org_id', $this->user->sup_org_id)
-            ->where('store_id', $this->user->store_id)
-            ->where('is_discount_approver', true)->get();
-        $due_approver = User::where('sup_org_id', $this->user->sup_org_id)
-            ->where('store_id', $this->user->store_id)
-            ->where('is_due_approver', true)->get();
-
-        $this->data['crud'] = $this->crud;
-        $this->data['item_lists'] = $item_lists;
-
-        $this->data['discount_modes'] = $discount_modes;
-        $this->data['discount_approver'] = $discount_approver;
-        $this->data['due_approver'] = $due_approver;
-        $this->data['multiple_barcode'] = $this->multiple_barcode;
-
-        $this->data['customers'] = MstCustomer::where([['is_customer', true], ['is_active', true], ['is_coorporate', false]])->get();
-        $this->data['coorporateCustomers'] = MstCustomer::where([['is_customer', true], ['is_active', true], ['is_coorporate', true]])->get()->unique('company_name');
-
-        // Json Categories
-        $this->data['jsonCustomers'] = json_encode(
-            MstCustomer::where([['is_customer', true], ['is_active', true]])
-                ->pluck('name_en')
-        );
-
-        $this->data['jsonCustomersCompanyName'] = json_encode(
-            MstCustomer::where([['is_customer', true], ['is_active', true], ['is_coorporate', true]])
-                ->pluck('company_name')
-        );
-
-        $this->data['sequenceCodes'] = $this->sequence_type();
-        $this->data['invoiceSequences'] = $this->getsequenceCode(3);
-        // dd($this->data['customer'] );
-
-        return view('customAdmin.sales.sales_form', $this->data);
-    }
 }

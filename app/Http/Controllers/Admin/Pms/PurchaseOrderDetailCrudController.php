@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin\Pms;
 
 use Carbon\Carbon;
 use App\Models\User;
-use App\Models\Pms\Item;
+use App\Models\Pms\MstItem;
 use App\Utils\PdfPrint;
 use App\Models\Pms\SupStatus;
 use App\Models\Pms\PoSequence;
@@ -71,7 +71,7 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
                 'label'=>'Supplier',
                 'type' => 'select',
                 'entity' => 'supplierEntity',
-                'attribute' => 'name',
+                'attribute' => 'name_en',
                 'model' => MstSupplier::class,
 
             ],
@@ -135,7 +135,7 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
         $discount_modes = MstDiscMode::all();
 
         $suppliers = MstSupplier::where('is_active', true)
-            ->select('id', 'name')
+            ->select('id', 'name_en')
             ->get();
 
 
@@ -256,7 +256,7 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
         $discount_modes = MstDiscMode::all();
     
         $suppliers = MstSupplier::where('is_active', true)
-            ->select('id', 'name')
+            ->select('id', 'name_en')
             ->get();
 
         $approverList = [
@@ -418,7 +418,7 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
 
 
 
-    public function poDetails(Item $item)
+    public function poDetails(MstItem $item)
     {
 
         $taxRate = $item->tax_vat;
@@ -444,7 +444,7 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
             $contacts = MstSupplier::where('id', $id)
                 ->first();
             $email = $contacts->email;
-            $phone = $contacts->phone_number;
+            $phone = $contacts->contact_number;
         }
 
         return response()->json([

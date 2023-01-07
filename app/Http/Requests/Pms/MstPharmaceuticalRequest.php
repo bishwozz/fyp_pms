@@ -33,8 +33,8 @@ class MstPharmaceuticalRequest extends FormRequest
         $code_check = $id_check.",id,code,".$code.",deleted_uq_code,1";
         
         return [
-            'code' => 'required|max:20|unique:phr_mst_suppliers,code'.$code_check,
-            'name'=>'required|max:200|unique:phr_mst_suppliers,name'.$name_check,
+            'code' => 'required|max:20|unique:phr_mst_pharmaceuticals,code'.$code_check,
+            'name'=>'required|max:200|unique:phr_mst_pharmaceuticals,name'.$name_check,
             'address'=>'required',
             'email'=>'required',
             'contact_person'=>'required',

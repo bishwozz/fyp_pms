@@ -93,7 +93,7 @@ class PurchaseReturnCrudController extends BaseCrudController
         $this->crud->hasAccessOrFail('create');
 
 
-        $suppliers = MstSupplier::where('client_id', $this->user->client_id)->pluck('id', 'name');
+        $suppliers = MstSupplier::where('client_id', $this->user->client_id)->pluck('id', 'name_en');
         // $reasons = ReturnReason::whereSupOrgId($this->user->sup_org_id)->whereIsActive(true)->get();
         // $reasons = ReturnReason::whereSupOrgId($this->user->sup_org_id)->whereIsActive(true)->get();
         $reasons = ['1,2'];

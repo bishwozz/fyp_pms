@@ -33,8 +33,8 @@ class ItemRequest extends FormRequest
         $code_check = $id_check.",id,code,".$code.",deleted_uq_code,1";
         
         return [
-            'code' => 'required|max:20|unique:phr_items,code'.$code_check,
-            'name'=>'required|max:200|unique:phr_items,name'.$name_check,
+            'code' => 'required|max:20|unique:mst_items,code'.$code_check,
+            'name'=>'required|max:200|unique:mst_items,name'.$name_check,
             'brand_id'=>'required',
             'category_id'=>'required',
             'supplier_id'=>'required',

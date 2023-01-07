@@ -2,7 +2,7 @@
 
 namespace App\Base;
 
-use App\Models\Pms\Item;
+use App\Models\Pms\MstItem;
 use App\Models\AppClient;
 use App\Models\StockItems;
 use App\Models\Pms\SupStatus;
@@ -62,7 +62,7 @@ class BaseCrudController extends CrudController
             $this->checkPermission();
             $this->setLogs();
             // $this->isAllowed(['show' => 'list']);
-            // $this->crud->denyAccess('show');
+            // $this->crud->allowAccess('create');
             $this->setupConfigurationForCurrentOperation();
             return $next($request);
         });
@@ -615,7 +615,7 @@ class BaseCrudController extends CrudController
     public function getItemList($conditions = [])
     {
         $filtered_items=[];
-        $items= Item::where(['is_active' => 'true','client_id'=> backpack_user()->client_id])->get();
+        $items= MstItem::where(['is_active' => 'true','client_id'=> backpack_user()->client_id])->get();
         // dd($items,'-');
         foreach($items as $item){
             array_push($filtered_items, [
@@ -631,15 +631,15 @@ class BaseCrudController extends CrudController
         public function getStockItemList($conditions = [])
         {
             $filtered_items=[];
-            $stockItems = StockItems::where('client_id', $this->user->client_id)->whereNotNull('phr_item_id')->get();
+            $stockItems = StockItems::where('client_id', $this->user->client_id)->whereNotNull('item_id')->get();
             $itemsId = [];
             foreach($stockItems as $item){
                 if($item->stock->sup_status_id == SupStatus::APPROVED){
-                    array_push($itemsId, $item->phr_item_id);
+                    array_push($itemsId, $item->item_id);
                 }
             }
 
-            $items= Item::where(['is_active' => 'true'])->whereIn('id', array_unique($itemsId))->get();
+            $items= MstItem::where(['is_active' => 'true'])->whereIn('id', array_unique($itemsId))->get();
             foreach($items as $item){
                 array_push($filtered_items, [
                     'id' => $item->id,
@@ -663,7 +663,7 @@ class BaseCrudController extends CrudController
     public function getItemQty($itemid)
     {
         $avlQty = 0;
-        $stockItems = StockItems::where([['phr_item_id', $itemid], ['client_id', $this->user->client_id]])->get();
+        $stockItems = StockItems::where([['item_id', $itemid], ['client_id', $this->user->client_id]])->get();
         foreach ($stockItems as $stock){
             if($stock->stock->sup_status_id ==  SupStatus::APPROVED){
                 $avlQty += $stock->add_qty;

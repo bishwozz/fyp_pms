@@ -46,7 +46,7 @@ class InventoryCrudController extends BaseCrudController
             },
             function ($value) { 
                 // if the filter is active
-                $item_ids = Item::where('supplier_id',$value)->pluck('id')->toArray();
+                $item_ids = MstItem::where('supplier_id',$value)->pluck('id')->toArray();
                 $this->crud->addClause('whereIn', 'item_id', $item_ids);
             }
         );
@@ -62,7 +62,7 @@ class InventoryCrudController extends BaseCrudController
                 return (new MstPharmaceutical())->pluck('name','id')->toArray();
             },
             function ($value) { // if the filter is active
-                $item_ids = Item::where('pharmaceutical_id',$value)->pluck('id')->toArray();
+                $item_ids = MstItem::where('pharmaceutical_id',$value)->pluck('id')->toArray();
                 $this->crud->addClause('whereIn', 'item_id', $item_ids);
             }
         );
@@ -139,7 +139,7 @@ class InventoryCrudController extends BaseCrudController
                 from phr_item_stocks as pis
                 Left Join phr_items pi on pi.id = pis.item_id
                 Left Join phr_purchase_received_items as ppri on ppri.item_id = pis.item_id AND ppri.batch_number = pis.batch_number AND pi.stock_unit_id = ppri.unit_id
-                Left Join phr_mst_suppliers as pms on pms.id = pi.supplier_id 
+                Left Join mst_suppliers as pms on pms.id = pi.supplier_id 
                 Left Join phr_mst_pharmaceuticals as pmp on pmp.id = pi.pharmaceutical_id 
                 Left Join phr_mst_units as pmu on pmu.id = pi.stock_unit_id 
                 where 1=1";

@@ -4,8 +4,10 @@ namespace App\Models;
 
 use App\Base\BaseModel;
 use App\Models\Pms\Item;
-use Backpack\CRUD\app\Models\Traits\CrudTrait;
+use App\Models\StockEntry;
+use App\Models\Pms\MstItem;
 use Illuminate\Database\Eloquent\Model;
+use Backpack\CRUD\app\Models\Traits\CrudTrait;
 
 class StockItems extends BaseModel
 {
@@ -39,7 +41,7 @@ class StockItems extends BaseModel
 
     public function mstItem()
     {
-        return $this->belongsTo(Item::class,'phr_item_id','id');
+        return $this->belongsTo(MstItem::class,'item_id','id');
     }
 
     public function stock()

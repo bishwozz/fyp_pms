@@ -1,7 +1,6 @@
 @extends(backpack_view('blank'))
 
 @section('header')
-
     <section class="main-container">
         <h2>
             <span class="text-capitalize">{!! $crud->getHeading() ?? $crud->entity_name_plural !!}</span>

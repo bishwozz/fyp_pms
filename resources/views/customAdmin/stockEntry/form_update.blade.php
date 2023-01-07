@@ -6,7 +6,6 @@
       $crud->entity_name_plural => url($crud->route),
       trans('backpack::crud.add') => false,
     ];
-
     // if breadcrumbs aren't defined in the CrudController, use the default breadcrumbs
     $breadcrumbs = $breadcrumbs ?? $defaultBreadcrumbs;
 @endphp
@@ -30,7 +29,6 @@
 @endsection
 
 @section('content')
-
     <form id="stockEntryForm" action="{{url($crud->route).'/'.$stock->id}}" method="PUT">
         @method('PUT')
         @csrf
@@ -46,19 +44,21 @@
                         </select>
                     </div>
                 </div>
-
+                
                 <div class="col-xl-4 col-lg-4 col-sm-6">
                     <div class="input-group mb-3">
                         <span class="input-group-text">Date AD</span>
                         <input type="date" id="stockDateAD" value="{{$stock->entry_date_ad?dateToString($stock->entry_date_ad) : dateToString(\Carbon\Carbon::now())}}"  name='entry_date_ad'  class="form-control" placeholder="Date AD" readonly>
                     </div>
                 </div>
+
                 <div class="col-xl-4 col-lg-4 col-sm-6">
                     <div class="input-group mb-3">
                         <span class="input-group-text">Date BS</span>
                         <input type="text" id="stockDateBS" name="entry_date_bs" value="{{$stock->entry_date_bs??convert_bs_from_ad(dateToString(\Carbon\Carbon::now()))}}" class="form-control" placeholder="Date BS" readonly >
                     </div>
                 </div>
+
                 <div class="col-xl-4 col-lg-4 col-sm-6">
                     <div class="input-group mb-3">
                         <label class="input-group-text" for="batch_number">Batch number</label>
@@ -72,17 +72,19 @@
                         </span>
                     </div>
                 </div>
+
                 <div class="col-xl-4 col-lg-4 col-sm-6">
                     <div class="input-group mb-3">
                         <span>Item Wise Discount</span>
                         <input type="checkbox"  name="itemWiseDiscount" id="discountCheckbox" {{!$stock->flat_discount?"checked" :'' }} class="mt-2 mx-2">
                     </div>
                 </div>
+
             </div>
         </div>
 
         {{-- End of upper form filter design? --}}
-    <div class="table-responsive">
+        <div class="table-responsive">
         <table class="table" id="repeaterTable" style="min-width: 1500px;">
             <thead>
             <tr class="text-white" style="background-color: #192840">
@@ -105,13 +107,17 @@
                 @php
                     $key++;
                     $mstItem = $item->mstItem;
-                    if(isset($mstItem->itemQtyDetail->item_qty)? $itemQty = $mstItem->itemQtyDetail->item_qty: $itemQty=0);
+                    if(isset($mstItem->itemQtyDetail)){
+                        if(isset($mstItem->itemQtyDetail->item_qty)? $itemQty = $mstItem->itemQtyDetail->item_qty: $itemQty=0);
+                    }else{
+                        $itemQty = 0;
+                    }
                 @endphp
                 <tr>
                     <td>
                         <div class="input-group">
                             <input type="text" class="form-control p-1 itemStock"  name="mst_item_id[{{$key}}]" value="{{$mstItem->code.":".$mstItem->name}}"  placeholder="Search item by code/name" id='itemStock-{{$key}}' data-cntr="{{$key}}" size="1" style="width:10rem;">
-                            <input type="hidden" name="itemStockHidden[{{$key}}]" value="{{$item->phr_item_id}}"  class="itemStockHidden">
+                            <input type="hidden" name="itemStockHidden[{{$key}}]" value="{{$item->item_id}}"  class="itemStockHidden">
                         </div>
                     </td>
                     <td>
@@ -165,7 +171,7 @@
                     <td>
                         <i class="fa fa-plus p-1 fireRepeaterClick" aria-hidden="true"></i>
                         <i class="fa fa-trash p-1 destroyRepeater {{$loop->count == 1 ? 'd-none':'' }}" data-cntr="{{$key}}" id="itemDestroyer-{{$key}}" aria-hidden="true"></i>
-                        <i type ='button' class="fa fa-history p-1 itemHistory" data-cntr="{{$key}}" id="itemHistory-{{$key}}" item-id="{{$item->mst_item_id}}"  data-toggle="modal"  aria-hidden="true"></i>
+                        <i type ='button' class="fa fa-history p-1 itemHistory" data-cntr="{{$key}}" id="itemHistory-{{$key}}" item-id="{{$item->id}}"  data-toggle="modal"  aria-hidden="true"></i>
                     </td>
                 </tr>
             @endforeach
@@ -230,7 +236,7 @@
                 </tr>
             </tbody>
         </table>
-    </div>
+        </div>
         {{-- End of item search design --}}
         <hr>
         <div class="main-container">
@@ -303,6 +309,7 @@
         </div>
     </form>
     {{-- end of the modal content --}}
+
     @include('customAdmin.stockEntry.partials.modals')
     @include('customAdmin.partial._inlineSequenceCreate')
 

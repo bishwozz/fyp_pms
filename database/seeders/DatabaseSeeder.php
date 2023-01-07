@@ -22,8 +22,6 @@ class DatabaseSeeder extends Seeder
         $this->call(UserTableSeeder::class);
         $this->call(DateSettingSeeder::class);
         $this->call(SalesTableSeeder::class);
-        $this->call(LabTableSeeder::class);
-        $this->call(MasterTableSeeder::class);
         $this->call(MasterDataSeeder::class);
         // $this->call(ResetSequenceSeeder::class);
     }

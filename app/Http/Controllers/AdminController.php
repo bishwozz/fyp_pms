@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Pms\Item;
+use App\Models\Pms\MstItem;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -38,7 +38,7 @@ class AdminController extends Controller
 
             $this->data['stores'] =  0;
 
-            $this->data['items'] = Item::where('is_active', 1)
+            $this->data['items'] = MstItem::where('is_active', 1)
                 ->where('client_id', backpack_user()->client_id)->count() ?? 0;
 
             $this->data['users'] = User::where('client_id', backpack_user()->client_id)->count() ?? 0;
@@ -54,7 +54,7 @@ class AdminController extends Controller
 
             $this->data['stores'] =  0;
 
-            $this->data['items'] = Item::where('is_active', 1)->count() ?? 0;
+            $this->data['items'] = MstItem::where('is_active', 1)->count() ?? 0;
 
             $this->data['users'] = User::all()->count() ?? 0;
 

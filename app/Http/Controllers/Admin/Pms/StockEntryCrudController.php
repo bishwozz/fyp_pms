@@ -4,13 +4,17 @@ namespace App\Http\Controllers\Admin\Pms;
 
 use App\Models\Pms\Item;
 use App\Models\StockEntry;
+use App\Models\StockItems;
+use App\Models\Pms\MstItem;
 use Illuminate\Http\Request;
 use App\Models\Pms\SupStatus;
 use App\Base\BaseCrudController;
 use Illuminate\Support\Facades\DB;
+use App\Models\Pms\StockItemDetails;
+use App\Models\Pms\ItemQuantityDetail;
+use App\Models\Pms\BatchQuantityDetail;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Requests\StockEntryRequest;
-use App\Models\StockItems;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -36,14 +40,29 @@ class StockEntryCrudController extends BaseCrudController
      */
     private $user;
 
-    /**
-     * @param StockEntries $stockEntries
-     */
-    public function __construct(StockEntry $stockEntries, StockItems $stockItems) {
+    private $batchQtyDtl;
+    private $itmQtyDtl;
+    private $barcodeDetails;
+
+
+
+    public function __construct(
+        StockEntry $stockEntries,
+        StockItems $stockItems,
+        StockItemDetails $itemsDetails,
+        ItemQuantityDetail $itmQtyDtl,
+        BatchQuantityDetail $batchQtyDtl
+    ) {
         parent::__construct();
+
         $this->stockEntries = $stockEntries;
         $this->stockItems = $stockItems;
+        $this->itemsDetails = $itemsDetails;
+        $this->itmQtyDtl = $itmQtyDtl;
+        $this->batchQtyDtl = $batchQtyDtl;
     }
+
+
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -56,17 +75,13 @@ class StockEntryCrudController extends BaseCrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/stock-entry');
         $this->crud->setEntityNameStrings('stock entry', 'stock entries');
         $this->user = backpack_user();
-        $this->crud->allowAccess('show');
+        // $this->crud->allowAccess('show');
+        // $this->crud->allowAccess('delete');
         // $this->crud->sup_status = true;
-        $this->crud->sup_status = true;
+        // $this->crud->sup_status = true;
     }
 
-    /**
-     * Define what happens when the List operation is loaded.
-     *
-     * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
-     * @return void
-     */
+
     protected function setupListOperation()
     {
         $this->crud->hasAccessOrFail('list');
@@ -99,18 +114,15 @@ class StockEntryCrudController extends BaseCrudController
         ];
         $this->crud->addColumns(array_filter($columns));
         $this->crud->allowAccess('show');
+        // $this->crud->allowAccess('delete');
+
         $this->crud->moveButton('show', 'after', 'delete');
         // if($this->crud->entry){
 
         // }
     }
 
-    /**
-     * Define what happens when the Create operation is loaded.
-     *
-     * @see https://backpackforlaravel.com/docs/crud-operation-create
-     * @return void
-     */
+
     public function create()
     {
         $this->crud->hasAccessOrFail('create');
@@ -142,6 +154,7 @@ class StockEntryCrudController extends BaseCrudController
             'batch_number'
         ]);
 
+        
         $sequenceCodes = $request->only(['batch_number']);
 
         $stockInput['created_by'] = $this->user->id;
@@ -165,15 +178,17 @@ class StockEntryCrudController extends BaseCrudController
             $stockInput['flat_discount'] = null;
         }
 
+
         try {
             DB::beginTransaction();
             $stock = $this->stockEntries->create($stockInput);
+
             foreach ($request->mst_item_id as $key => $val) {
                 $itemArr = [];
                 $itemArr = array_merge($itemArr, [
                     'stock_id' => $stock->id,
                     'client_id' => $this->user->client_id,
-                    'phr_item_id' => $request->itemStockHidden[$key],
+                    'item_id' => $request->itemStockHidden[$key],
                     'available_total_qty' => $request->available_total_qty[$key],
                     'add_qty' => $request->custom_Qty[$key],
                     'total_qty' => $request->total_qty[$key],
@@ -193,6 +208,9 @@ class StockEntryCrudController extends BaseCrudController
                         ]);
                     }
                     $itemArr['batch_no'] = $sequenceCodes['batch_number'];
+                    $this->saveQtyDetail($this->batchQtyDtl, $itemArr, 'batchQty');
+                    $this->saveQtyDetail($this->itmQtyDtl, $itemArr, 'itemQty');
+
                 }
                 // dd($itemArr);
                 $this->stockItems->create($itemArr);
@@ -235,7 +253,6 @@ class StockEntryCrudController extends BaseCrudController
         $this->data['item_lists'] = $this->getStockItemList();
         $this->data['clientLists'] = $this->getClientList();
 
-        // dd($this->data['clientLists']);
         return view('customAdmin.stockEntry.form_update', $this->data);
     }
 
@@ -299,7 +316,7 @@ class StockEntryCrudController extends BaseCrudController
                 $itemArr = array_merge($itemArr, [
                     'stock_id' => $currentStock->id,
                     'client_id' => $this->user->client_id,
-                    'phr_item_id' => $request->itemStockHidden[$key],
+                    'item_id' => $request->itemStockHidden[$key],
                     'available_total_qty' => $request->available_total_qty[$key],
                     'add_qty' => $request->custom_Qty[$key],
                     'total_qty' => $request->total_qty[$key],
@@ -417,13 +434,77 @@ class StockEntryCrudController extends BaseCrudController
     {
         $this->data['historyData'] = DB::table('stock_entries as se')
             ->join('stock_items as si', 'se.id', 'si.stock_id')
-            ->where('si.mst_item_id', $id)
+            ->where('si.item_id', $id)
             ->where('se.sup_status_id', SupStatus::APPROVED)
             ->whereBetween('se.entry_date_ad', [$from, $to])
             ->select('si.*', 'se.entry_date_ad as entry_date', 'se.created_by', 'se.approved_by')
             ->get();
 
-        $this->data['itemName'] = Item::find($id)->name;
+        $this->data['itemName'] = MstItem::find($id)->name;
         return view('customAdmin.stockEntry.partials.history', $this->data);
+    }
+
+    public function stockItem(MstItem $item)
+    {
+        $taxRate = $item->tax_vat;
+        $is_barcode_status = $item->is_barcode;
+        $availableQty = ItemQuantityDetail::select('id', 'item_qty')
+            ->where([
+                'client_id' => $this->user->client_id,
+                'item_id' => $item->id
+            ])
+            ->orderBy('id', 'desc')
+            ->first()
+            ->item_qty ?? 0;
+
+        return response()->json([
+            'taxRate' => $taxRate,
+            'availableQty' => $availableQty,
+            'is_barcode'=> $is_barcode_status,
+        ]);
+    }
+
+    private function saveQtyDetail($qtyDtl, array $itemArr, $type)
+    {
+        $arr = [
+            'client_id' => $this->user->client_id,
+            'item_id' => $itemArr['item_id'],
+            'created_by' => $this->user->id,
+        ];
+
+
+        $flag = false;
+        if ($type == 'batchQty') {
+            $arr['batch_no'] = $itemArr['batch_no'];
+            $arr['batch_qty'] = $itemArr['add_qty'];
+            $arr['batch_price'] = $itemArr['unit_sales_price'];
+            $arr['batch_from'] = 'stock-mgmt';
+
+            /** Todo: Additional stock entry after approved */
+            //            $existingQtyDtl = $qtyDtl
+            //                ->where('batch_no', $arr['batch_no'])
+            //                ->where('batch_from', 'stock-mgmt')
+            //                ->first();
+            //            if($existingQtyDtl){
+            //
+            //            }
+        } else if ($type == 'itemQty') {
+            $arr['item_qty'] = $itemArr['total_qty'];
+            $existingItemQty = $qtyDtl->where([
+                'client_id' => $this->user->client_id,
+                'item_id' => $itemArr['item_id'],
+            ])->first();
+
+            $flag = $existingItemQty ?? false;
+        } else {
+            throw new \Exception('Stock details could not be updated');
+        }
+
+        if ($flag) {
+            $flag->item_qty = $itemArr['total_qty'];
+            $flag->save();
+        } else {
+            $qtyDtl->create($arr);
+        }
     }
 }

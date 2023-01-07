@@ -4,142 +4,301 @@ namespace App\Http\Controllers\Admin\Pms;
 
 use App\Models\Pms\MstSupplier;
 use App\Base\BaseCrudController;
+use App\Models\CoreMaster\MstGender;
+use App\Models\CoreMaster\MstCountry;
+use App\Models\Pms\MstPharmaceutical;
+use App\Models\CoreMaster\MstFedDistrict;
+use App\Models\CoreMaster\MstFedProvince;
+use App\Models\CoreMaster\MstFedLocalLevel;
 use App\Http\Requests\Pms\MstSupplierRequest;
+use App\Base\Operations\InlineCreateOperation;
+use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
+/**
+ * Class MstSupplierCrudController
+ * @package App\Http\Controllers\Admin
+ * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
+ */
 class MstSupplierCrudController extends BaseCrudController
 {
-   public function setup()
+    use InlineCreateOperation;
+
+    /**
+     * Configure the CrudPanel object. Apply settings to all operations.
+     *
+     * @return void
+     */
+    public function setup()
     {
-        $this->crud->setModel(MstSupplier::class);
-        $this->crud->setRoute('admin/mstsupplier');
-        $this->crud->setEntityNameStrings('Supplier', 'MstSupplier');
-        $this->crud->clearFilters();
- $this->setFilters();
+        CRUD::setModel(\App\Models\Pms\MstSupplier::class);
+        CRUD::setRoute(config('backpack.base.route_prefix') . '/mstsupplier');
+        CRUD::setEntityNameStrings('', 'Suppliers');
+        // $this->isAllowed();
+        $this->data['script_js'] = $this->getScripts();
+        $this->user = backpack_user();
     }
 
-    protected function setFilters(){
-        $this->crud->addFilter(
-            [ // simple filter
-                'type' => 'text',
-                'name' => 'code',
-                'label' => 'Code',
-            ],
-            false,
-            function ($value) { // if the filter is active
-                $this->crud->addClause('where', 'code', '=', "$value");
+    public function getScripts()
+    {
+        return
+            "
+            function showHideCoorporateFields(){
+                var coorporate = $('#coorporate').val();
+                if(coorporate == 1){
+                    $('#company_id').show();
+                    $('#pan_no').show();
+                    $('#gender_id option[value=\"3\"]').attr('selected', 'selected');
+                }else{
+                    $('#company_id').hide();
+                    $('#pan_no').hide();
+                    $('#gender_id').val(null).trigger('change');
+                }
             }
-        );
-  
-          $this->crud->addFilter([
-            'type' => 'text',
-            'name' => 'name',
-            'label'=> 'Suppiler Name',
-          ], 
-          false, 
-          function($value) { // if the filter is active
-            $this->crud->addClause('where', 'name', 'iLIKE', "%$value%");
-          });
+            $(document).ready(function() {
+                showHideCoorporateFields();
+                $('#coorporate').on('change', function(){
+                    showHideCoorporateFields();
+                });
+            });
+            ";
     }
 
+    /**
+     * Define what happens when the List operation is loaded.
+     *
+     * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
+     * @return void
+     */
     protected function setupListOperation()
     {
-        $col=[
-            $this->addRowNumber(),
-            $this->addCodeColumn(),
-            [
-                'name' => 'name',
-                'label' => 'Suppiler Name',
-            ],
-        
-            [
-                'name' => 'address',
-                'label' => trans('Address')
-            ],
-            [
-                'name' => 'email',
-                'label' => trans('Email')
-            ],
-            [
-                'name' => 'phone_number',
-                'label' => trans('Phone Number')
-            ],
-            [
-                'name' => 'website',
-                'label' => trans('Website url')
-            ],
-        ];
-        $this->crud->addColumns(array_filter($col));
-    }
-
-    protected function setupCreateOperation()
-    {
-        $this->crud->setValidation(MstSupplierRequest::class);
-        $arr=[
-            $this->addCodeField(),
+        $cols = [
+            $this->addRowNumberColumn(),
             $this->addClientIdField(),
-            [
-                'name' => 'name',
-                'type' => 'text',
-                'label' => 'Supplier Name',
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-4',
-                ],
-            ],
-           
+            $this->addNameEnColumn(),
+            $this->addNameLcColumn(),
             [
                 'name' => 'address',
                 'type' => 'text',
-                'label' => trans('Address'),
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-4',
-                ],
+                'label' => 'Address',
             ],
             [
                 'name' => 'email',
-                'type' => 'text',
-                'label' => trans('Email'),
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-4',
-                ],
+                'type' => 'email',
+                'label' => 'Email',
             ],
             [
                 'name' => 'contact_person',
                 'type' => 'text',
-                'label' => trans('Contact Person'),
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-4',
-                ],
+                'label' => 'Company name',
             ],
             [
-                'name' => 'phone_number',
+                'name' => 'contact_number',
                 'type' => 'text',
-                'label' => trans('Phone Number'),
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-4',
-                ],
+                'label' => 'Contact Number',
             ],
-            [
-                'name' => 'website',
-                'type' => 'text',
-                'label' => trans('Website url'),
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-4',
-                ],
-            ],
-            [
-                'name' => 'description',
-                'type' => 'textarea',
-                'label' => trans('Description'),
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-12',
-                ],
-            ],
-            $this->addIsActiveField(),
+
+            $this->addIsActiveColumn(),
         ];
-        $arr = array_filter($arr);
-        $this->crud->addFields($arr); 
+        $this->crud->addColumns(array_filter($cols));
+        
+        //Add this clause to only display Suppliers
+        $this->crud->addClause('where','is_customer', false);
+        $this->crud->addClause('orWhere','is_customer', null);
+
+
+        /**
+         * Columns can be defined using the fluent syntax or array syntax:
+         * - CRUD::column('price')->type('number');
+         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']);
+         */
     }
 
+    /**
+     * Define what happens when the Create operation is loaded.
+     *
+     * @see https://backpackforlaravel.com/docs/crud-operation-create
+     * @return void
+     */
+    protected function setupCreateOperation()
+    {
+        CRUD::setValidation(MstSupplierRequest::class);
+
+        $fields = [
+            $this->addReadOnlyCodeField(),
+            $this->addPlainHtml(),
+            $this->addClientIdField(),
+            $this->addNameEnField(),
+            $this->addNameLcField(),
+            [
+                'name' => 'is_customer',
+                'type' => 'hidden',
+                'value' => false
+            ],
+            [  // Select
+                'label'     => 'Supplier Type',
+                'type' => 'select2_from_array',
+                'name' => 'is_coorporate',
+                'options'     => [false => 'Individual', true => 'Business / Coorporate'],
+                'allows_null' => false,
+                'default'     => false,
+                'wrapperAttributes' => [
+                    'class' => 'form-group col-md-6',
+                ],
+                'attributes' => [
+                    'id' => 'coorporate',
+                    'required' => 'required'
+                ],
+            ],
+            // [  // Select
+            //     'label'     => 'Gender',
+            //     'type' => 'select2',
+            //     'name' => 'gender_id',
+            //     'method' => 'GET',
+            //     'entity' => 'mstStoreEntity',
+            //     'attribute' => 'name_en',
+            //     'options'   => (function ($query) {
+            //         return (new MstGender())->getFieldComboOptions($query);
+            //     }),
+            //     'model' => MstGender::class,
+            //     'wrapper' => [
+            //         'class' => 'form-group col-md-6',
+            //     ],
+            //     'attributes' => [
+            //         'id' => 'gender_id',
+            //         'required' => 'required'
+            //     ],
+            // ],
+
+            [
+                'name'  => 'pan_no',
+                'label' => 'PAN Number',
+                'type'  => 'number',
+                'wrapper' => [
+                    'class' => 'form-group col-md-6',
+                    'id' => 'pan_no'
+                ],
+            ],
+            [
+                'name'  => 'country_id',
+                'label' => 'Country',
+                'type' => 'select2',
+                'entity' => 'countryEntity',
+                'attribute' => 'name',
+                'model' => MstCountry::class,
+                'wrapper' => [
+                    'class' => 'form-group col-md-4',
+                ],
+            ],
+            [
+                'name'=>'province_id',
+                'type'=>'select2',
+                'label'=>trans('hremployees.province'),
+                'entity'=>'province',
+                'model'=>MstFedProvince::class,
+                'attribute'=>'name',
+                'wrapperAttributes' => [
+                    'class' => 'form-group col-md-3',
+                ],
+            ],
+            [
+                'name'=>'district_id',
+                'label'=>trans('hremployees.district'),
+                'type'=>'select2_from_ajax',
+                'model'=>MstFedDistrict::class,
+                'entity'=>'district',
+                'attribute'=>'name',
+                'method'=>'post',
+                // 'include_all_form_fields'=>false,
+                'data_source' => url("api/district/province_id"),
+                'minimum_input_length' => 0,
+                'dependencies'=> ['province_id'],
+                'wrapperAttributes' => [
+                    'class' => 'form-group col-md-3',
+                ],
+                'attributes' => [
+                    'id' => 'district_id',
+                    'placeholder' => "Select a District",
+                ],
+            ],
+            [
+                'name'=>'local_level_id',
+                'label'=>trans('hremployees.locallevel'),
+                'type'=>'select2_from_ajax',
+                'entity'=>'locallevel',
+                'model'=>MstFedLocalLevel::class,
+                'attribute'=>'name',
+                'method'=>'post',
+                // 'include_all_form_fields'=>false,
+                'data_source' => url("api/locallevel/district_id"),
+                'minimum_input_length' => 0,
+                'dependencies'         => ['district_id'],
+                'wrapperAttributes' => [
+                    'class' => 'form-group col-md-3',
+                ],
+                'attributes' => [
+                    'id' => 'local_level_id',
+                    'placeholder' => "Select a Local Level",
+                ],
+
+            ],
+            [
+                'name'  => 'address',
+                'label' => 'Address',
+                'type'  => 'text',
+            ],
+            [
+                'name'  => 'email',
+                'label' => 'Email',
+                'type'  => 'email',
+            ],
+            [
+                'name'  => 'contact_person',
+                'label' => 'Company Name',
+                'type'  => 'text',
+                'wrapper' => [
+                    'class' => 'form-group col-md-6',
+                ],
+            ],
+            [
+                'name'=>'company_id',
+                'type'=>'select2',
+                'label'=>trans('Company'),
+                'entity'=>'company',
+                'model'=>MstPharmaceutical::class,
+                'attribute'=>'name',
+                'wrapperAttributes' => [
+                    'class' => 'form-group col-md-3',
+                ],
+            ],
+            
+            [
+                'name'  => 'contact_number',
+                'label' => 'Contact Number',
+                'type'  => 'number',
+
+                'wrapper' => [
+                    'class' => 'form-group col-md-6',
+                ],
+            ],
+            $this->addDescriptionField(),
+            $this->addIsActiveField()
+        ];
+        $this->crud->addFields(array_filter($fields));
+
+
+        /**
+         * Fields can be defined using the fluent syntax or array syntax:
+         * - CRUD::field('price')->type('number');
+         * - CRUD::addField(['name' => 'price', 'type' => 'number']));
+         */
+    }
+
+    /**
+     * Define what happens when the Update operation is loaded.
+     *
+     * @see https://backpackforlaravel.com/docs/crud-operation-update
+     * @return void
+     */
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();

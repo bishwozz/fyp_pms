@@ -86,7 +86,7 @@
     <a class="nav-link nav-dropdown-toggle" href="#"><i class="nav-icon la la-tasks"></i>Sales</a>
     <ul class="nav-dropdown-items" style="overflow-x:hidden">
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('sales') }}'><i
-                    class='la la-user nav-icon'></i>{{ trans('Purchase Order') }}</a>
+                    class='la la-user nav-icon'></i>{{ trans('Sales') }}</a>
             <a href="{{ backpack_url('sales/create') }}"><i class="fa fa-plus"></i></a>
         </li>
     </ul>

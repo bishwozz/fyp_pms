@@ -47,7 +47,6 @@ trait CheckPermission
         'getContactDetails'=>'index',
         'sequenceCodeCheck'=>'index',
         'inlineStore'=>'index',
-        'show'=>'index',
         'index'=>'show',
     ];
 

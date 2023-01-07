@@ -163,4 +163,26 @@ Route::group([
         Route::get('stock-item/{item}', 'StockEntryCrudController@stockItem')->name('custom.stock-item');
         Route::get('search-stock/{id}/{to}/{from}', 'StockEntryCrudController@StockItemHistory')->name('custom.stock-item-search');
     Route::crud('stock-items', 'StockItemsCrudController');
-});
+
+
+    Route::get('get-total/{item}', 'SalesCrudController@stockItem')->name('custom.get-total');
+    Route::get('sales-bill-history/{detail}/{to}/{from}', 'SalesCrudController@getSalesHistoryDetails')->name('custom.sales-bill-history');
+    Route::get('sales/{id}/edit', 'SalesCrudController@edit')->name('custom.sales-edit');
+    Route::post('sale-barcode-details/{stockItem}/{batchId}', 'SalesCrudController@barcodeSessionStore')->name('custom.sale-barcode');
+
+
+    Route::get('search-stock/{id}/{to}/{from}', 'StockEntriesCrudController@StockItemHistory')->name('custom.stock-item-search');
+    Route::post('stock-barcode-details/{stockItem}', 'StockEntriesCrudController@barcodeSessionStore')->name('custom.stock-barcode');
+    Route::get('stock-barcode-details/flush/{key}', 'StockEntriesCrudController@barcodeSessionFlush')->name('custom.stock-barcode-flush');
+
+        //?? API Route to get customers in Modal's select
+       
+        Route::get('/api/customer/{id}', 'MstCustomerCrudController@getCustomerDetailById')->name('api.customerDetail');
+
+
+            // Bulk Upload for Items (Excel Upload)
+    Route::post('mst-item/excel-import', 'ItemCrudController@itemEntriesExcelImport')
+    ->name('item.importExcel');
+
+
+    });

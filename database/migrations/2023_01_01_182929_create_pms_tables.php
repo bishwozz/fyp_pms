@@ -101,32 +101,51 @@ class CreatePmsTables extends Migration
 
         });
 
-        Schema::create('phr_mst_suppliers', function (Blueprint $table) { 
-            $table->smallIncrements('id');
-            $table->unsignedSmallInteger('client_id');
-            $table->string('code',20);
-            $table->string('name',200);
-            $table->string('supplier_logo')->nullable();
-            $table->string('description',500)->nullable();
-            $table->string('address',300)->nullable();
-            $table->string('email',200)->nullable();
-            $table->string('contact_person',200)->nullable();
-            $table->string('phone_number',50)->nullable();
-            $table->string('website',200)->nullable();
-            $table->boolean('is_active')->nullable()->default(true);
-            $table->timestamps();
+        Schema::create('mst_suppliers', function (Blueprint $table) {
+                $table->increments('id');
+                $table->string('code');
+                $table->string('name_en');
+                $table->string('name_lc')->nullable();
+                $table->unsignedSmallInteger('client_id');
+    
+                $table->unsignedInteger('country_id')->nullable();
+                $table->unsignedInteger('province_id')->nullable();
+                $table->unsignedInteger('district_id')->nullable();
+                $table->unsignedInteger('local_level_id')->nullable();
+                $table->string('address')->nullable();
+                $table->string('email')->nullable();
+                $table->string('contact_number');
+                $table->text('description')->nullable();
+                $table->boolean('is_active')->default(true);
+                $table->boolean('is_customer')->nullable()->default(false);
+                $table->boolean('is_coorporate')->nullable()->default(false);
+                $table->integer('pan_no')->nullable();
+                $table->string('contact_person')->nullable();
+                $table->unsignedInteger('company_id')->nullable();
 
-            $table->unsignedInteger('created_by')->nullable();
-            $table->unsignedInteger('updated_by')->nullable();
-            $table->unsignedInteger('deleted_uq_code')->default(1);
-            $table->unique(['code','deleted_uq_code'],'uq_hr_phr_mst_suppliers_code');
+    
+                $table->unsignedInteger('created_by')->nullable();
+                $table->unsignedInteger('updated_by')->nullable();
+                $table->unsignedInteger('deleted_by')->nullable();
+                $table->boolean('is_deleted')->nullable();
+                $table->timestamp('deleted_at')->nullable();
+                $table->unsignedInteger('deleted_uq_code')->default(1);
+                $table->timestamps();
+    
+                $table->foreign('country_id')->references('id')->on('mst_countries')->cascadeOnDelete()->cascadeOnUpdate();
+                $table->foreign('province_id')->references('id')->on('mst_fed_provinces')->cascadeOnDelete()->cascadeOnUpdate();
+                $table->foreign('district_id')->references('id')->on('mst_fed_districts')->cascadeOnDelete()->cascadeOnUpdate();
+                $table->foreign('local_level_id')->references('id')->on('mst_fed_local_levels')->cascadeOnDelete()->cascadeOnUpdate();
+                $table->foreign('company_id')->references('id')->on('phr_mst_pharmaceuticals')->cascadeOnDelete()->cascadeOnUpdate();
+           
+                $table->unique('code','uq_mst_suppliers_code');
+                $table->foreign('client_id','fk_mst_suppliers_client_id')->references('id')->on('app_clients');
+            });
+
 
             
 
-            $table->unique('code','uq_phr_mst_suppliers_code');
-            $table->foreign('client_id','fk_pphr_mst_suppliers_client_id')->references('id')->on('app_clients');
 
-        });
 
         Schema::create('phr_mst_generic_names', function (Blueprint $table) {
             $table->smallIncrements('id');
@@ -144,7 +163,7 @@ class CreatePmsTables extends Migration
         });
 
 
-        Schema::create('phr_items', function (Blueprint $table) { 
+        Schema::create('mst_items', function (Blueprint $table) { 
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('client_id');
             $table->string('code',20);
@@ -161,58 +180,24 @@ class CreatePmsTables extends Migration
             $table->boolean('is_deprecated')->default(false);
             $table->boolean('is_free')->default(false);
             $table->boolean('is_active')->nullable()->default(true);
+            $table->boolean('is_barcode')->nullable()->default(false);
+            $table->boolean('is_price_editable')->nullable()->default(false);
             $table->string('description')->nullable();
             $table->timestamps();
 
             $table->unsignedInteger('created_by')->nullable();
             $table->unsignedInteger('updated_by')->nullable();
-            $table->index('brand_id','idx_phr_items_brand_name');
+            $table->index('brand_id','idx_mst_items_brand_name');
             $table->unsignedInteger('deleted_uq_code')->default(1);
-            $table->unique(['code','deleted_uq_code'],'uq_phr_items_code');
+            $table->unique(['code','deleted_uq_code'],'uq_mst_items_code');
 
-            $table->foreign('supplier_id','fk_phr_items_supplier_id')->references('id')->on('phr_mst_suppliers');
-            $table->foreign('category_id','fk_phr_items_category_id')->references('id')->on('phr_mst_categories');
-            $table->foreign('pharmaceutical_id','fk_phr_items_pharmaceutical_id')->references('id')->on('phr_mst_pharmaceuticals');
-            $table->foreign('unit_id','fk_phr_items_group_unit_id')->references('id')->on('phr_mst_units');
-            $table->foreign('client_id','fk_phr_items_client_id')->references('id')->on('app_clients');
-            $table->foreign('brand_id','fk_phr_items_brand_id')->references('id')->on('mst_brands');
+            $table->foreign('supplier_id','fk_mst_items_supplier_id')->references('id')->on('mst_suppliers');
+            $table->foreign('category_id','fk_mst_items_category_id')->references('id')->on('phr_mst_categories');
+            $table->foreign('pharmaceutical_id','fk_mst_items_pharmaceutical_id')->references('id')->on('phr_mst_pharmaceuticals');
+            $table->foreign('unit_id','fk_mst_items_group_unit_id')->references('id')->on('phr_mst_units');
+            $table->foreign('client_id','fk_mst_items_client_id')->references('id')->on('app_clients');
+            $table->foreign('brand_id','fk_mst_items_brand_id')->references('id')->on('mst_brands');
 
-        });
-        Schema::create('phr_item_units', function (Blueprint $table) { 
-            $table->smallIncrements('id');
-            $table->unsignedSmallInteger('client_id');
-            $table->unsignedSmallInteger('item_id')->nullable();
-            $table->unsignedSmallInteger('unit_id')->nullable();
-            $table->double('price');
-            $table->boolean('is_active')->nullable()->default(true);
-            $table->timestamps();
-
-            $table->unsignedInteger('created_by')->nullable();
-            $table->unsignedInteger('updated_by')->nullable();
-            $table->unsignedInteger('deleted_uq_code')->default(1);
-            $table->unique(['id','deleted_uq_code'],'uq_phr_item_units_id');
-
-
-            $table->foreign('item_id','fk_phr_item_units_item+id')->references('id')->on('phr_items');
-            $table->foreign('unit_id','fk_phr_item_units_unit_id')->references('id')->on('phr_mst_units');
-            $table->foreign('client_id','fk_phr_item_units_client_id')->references('id')->on('app_clients');
-        });
-        Schema::create('phr_item_stocks', function (Blueprint $table) {
-            $table->smallIncrements('id');
-            $table->unsignedSmallInteger('client_id');
-            $table->unsignedSmallInteger('item_id');
-            $table->string('batch_number');
-            $table->unsignedSmallInteger('quantity');
-            $table->timestamps();
-            $table->unsignedInteger('created_by')->nullable();
-            $table->unsignedInteger('updated_by')->nullable();
-            $table->unsignedInteger('deleted_uq_code')->default(1);
-            $table->unique(['id','deleted_uq_code'],'uq_phr_item_stocks_id');
-
-
-
-            $table->foreign('client_id','fk_phr_item_stocks_client_id')->references('id')->on('app_clients');
-            $table->foreign('item_id','fk_phr_item_stocks_item_id')->references('id')->on('phr_items');
         });
 
         Schema::create('sup_status', function (Blueprint $table) {
@@ -256,7 +241,7 @@ class CreatePmsTables extends Migration
             $table->unsignedBigInteger('supplier_id')->nullable();
             $table->unsignedBigInteger('status_id');
             $table->unsignedSmallInteger('client_id')->nullable();
-            $table->foreign('supplier_id')->references('id')->on('phr_mst_suppliers')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('supplier_id')->references('id')->on('mst_suppliers')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('client_id')->references('id')->on('app_clients')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('status_id')->references('id')->on('sup_status')
                    ->onDelete('restrict')->onUpdate('cascade');
@@ -312,7 +297,7 @@ class CreatePmsTables extends Migration
             $table->foreign('discount_mode_id')->references('id')->on('mst_discount_modes')
                 ->onDelete('restrict')->onUpdate('cascade');
 
-            $table->foreign('items_id')->references('id')->on('phr_items')
+            $table->foreign('items_id')->references('id')->on('mst_items')
                 ->onDelete('restrict')->onUpdate('cascade');
 
             $table->foreign('po_id')->references('id')->on('purchase_order_details')
@@ -358,7 +343,7 @@ class CreatePmsTables extends Migration
         $table->dateTime('deleted_at')->nullable();
         
         $table->foreign('client_id')->references('id')->on('app_clients')->cascadeOnDelete()->cascadeOnUpdate();
-        $table->foreign('supplier_id')->references('id')->on('phr_mst_suppliers')->onDelete('restrict')->onUpdate('cascade');
+        $table->foreign('supplier_id')->references('id')->on('mst_suppliers')->onDelete('restrict')->onUpdate('cascade');
         $table->foreign('status_id')->references('id')->on('sup_status')->onDelete('restrict')->onUpdate('cascade');
         $table->foreign('created_by')->references('id')->on('users')->onDelete('restrict')->onUpdate('cascade');
         $table->foreign('approved_by')->references('id')->on('users')->onDelete('restrict')->onUpdate('cascade');
@@ -385,7 +370,7 @@ class CreatePmsTables extends Migration
             
             $table->text('purchase_return',500)->nullable();
             $table->unsignedBigInteger('discount_mode_id')->nullable();
-            $table->unsignedBigInteger('phr_items_id')->nullable();
+            $table->unsignedBigInteger('mst_items_id')->nullable();
             $table->unsignedSmallInteger('client_id')->nullable();
 
 
@@ -397,7 +382,7 @@ class CreatePmsTables extends Migration
             $table->unsignedInteger('deleted_uq_code')->default(1);
 
             $table->foreign('discount_mode_id')->references('id')->on('mst_discount_modes')->onDelete('restrict')->onUpdate('cascade');
-            $table->foreign('phr_items_id')->references('id')->on('phr_items')->onDelete('restrict')->onUpdate('cascade');
+            $table->foreign('mst_items_id')->references('id')->on('mst_items')->onDelete('restrict')->onUpdate('cascade');
             $table->foreign('client_id')->references('id')->on('app_clients')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('created_by')->references('id')->on('users')->onDelete('restrict')->onUpdate('cascade');
             $table->unique(['id','deleted_uq_code'],'uq_purchase_return_items_id');
@@ -436,8 +421,8 @@ class CreatePmsTables extends Migration
     {
         Schema::dropIfExists('phr_mst_categories');
         Schema::dropIfExists('phr_mst_pharmaceuticals');
-        Schema::dropIfExists('phr_mst_suppliers');
-        Schema::dropIfExists('phr_items');
+        Schema::dropIfExists('mst_suppliers');
+        Schema::dropIfExists('mst_items');
         Schema::dropIfExists('phr_item_units');
         Schema::dropIfExists('phrmstgenericname');
         Schema::dropIfExists('phr_item_stocks');

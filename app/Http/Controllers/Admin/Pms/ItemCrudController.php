@@ -2,326 +2,462 @@
 
 namespace App\Http\Controllers\Admin\Pms;
 
-use Carbon\Carbon;
-
-use App\Models\Pms\Item;
+use App\Models\Pms\MstItem;
 use App\Models\Pms\MstUnit;
-use App\Models\Pms\ItemUnit;
 use App\Models\Pms\MstBrand;
 use Illuminate\Http\Request;
-use App\Models\Pms\ItemStock;
-use App\Base\Traits\ParentData;
 use App\Models\Pms\MstCategory;
 use App\Models\Pms\MstSupplier;
 use App\Base\BaseCrudController;
-use App\Models\Pms\MstGenericName;
+use App\Base\Traits\FilterStore;
 use Illuminate\Support\Facades\DB;
-use Prologue\Alerts\Facades\Alert;
-use App\Models\Pms\MstPharmaceutical;
+use App\Base\Traits\UserLevelFilter;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Requests\MstItemRequest;
 use App\Http\Requests\Pms\ItemRequest;
-use App\Base\Operations\FetchOperation;
-
+use app\Base\Operations\FetchOperation;
+use App\Imports\ItemEntriesExcelImport;
+use Illuminate\Support\Facades\Validator;
+use App\Base\Operations\InlineCreateOperation;
+use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
 class ItemCrudController extends BaseCrudController
 {
-    use ParentData;
-    use FetchOperation;
+	use FilterStore, InlineCreateOperation, FetchOperation, UserLevelFilter;
 
-   public function setup()
+
+    private $user;
+	
+	public function setup()
+	{
+		CRUD::setModel(\App\Models\Pms\MstItem::class);
+		CRUD::setRoute(config('backpack.base.route_prefix') . '/item');
+		CRUD::setEntityNameStrings('Item', ' items');
+
+		$this->user = backpack_user();
+		// $this->crud->addButtonFromModelFunction('line', 'storeItemSetting', 'storeItemSetting', 'end');
+	}
+
+	public function fetchMstCategory()
     {
-       
-        $this->crud->setModel(Item::class);
-        $this->crud->setRoute('admin/item');
-        $this->crud->setEntityNameStrings(trans('Item'), trans('Item Details'));
-        $this->crud->clearFilters();
-        $this->setFilters();
-
-    }
-
-    // public function index()
-    // {
-    //     $this->crud->hasAccessOrFail('list');
-    //     $this->getData();
-    //     $this->data['items'] = Item::all();
-    //     return view('pharmacy::pharmacy._item_list', $this->data)->with('no',1);
-    // }
-
-    protected function setFilters(){
-        $this->crud->addFilter(
-            [ // simple filter
-                'type' => 'text',
-                'name' => 'code',
-                'label' => 'Code',
-            ],
-            false,
-            function ($value) { // if the filter is active
-                $this->crud->addClause('where', 'code', 'iLIKE', "%$value%");
-            }
-        );
-  
-          $this->crud->addFilter([
-            'type' => 'text',
-            'name' => 'brand_name',
-            'label'=> trans('Brand Name')
-          ], 
-          false, 
-          function($value) { // if the filter is active
-            $this->crud->addClause('where', 'name', 'iLIKE', "%$value%");
-          });
-
-          $this->crud->addFilter([
-            'type' => 'text',
-            'name' => 'name',
-            'label'=> trans('Generic Name')
-          ], 
-          false, 
-          function($value) { // if the filter is active
-            $this->crud->addClause('where', 'name', 'iLIKE', "%$value%");
-          });
-
-          $this->crud->addFilter(
-            [ // Name(en) filter
-                'label' => trans('Category'),
-                'type' => 'select2',
-                'name' => 'category_id', // the db column for the foreign key
-            ],
-            function () {
-                // return false;
-                return (new MstCategory())->getFilterTitleComboOptions();
-            },
-            function ($value) { // if the filter is active
-            
-                $this->crud->addClause('where', 'category_id', $value);
-            }
-        );
-
-          $this->crud->addFilter(
-            [ // Name(en) filter
-                'label' => trans('Supplier'),
-                'type' => 'select2',
-                'name' => 'supplier_id', // the db column for the foreign key
-            ],
-            function () {
-                // return false;
-                return (new MstSupplier())->getFilterNameComboOptions();
-            },
-            function ($value) { // if the filter is active
-                $this->crud->addClause('where', 'supplier_id', $value);
-            }
-        );
-          $this->crud->addFilter(
-            [ // Name(en) filter
-                'label' => trans('Pharmaceutical'),
-                'type' => 'select2',
-                'name' => 'pharmaceutical_id', // the db column for the foreign key
-            ],
-            function () {
-                // return false;
-                return (new MstPharmaceutical())->getFilterNameComboOptions();
-            },
-            function ($value) { // if the filter is active
-                $this->crud->addClause('where', 'pharmaceutical_id', $value);
-            }
-        );
-    }
-
-    protected function setupListOperation()
-    {
-        $col=[
-            $this->addRowNumber(),
-            $this->addCodeColumn(),
-            [
-                'label'=>trans('Item Name'),
-                'type' => 'text',
-                'name' => 'name', 
-            ],
-            [
-                'label'=>trans('Supplier'),
-                'type' => 'select',
-                'name' => 'supplier_id', 
-                'entity' => 'supplier', 
-                'attribute' => 'name', 
-                'model' => MstSupplier::class,
-            ],
-            [
-                'label'=>trans('Brand Name'),
-                'type' => 'select',
-                'name' => 'brand_id', 
-                'entity' => 'mstbrand', 
-                'attribute' => 'name_en', 
-                'model' => MstBrand::class,
-            ],
-            
-        ];
-        $this->crud->addColumns(array_filter($col));
-        $this->crud->orderBy('created_at',"DESC");
+        $results = DB::select('select * from phr_mst_categories where client_id = ?', [$this->user->client_id]);
+        return $results;
     }
 
 
-
-    protected function setupCreateOperation()
+	public function fetchMstSupplier()
     {
-        $this->crud->setValidation(ItemRequest::class);
-        $arr=[
-            $this->addCodeField(),
+        // return $this->fetch(MstSupplier::class);
+        $results = DB::select('select * from mst_suppliers where client_id = ?', [$this->user->client_id]);
+        return $results;
+    }
+
+	public function fetchMstDiscMode()
+    {
+        return $this->fetch(MstDiscMode::class);
+    }
+
+	
+	protected function setupListOperation()
+	{
+		$columns = [
+			$this->addRowNumberColumn(),
+			$this->addCodeColumn(),
+
+			[
+				'name' => 'name',
+				'type' => 'text',
+				'label' => 'Product Name',
+			],
+            [
+                // any type of relationship
+                'name'         => 'mstSupplierEntity', // name of relationship method in the model
+                'type'         => 'select',
+                'label'        => 'Supplier', // Table column heading
+                'entity'    => 'mstSupplierEntity', // the method that defines the relationship in your Model
+                'attribute' => 'name_en', // foreign key attribute that is shown to user
+                'model'     => MstSupplier::class, // foreign key model
+            ],
+			[
+				'label'     => 'Brand',
+				'type'      => 'select',
+				'name'      => 'brand_id', // the column that contains the ID of that connected entity;
+				'entity'    => 'mstBrandEntity', // the method that defines the relationship in your Model
+				'attribute' => 'name_en', // foreign key attribute that is shown to user
+				'model'     => MstBrand::class,
+
+			],
+			[
+				'label'     => trans('Category'),
+				'type'      => 'select',
+				'name'      => 'category_id', // the column that contains the ID of that connected entity;
+				'entity'    => 'category', // the method that defines the relationship in your Model
+				'attribute' => 'title_en', // foreign key attribute that is shown to user
+				'model'     => MstCategory::class,
+			],
+			$this->addIsActiveColumn(),
+		];
+
+		$this->crud->addColumns(array_filter($columns));
+        $this->crud->addButtonFromView('top', 'excelImport', 'excelImport', 'end');
+        $this->crud->addButtonFromModelFunction('top', 'itemsSampleExcel', 'itemsSampleExcel', 'end');
+
+	}
+
+
+	protected function setupCreateOperation()
+	{
+        CRUD::setValidation(ItemRequest::class);
+
+		$fields = [
+			$this->addCodeField(),
+			[
+				'type' => 'custom_html',
+				'name' => 'plain_html_2',
+				'value' => '<br>',
+			],
             $this->addClientIdField(),
-            [
-                'label'=>trans('Generic Name'),
-                'type' => 'text',
-                'name' => 'name', 
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-4',
+			$this->addPlainHtml(),
+			[
+                'name' => 'store_hidden_id',
+                'type' => 'hidden',
+                'attributes' => [
+                    'id' => 'store_hidden_id',
                 ],
             ],
-            [
-                'label'=>trans('Supplier'),
-                'type' => 'select2',
-                'name' => 'supplier_id', 
-                'entity' => 'supplier', 
-                'attribute' => 'name', 
-                'model' => MstSupplier::class,
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-4',
-                ],
-            ],
-            [
-                'label'=>trans('Category'),
-                'type' => 'select2',
-                'name' => 'category_id', 
-                'entity' => 'category', 
-                'attribute' => 'title_en', 
-                'model' => MstCategory::class,
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-4',
-                ],
-            ],
+			$this->addPlainHtml(),
+			[
+				'name' => 'name',
+				'type' => 'text',
+				'label' => 'Model Name',
+				'wrapperAttributes' => [
+					'class' => 'form-group col-md-4',
+				],
+			],
+			[
+				'name' => 'description',
+				'type' => 'text',
+				'label' => trans('common.description'),
+				'wrapper' => [
+					'class' => 'form-group col-md-4',
+				],
+			],
 
             [
-                'name'=>'brand_id',
-                'type'=>'relationship',
-                'label'=>trans('Brand'),
-                'entity'=>'mstbrand',
-                'model'=>MstBrand::class,
-                'attribute'=>'name_en',
-                'inline_create'=>[
-                    'entity'=>'/mstbrand',
-                    'modal_class' => 'modal-dialog modal-xl',
-                ],
-                'data_source' => '/admin/item/fetch/mstbrand',
-                'wrapperAttributes' => [
+				'label'     => 'Category',
+				'type'      => 'select2',
+				'name'      => 'category_id', // the column that contains the ID of that connected entity;
+				'entity'    => 'category', // the method that defines the relationship in your Model
+				'model'     => MstCategory::class,
+				'attribute' => 'title_en', // foreign key attribute that is shown to user
+				'options' => (function ($query) {
+					return $query->where('client_id', backpack_user()->client_id)->get();
+				}),
+				'wrapper' => [
                     'class' => 'form-group col-md-4',
                 ],
-            ],
-         
-            [
-                'label'=>trans('Unit'),
+			],
+           
+			[
+				'label'     => 'Brand',
+				'type'      => 'select2',
+				'name'      => 'brand_id', // the column that contains the ID of that connected entity;
+				'entity'    => 'brand', // the method that defines the relationship in your Model
+				'model'     => MstBrand::class,
+				'attribute' => 'name_en', // foreign key attribute that is shown to user
+				'options' => (function ($query) {
+					return $query->where('client_id', backpack_user()->client_id)->get();
+				}),
+				'wrapper' => [
+                    'class' => 'form-group col-md-4',
+                ],
+			],
+			[
+                'name' => 'unit_id',
                 'type' => 'select2',
-                'name' => 'unit_id', 
-                'entity' => 'mstunit', 
-                'attribute' => 'name_en', 
+                'label' => trans('Unit'),
+                'entity' => 'mstUnitEntity',
+                'attribute' => 'name_en',
                 'model' => MstUnit::class,
-                'wrapperAttributes' => [
+                'minimum_input_length' => 0,
+                'wrapper' => [
                     'class' => 'form-group col-md-4',
                 ],
+                'options' => (function ($query){
+                    return $query->where('client_id',backpack_user()->client_id)->get();
+                }),
             ],
+
             [
-                'name' => 'stock_alert_minimun',
-                'type' => 'number',
-                'label' => 'Stock Alert Minimum',
-                'wrapperAttributes' => [
+				'label'     => 'Supplier',
+				'type'      => 'select2',
+				'name'      => 'supplier_id', // the column that contains the ID of that connected entity;
+				'entity'    => 'mstSupplierEntity', // the method that defines the relationship in your Model
+				'model'     => MstSupplier::class,
+				'attribute' => 'name_en', // foreign key attribute that is shown to user
+				'options' => (function ($query) {
+					return $query->where('client_id', backpack_user()->client_id)->get();
+				}),
+				'wrapper' => [
                     'class' => 'form-group col-md-4',
                 ],
-            ],
-     
-            [
-				'name' => 'tax_vat',
+			],
+			[
+				'name' => 'stock_alert_minimun',
+				'label' => trans('stock_alert_minimun'),
 				'type' => 'number',
-				'label' => trans('Tax Vat'),
 				'wrapper' => [
-					'class' => 'form-group col-md-4',
-				],
-				'attributes' => [
-					'id' => 'tax_vat',
-				],
+                    'class' => 'form-group col-md-4',
+                ],
+			],
 
-			],
-            [
-				'name' => 'is_taxable',
-				'label' => trans('Is Taxable?'),
+			[
+				'name' => 'is_deprecated',
+				'label' => trans('Non claimable'),
 				'type' => 'radio',
-				'default' => 1,
+				'default' => 0,
 				'inline' => true,
+				'wrapper' => [
+					'class' => 'form-group col-md-3',
+				],
 				'options' =>
 				[
 					1 => 'Yes',
 					0 => 'No',
 				],
+			],
+			[
+				'name' => 'is_price_editable',
+				'label' => trans('is_price_editable'),
+				'type' => 'radio',
+				'default' => 0,
+				'inline' => true,
 				'wrapper' => [
-					'class' => 'form-group col-md-4',
+					'class' => 'form-group col-md-3',
+				],
+				'options' =>
+				[
+					1 => 'Yes',
+					0 => 'No',
+				],
+			],
+            [
+				'name' => 'is_barcode',
+				'label' => 'System',
+				'type' => 'radio',
+				'default' => 0,
+				'inline' => true,
+				'options' =>
+				[
+					1 => 'Barcode',
+					0 => 'Custom Qty',
+				],
+				'wrapper' => [
+					'class' => 'form-group col-md-3',
 				],
 				'attributes' => [
-					'id' => 'is_taxable',
-					'onChange' => 'LMS.setIsTaxableField()',
+					'id' => 'is_barcode',
+					'onChange' => 'INVENTORY.setIsBarcodeField()',
 				],
 			],
-            [
-				'name' => 'is_free',
-				'label' => trans('Is Free ?'),
-				'type' => 'radio',
-				'default' => 1,
-				'inline' => true,
-				'options' =>
-				[
-					1 => 'Yes',
-					0 => 'No',
-				],
-				'wrapper' => [
-					'class' => 'form-group col-md-4',
-				],
-			],
-            [
-				'name' => 'is_deprecated',
-				'label' => trans('Is Deprecated?'),
-				'type' => 'radio',
-				'default' => 1,
-				'inline' => true,
-				'options' =>
-				[
-					1 => 'Yes',
-					0 => 'No',
-				],
-				'wrapper' => [
-					'class' => 'form-group col-md-4',
-				],
-			],
-            $this->addIsActiveField(),
-            [
-                'name' => 'description',
-                'type' => 'textarea',
-                'label' => 'Description',
-                'wrapperAttributes' => [
-                    'class' => 'form-group col-md-12',
+			[
+                'name' => 'is_active',
+                'label' => trans('common.is_active'),
+                'type' => 'radio',
+                'default' => 1,
+                'inline' => true,
+                'wrapper' => [
+                    'class' => 'form-group col-md-3',
+                ],
+                'options' =>
+                [
+                    1 => 'Yes',
+                    0 => 'No',
                 ],
             ],
-        ];
-        $arr = array_filter($arr);
-        $this->crud->addFields($arr); 
-    }
+		];
+		$this->crud->addFields(array_filter($fields));
 
-    protected function setupUpdateOperation()
-    {
-        $this->setupCreateOperation();
-    }
+	}
 
+	protected function setupUpdateOperation()
+	{
+		$this->setupCreateOperation();
+	}
 
-    public function fetchMstUnit()
-    {   
-        return $this->fetch(['model'=>MstUnit::class,'searchable_attributes' => ['name_en']]);
-    }
-    public function fetchMstbrand()
-    {   
-        return $this->fetch(['model'=>MstBrand::class,'searchable_attributes' => ['name_en']]);
-    }
+	protected function setupShowOperation()
+	{
 
-   
+        $options = MstItem::sellingTypes();
+
+		$arr = [
+			$this->addCodeColumn(),
+
+			[
+				'name' => 'name',
+				'type' => 'text',
+				'label' => trans('common.name'),
+			],
+			[
+				'name' => 'description',
+				'type' => 'text',
+				'label' => trans('common.description'),
+			],
+			[
+				'label'     => trans('Category'),
+				'type'      => 'select',
+				'name'      => 'category_id', // the column that contains the ID of that connected entity;
+				'entity'    => 'category', // the method that defines the relationship in your Model
+				'attribute' => 'title_en', // foreign key attribute that is shown to user
+				'model'     => MstCategory::class,
+				'options' => (function ($query) {
+					return $query->where('client_id', backpack_user()->client_id)->get();
+				}),
+			],
+
+			[
+				'label'     => trans('common.brand_id'),
+				'type'      => 'select',
+				'name'      => 'brand_id', // the column that contains the ID of that connected entity;
+				'entity'    => 'mstBrandEntity', // the method that defines the relationship in your Model
+				'attribute' => 'name_en', // foreign key attribute that is shown to user
+				'model'     => MstBrand::class,
+				'options' => (function ($query) {
+					return $query->where('client_id', backpack_user()->client_id)->get();
+				}),
+			],
+			[
+				'label'     => trans('common.unit_id'),
+				'type'      => 'select',
+				'name'      => 'unit_id', // the column that contains the ID of that connected entity;
+				'entity'    => 'mstUnitEntity', // the method that defines the relationship in your Model
+				'attribute' => 'name_en', // foreign key attribute that is shown to user
+				'model'     => MstUnit::class,
+				'options' => (function ($query) {
+					return $query->where('client_id', backpack_user()->client_id)->get();
+				}),
+			],
+			[
+				'label'     => trans('Supplier'),
+				'type'      => 'select',
+				'name'      => 'supplier_id', // the column that contains the ID of that connected entity;
+				'entity'    => 'mstSupplierEntity', // the method that defines the relationship in your Model
+				'attribute' => 'name_en', // foreign key attribute that is shown to user
+				'model'     => MstSupplier::class,
+				'options' => (function ($query) {
+					return $query->where('client_id', backpack_user()->client_id)->get();
+				}),
+			],
+
+			[
+				'name' => 'is_deprecated',
+				'label' => trans('Nonclaimable'),
+				'type' => 'radio_show',
+				'options' =>
+				[
+					1 => 'Yes',
+					0 => 'No',
+				],
+			],
+
+			[
+				'name' => 'is_barcode',
+				'label' => 'System',
+				'type' => 'radio',
+				'default' => 0,
+				'inline' => true,
+				'options' =>
+				[
+					1 => 'Barcode',
+					0 => 'Custom Qty',
+				],
+				'wrapper' => [
+					'class' => 'form-group col-md-4',
+				],
+				'attributes' => [
+					'id' => 'is_barcode',
+					'onChange' => 'INVENTORY.setIsBarcodeField()',
+				],
+			],
+			[
+				'name' => 'is_active',
+				'label' => 'Is Active ?',
+				'type' => 'radio_show',
+				'options' =>
+				[
+					1 => 'Yes',
+					0 => 'No',
+				],
+			],
+
+			$this->addIsActiveField()
+		];
+
+		$this->crud->addColumns(array_filter($arr));
+	}
+
+        /**
+     * Store a newly created resource in the database.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    
+
+	public function itemEntriesExcelImport(Request $request)
+	{
+
+		$total_errors = [];
+		$validator = Validator::make($request->all(), [
+			'itemExcelFileName' => 'required',
+		]);
+
+		try {
+			$itemImport = new ItemEntriesExcelImport;
+			Excel::import($itemImport, request()->file('itemExcelFileName'));
+
+			//!! Error for name doesnot exists
+			if (!empty($itemImport->name_errors)) {
+
+				array_push($total_errors, $itemImport->name_errors);
+			}
+
+			//!! Error for items with same name that already exixts
+			if (!empty($itemImport->item_errors)) {
+				array_push($total_errors, $itemImport->item_errors);
+			}
+
+			if (!empty($total_errors)) {
+				return view('excel-errors', compact('total_errors'));
+			}
+
+            return 1;
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+			//!! Databse validation Errors
+            $database_validation_errors = $e->failures();
+            return view('excel-errors', compact('database_validation_errors'));
+        }
+	}
+
+	public function storeItemSetting($id){
+		$data['id'] = $id;
+		return view('vendor.backpack.crud.buttons.storeItemSetting', $data);
+	}
+
+	public function updateItemSetting(Request $request){
+        $id = $this->crud->getCurrentEntryId();
+		DB::beginTransaction();
+		try{
+			DB::table('mst_item_stores')->where('item_id', $id)->where('store_id', backpack_user()->store_id)->update([
+				'min_stock_alert' => $request->min_stock_alert,
+				'is_active' => $request->is_active,
+			]);
+
+			DB::commit();
+
+			return redirect($this->crud->route);
+		}catch(\Exception $e){
+			DB::rollback();
+			dd($e);
+		}
+	}
 }

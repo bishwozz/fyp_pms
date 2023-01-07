@@ -25,23 +25,20 @@ class MstSupplierRequest extends FormRequest
     public function rules()
     {
 
-
-        $id_check = request()->request->get('id') ? ",".request()->request->get('id') : ",NULL";
-        $name = $this->request->get('name');
-        $name_check =$id_check.",id,name,".$name.",deleted_uq_code,1";
-        $code = $this->request->get('code');
-        $code_check = $id_check.",id,code,".$code.",deleted_uq_code,1";
-        
+        $id_check = $this->request->get('id') ? ",".$this->request->get('id') : ",NULL";
+        $client_id = $this->request->get('client_id') ? ",".$this->request->get('client_id') : ",NULL";
+        $client_check = $id_check.",id,client_id".$client_id.",deleted_uq_code,1";
         return [
-            'code' => 'required|max:20|unique:phr_mst_suppliers,code'.$code_check,
-            'name'=>'required|max:200|unique:phr_mst_suppliers,name'.$name_check,
+            'name_en' => 'required|max:100|unique:mst_suppliers,name_en'.$client_check,
+            'name_lc' => 'max:100|unique:mst_suppliers,name_lc'.$client_check,
+            'country_id'=>'required',
+            'email'=>'required|email|unique:mst_suppliers,email'.$client_check,
+            'province_id'=>'required',
+            'district_id'=>'required',
             'address'=>'required',
-            'email'=>'required',
-            'contact_person'=>'required',
-            'phone_number'=>'required|max:10',
-            'description'=>'max:500',
-            'reference_from_to'=>'max:100',
-            'unit_id'=>'max:50',
+            // 'contact_person'=>'required',
+            'contact_number'=>'required|numeric|digits:10',
+            'description' => 'max:1000',
         ];
 
     }
@@ -54,13 +51,18 @@ class MstSupplierRequest extends FormRequest
     public function attributes()
     {
         return [
-            'code' => 'code',
-            'name' => 'Name',
-            'address'=>'Address',
+            'code' => 'Code',
+            'name_en' => 'Name',
+            'name_lc' => 'नाम',
             'email'=>'Email',
-            'contact_person'=>'Contact Person',
-            'phone_number'=>'Phone Number',
             'description' => 'Description',
+            'country_id' => 'Country',
+            'province_id' => 'Province',
+            'district_id' => 'District',
+            'address' => 'Address',
+            // 'contact_person' => 'Contact Person',
+            'contact_number' => 'Contact Number',
+
         ];
     }
 
@@ -75,8 +77,6 @@ class MstSupplierRequest extends FormRequest
             'required' => 'The :attribute field is required.',
             'unique' => 'The :attribute has already been taken.',
             'max' => 'The :attribute must not be greater than :max.',
-            'tax_vat.required_if' => 'Tax Vat field is required when Taxable Field is selected Yes'
-
         ];
     }
 }
