@@ -116,4 +116,8 @@ class User extends Authenticatable
             return false;
         }
     }
+
+    public function createdByEntity(){
+        return $this->belongsTo(User::class,'created_by','id');
+    }
 }

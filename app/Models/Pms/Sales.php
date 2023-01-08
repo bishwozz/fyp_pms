@@ -52,10 +52,10 @@ class Sales extends BaseModel
     {
         return $this->belongsTo(MstStore::class, 'store_id', 'id');
     }
-    public function gender()
-    {
-        return $this->belongsTo('App\Models\MstGender', 'gender_id', 'id');
-    }
+    // public function gender()
+    // {
+    //     return $this->belongsTo('App\Models\MstGender', 'gender_id', 'id');
+    // }
 
     public function saleItems()
     {
