@@ -12,7 +12,7 @@ class MstItem extends BaseModel
     protected $table = 'mst_items';
 
     protected $fillable = ['code', 'barcode_details', 'client_id', 'batch_no', 'name', 'description',
-     'stock_alert_minimun','category_id' , 'supplier_id', 'brand_id', 'unit_id', 'is_deprecated', 'is_active', 'deleted_by', 'deleted_at', 'deleted_uq_code', 'is_price_editable','is_barcode'];
+     'stock_alert_minimun','category_id' , 'supplier_id', 'brand_id', 'unit_id', 'is_deprecated', 'is_active', 'deleted_by', 'deleted_at', 'deleted_uq_code', 'is_price_editable','is_barcode','tax_vat'];
 
     protected static function sellingTypes(){
         return [
