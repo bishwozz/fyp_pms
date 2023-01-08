@@ -184,9 +184,9 @@ Route::group([
     Route::post('mst-item/excel-import', 'ItemCrudController@itemEntriesExcelImport')
     ->name('item.importExcel');
     //Notifications for Stock Minimum Alert of mst item
-    Route::get('stock-notification', 'MstItemCrudController@loadNotification')->name('stock.notification.load');
-    Route::get('stock-notification/{id}/mark-as-read', 'MstItemCrudController@markNotification')->name('stock.notification.markread');
-    Route::get('stock-notification/check', 'MstItemCrudController@checkNotification')->name('stock.notification.check');
-    Route::get('stock-notification/show', 'MstItemCrudController@showNotifications')->name('stock.notification.show');
+    Route::get('stock-notification', 'ItemCrudController@loadNotification')->name('stock.notification.load');
+    Route::get('stock-notification/{id}/mark-as-read', 'ItemCrudController@markNotification')->name('stock.notification.markread');
+    Route::get('stock-notification/check', 'ItemCrudController@checkNotification')->name('stock.notification.check');
+    Route::get('stock-notification/show', 'ItemCrudController@showNotifications')->name('stock.notification.show');
 
     });
