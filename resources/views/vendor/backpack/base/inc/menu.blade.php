@@ -26,6 +26,15 @@
     @else
         <!-- Topbar. Contains the right part -->
         @include(backpack_view('inc.topbar_right_content'))
+        <li class="nav-item dropdown pr-4" id="stockentries-li">
+            <a class="nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" onclick="showStockNotification();" id="stocMinimumAlertButton" title="Stock Minimum Alerts">
+                <span class="badge badge-danger badge-counter" style="position: absolute;top:40%;left:30%;z-index:9999;" id="stockalertminimum">
+                </span>
+                <i class="la la-exclamation-triangle text-white-50 la-2x" style="position: relative;"></i>
+            </a>
+            <div class="dropdown-menu {{ config('backpack.base.html_direction') == 'rtl' ? 'dropdown-menu-left' : 'dropdown-menu-right' }} mr-4 pb-1 pt-1" id="unReadStockNotificationList">
+            </div>
+        </li>
         @include(backpack_view('inc.menu_user_dropdown'))
     @endif
 </ul>

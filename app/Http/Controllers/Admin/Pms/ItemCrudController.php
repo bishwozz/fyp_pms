@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Admin\Pms;
 
+use Carbon\Carbon;
+use App\Models\StockItems;
 use App\Models\Pms\MstItem;
 use App\Models\Pms\MstUnit;
+use App\Models\Notification;
 use App\Models\Pms\MstBrand;
 use Illuminate\Http\Request;
 use App\Models\Pms\MstCategory;
@@ -11,6 +14,7 @@ use App\Models\Pms\MstSupplier;
 use App\Base\BaseCrudController;
 use App\Base\Traits\FilterStore;
 use Illuminate\Support\Facades\DB;
+use Prologue\Alerts\Facades\Alert;
 use App\Base\Traits\UserLevelFilter;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Requests\MstItemRequest;
@@ -465,15 +469,27 @@ class ItemCrudController extends BaseCrudController
     public function loadNotification()
     {
         if(!$this->user->isSystemUser()){
-            $clause = [['sup_org_id', $this->user->sup_org_id], ['created_by', $this->user->id]];
-            $stocks = ItemQuantityDetail::where($clause)->get();
+            $clause = [['client_id', $this->user->client_id], ['created_by', $this->user->id]];
+            $stocks = StockItems::where($clause)->get();
         }else{
-            $stocks = ItemQuantityDetail::all();
+            $stocks = StockItems::all();
         }
         $notifications = [];
         $unreadNotifications = [];
         $readnotifications = [];
-
+        if($stocks){
+            foreach ($stocks as $stock) {
+                foreach ($stock->notifications as $notification) {
+                    array_push($notifications, $notification);
+                }
+                foreach ($stock->unreadNotifications as $notification) {
+                    array_push($unreadNotifications, $notification);
+                }
+                foreach ($stock->readnotifications as $notification) {
+                    array_push($readnotifications, $notification);
+                }
+            }
+        }
         foreach ($stocks as $stock) {
             foreach ($stock->notifications as $notification) {
                 array_push($notifications, $notification);
@@ -502,18 +518,23 @@ class ItemCrudController extends BaseCrudController
     public function checkNotification()
 	{
         if(!$this->user->isSystemUser()){
-            $clause = [['sup_org_id', $this->user->sup_org_id], ['created_by', $this->user->id]];
-            $stocks = ItemQuantityDetail::where($clause)->get();
+            $clause = [['client_id', $this->user->client_id], ['created_by', $this->user->id]];
+            $stocks = StockItems::where($clause)->get();
         }else{
-            $stocks = ItemQuantityDetail::all();
+            $stocks = StockItems::all();
         }
 		$unreadNotifications = [];
 
-		foreach($stocks as $stock){
-            foreach($stock->unreadNotifications as $notification){
-                array_push($unreadNotifications, $notification);
-			}
-		}
+        // dd($stocks);
+        if($stocks){
+            foreach($stocks as $stock){
+                if($stock->unreadNotifications){
+                    foreach($stock->unreadNotifications as $notification){
+                        array_push($unreadNotifications, $notification);
+                    }
+                }
+            }
+        }
 		$countUnreadNotifications = count($unreadNotifications);
 		return response()->json([
 				'status' => 'success',
@@ -524,13 +545,17 @@ class ItemCrudController extends BaseCrudController
 
     public function showNotifications()
 	{
-		$stocks = ItemQuantityDetail::all();
+		$stocks = StockItems::all();
 		$unreadNotifications = [];
-		foreach($stocks as $stock){
-			foreach($stock->unreadNotifications as $notification){
-				array_push($unreadNotifications, $notification);
-			}
-		}
+        if($stocks){
+            foreach($stocks as $stock){
+                if($stock->unreadNotifications){
+                    foreach($stock->unreadNotifications as $notification){
+                        array_push($unreadNotifications, $notification);
+                    }
+                }
+            }
+        }
         $unreadNotifications = collect($unreadNotifications)->sortByDesc('created_at');
         return view('customAdmin.partial.notification')->with('unreadNotifications', $unreadNotifications);
 	}
@@ -539,7 +564,7 @@ class ItemCrudController extends BaseCrudController
 	{
 
         $notification = Notification::find($id);
-        $stock = ItemQuantityDetail::find($notification->data['item']['id']);
+        $stock = StockItems::find($notification->data['item']['id']);
         if(($stock->minimum_alert_qty) < ($stock->item_qty)) {
             $notification->read_at = Carbon::now();
             $notification->save();

@@ -47,6 +47,7 @@ class CreateStockEntryTables extends Migration
             $table->foreignId('client_id')->nullable()->constrained('app_clients')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('stock_id')->nullable()->constrained('stock_entries')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('item_id')->nullable()->constrained('mst_items')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('created_by')->nullable()->constrained('users')->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });
     }
