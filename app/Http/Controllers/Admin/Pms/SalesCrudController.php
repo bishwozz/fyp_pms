@@ -55,6 +55,8 @@ class SalesCrudController extends BaseCrudController
         $this->crud->enableResponsiveTable();
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
+        $this->crud->enableExportButtons();
+
         // $this->isAllowed([
         //     'stockItem' => 'list',
         //     'getBatchDetail' => 'list',
@@ -570,6 +572,7 @@ class SalesCrudController extends BaseCrudController
     {
         $this->crud->hasAccessOrFail('show');
 
+        // dd('-');
         // get entry ID from Request (makes sure its the last ID for nested resources)
         $id = $this->crud->getCurrentEntryId() ?? $id;
         $data = [];
