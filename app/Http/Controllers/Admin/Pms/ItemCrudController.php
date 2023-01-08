@@ -27,7 +27,7 @@ class ItemCrudController extends BaseCrudController
 
 
     private $user;
-	
+
 	public function setup()
 	{
 		CRUD::setModel(\App\Models\Pms\MstItem::class);
@@ -57,7 +57,7 @@ class ItemCrudController extends BaseCrudController
         return $this->fetch(MstDiscMode::class);
     }
 
-	
+
 	protected function setupListOperation()
 	{
 		$columns = [
@@ -157,7 +157,7 @@ class ItemCrudController extends BaseCrudController
                     'class' => 'form-group col-md-4',
                 ],
 			],
-           
+
 			[
 				'label'     => 'Brand',
 				'type'      => 'select2',
@@ -401,7 +401,7 @@ class ItemCrudController extends BaseCrudController
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    
+
 
 	public function itemEntriesExcelImport(Request $request)
 	{
@@ -459,5 +459,93 @@ class ItemCrudController extends BaseCrudController
 			DB::rollback();
 			dd($e);
 		}
+	}
+
+
+    public function loadNotification()
+    {
+        if(!$this->user->isSystemUser()){
+            $clause = [['sup_org_id', $this->user->sup_org_id], ['created_by', $this->user->id]];
+            $stocks = ItemQuantityDetail::where($clause)->get();
+        }else{
+            $stocks = ItemQuantityDetail::all();
+        }
+        $notifications = [];
+        $unreadNotifications = [];
+        $readnotifications = [];
+
+        foreach ($stocks as $stock) {
+            foreach ($stock->notifications as $notification) {
+                array_push($notifications, $notification);
+            }
+            foreach ($stock->unreadNotifications as $notification) {
+                array_push($unreadNotifications, $notification);
+            }
+            foreach ($stock->readnotifications as $notification) {
+                array_push($readnotifications, $notification);
+            }
+        }
+        $notifications = collect($notifications);
+        $unreadNotifications = collect($unreadNotifications);
+        $readnotifications = collect($readnotifications);
+        $orderNotyCount = count($unreadNotifications);
+
+        return response()->json([
+            'status' => 'success',
+            'notifications' => $notifications,
+            'unreadNotifications' => $notifications,
+            'readNotifications' => $readnotifications,
+            'stockNotificationCount' => $orderNotyCount
+        ]);
+    }
+
+    public function checkNotification()
+	{
+        if(!$this->user->isSystemUser()){
+            $clause = [['sup_org_id', $this->user->sup_org_id], ['created_by', $this->user->id]];
+            $stocks = ItemQuantityDetail::where($clause)->get();
+        }else{
+            $stocks = ItemQuantityDetail::all();
+        }
+		$unreadNotifications = [];
+
+		foreach($stocks as $stock){
+            foreach($stock->unreadNotifications as $notification){
+                array_push($unreadNotifications, $notification);
+			}
+		}
+		$countUnreadNotifications = count($unreadNotifications);
+		return response()->json([
+				'status' => 'success',
+				'message' => 'New Notification',
+				'countUnreadNotifications' => $countUnreadNotifications,
+			]);
+	}
+
+    public function showNotifications()
+	{
+		$stocks = ItemQuantityDetail::all();
+		$unreadNotifications = [];
+		foreach($stocks as $stock){
+			foreach($stock->unreadNotifications as $notification){
+				array_push($unreadNotifications, $notification);
+			}
+		}
+        $unreadNotifications = collect($unreadNotifications)->sortByDesc('created_at');
+        return view('customAdmin.partial.notification')->with('unreadNotifications', $unreadNotifications);
+	}
+
+    public function markNotification($id)
+	{
+
+        $notification = Notification::find($id);
+        $stock = ItemQuantityDetail::find($notification->data['item']['id']);
+        if(($stock->minimum_alert_qty) < ($stock->item_qty)) {
+            $notification->read_at = Carbon::now();
+            $notification->save();
+        }else{
+            Alert::error('Must either update minimum stock alert or item quantity')->flash();
+        }
+        return redirect()->back();
 	}
 }

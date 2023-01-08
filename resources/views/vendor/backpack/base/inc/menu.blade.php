@@ -30,3 +30,41 @@
     @endif
 </ul>
 <!-- ========== End of top menu right items ========== -->
+
+<script src="{{ asset('js/app.js') }}" defer></script>
+<script src="{{asset('js/jquery.min.js')}}"></script>
+<script>
+    $(document).ready(function() {
+        loadInitialStockNotification();
+    });
+
+    function loadInitialStockNotification() {
+        $.ajax({
+            url: '{{ route('stock.notification.check') }}',
+            method: "GET",
+            data: {
+                _token: '{{ csrf_token() }}',
+            },
+            success: function(response) {
+                $('#stockalertminimum').html(response.countUnreadNotifications);
+                let counStockAlert = $('#stockalertminimum').html().trim().replace(',', '');
+                if (response.countUnreadNotifications == 0) {
+                    $('#unReadStockNotificationList').hide();
+                }
+            }
+        });
+    }
+
+    function showStockNotification() {
+        $.ajax({
+            url: '{{ route('stock.notification.show') }}',
+            method: "GET",
+            data: {
+                _token: '{{ csrf_token() }}',
+            },
+            success: function(response) {
+                $('#unReadStockNotificationList').html(response);
+            }
+        });
+    }
+</script>

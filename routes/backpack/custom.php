@@ -141,22 +141,22 @@ Route::group([
 
 		Route::crud('/purchase-order-detail', 'PurchaseOrderDetailCrudController');
 		Route::post('/purchase-order-detail/{order_id}', 'PurchaseOrderDetailCrudController@update')->name('purchase.order-edit');
-        
-        
+
+
         Route::get('/mst-sequence/sequence-code-check', [MstSequenceCrudController::class, 'sequenceCodeCheck'])->name('sequence.code-check');
         Route::post('/mst-sequence/inline-create', [MstSequenceCrudController::class, 'inlineStore'])->name('sequence.inlineStore');
-        
+
         Route::get('get-contact-details/{detail}', 'PurchaseOrderDetailCrudController@getContactDetails')->name('custom.contact-details');
         Route::get('po-item-details/{item}', 'PurchaseOrderDetailCrudController@poDetails')->name('custom.po-details');
         Route::get('purchase-history-details/{id}/{to}/{from}', 'PurchaseOrderDetailCrudController@purchaseOrderHistoryDetails')->name('custom.poh-details');
-        
+
 		Route::crud('/purchase-return', 'PurchaseReturnCrudController');
 
 
         Route::get('get-batch/{itemId}', 'SalesCrudController@getBatchItem')->name('custom.get-batch');
         Route::get('get-batch-detail/{itemId}/{batchId}', 'SalesCrudController@getBatchDetail')->name('custom.get-batch-detail');
         Route::get('get-batch-item-detail/{itemId}/{batchNo}', 'PurchaseReturnCrudController@getBatchDetail')->name('custom.get-batch-item-detail');
-        
+
  	 // this should be the last line donot remove this
 
         Route::crud('stock-entry', 'StockEntryCrudController');
@@ -176,13 +176,17 @@ Route::group([
     Route::get('stock-barcode-details/flush/{key}', 'StockEntriesCrudController@barcodeSessionFlush')->name('custom.stock-barcode-flush');
 
         //?? API Route to get customers in Modal's select
-       
+
         Route::get('/api/customer/{id}', 'MstCustomerCrudController@getCustomerDetailById')->name('api.customerDetail');
 
 
             // Bulk Upload for Items (Excel Upload)
     Route::post('mst-item/excel-import', 'ItemCrudController@itemEntriesExcelImport')
     ->name('item.importExcel');
-
+    //Notifications for Stock Minimum Alert of mst item
+    Route::get('stock-notification', 'MstItemCrudController@loadNotification')->name('stock.notification.load');
+    Route::get('stock-notification/{id}/mark-as-read', 'MstItemCrudController@markNotification')->name('stock.notification.markread');
+    Route::get('stock-notification/check', 'MstItemCrudController@checkNotification')->name('stock.notification.check');
+    Route::get('stock-notification/show', 'MstItemCrudController@showNotifications')->name('stock.notification.show');
 
     });
