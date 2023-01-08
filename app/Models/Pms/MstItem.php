@@ -3,6 +3,7 @@
 namespace App\Models\Pms;
 
 use App\Base\BaseModel;
+use App\Models\Pms\MstBrand;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 

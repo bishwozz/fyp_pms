@@ -7,7 +7,9 @@ use App\Models\StockEntry;
 use App\Models\StockItems;
 use App\Models\Pms\MstItem;
 use Illuminate\Http\Request;
+use App\Models\Pms\SaleItems;
 use App\Models\Pms\SupStatus;
+use App\Models\Pms\MstSequence;
 use App\Base\BaseCrudController;
 use Illuminate\Support\Facades\DB;
 use App\Models\Pms\StockItemDetails;
@@ -215,22 +217,22 @@ class StockEntryCrudController extends BaseCrudController
 
 
             }
-            foreach ($request->mst_item_id as $item => $itemsDetails) {
-                $ItemDrtailArr = [
-                    'stock_item_id' => $stockItem->id,
-                    'barcode_details' => '',
-                    'item_id' => $item,
-                    'is_active' =>  true,
-                    'client_id' => $this->user->client_id,
-                ];
-
-                if ($statusCheck) {
-                    $barcodeArr['batch_no'] = $sequenceCodes['batch_number'];
+            if($stockItem){
+                $itemDetailsInsertArr = [];
+                foreach ($request->mst_item_id as $item => $itemsDetails) {
+                    $ItemDrtailArr = [
+                        'stock_item_id' => $stockItem->id,
+                        'barcode_details' => '',
+                        'item_id' => $item,
+                        'is_active' =>  true,
+                        'client_id' => $this->user->client_id,
+                    ];
+    
+                    array_push($itemDetailsInsertArr, $ItemDrtailArr);
                 }
-                // dd($barcodeArr,$barcodeInsertArr);
-
-                array_push($barcodeInsertArr, $barcodeArr);
+                $this->itemsDetails->insert($itemDetailsInsertArr);
             }
+
 
             DB::commit();
 
