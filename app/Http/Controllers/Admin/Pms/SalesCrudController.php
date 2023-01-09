@@ -541,10 +541,10 @@ class SalesCrudController extends BaseCrudController
                     $item = MstItem::find($selectedItem);
                     $itemStockMinimumAmount = $item->stock_alert_minimum;
                     // $iqd = ItemQuantityDetail::where('item_id', $selectedItem)->where('client_id', $this->user->client_id)->first();
-                    $availbleQty = StockItems::where([['client_id' => $this->user->client_id], ['item_id', $selectedItem]])->sum('add_qty');
+                    // $availbleQty = StockItems::where([['client_id' => $this->user->client_id], ['item_id', $selectedItem]])->sum('add_qty');
                     // dd($availbleQty);
                     if($itemStockMinimumAmount){
-                        if($new_sales < $itemStockMinimumAmount){
+                        if($newBatch->batch_qty < $itemStockMinimumAmount){
                             Notification::send($iqd, new MinimumStockAlertNotification($iqd));
                         }
                     }
