@@ -253,6 +253,7 @@ class SalesCrudController extends BaseCrudController
                     $sequenceId = MstSequence::where('sequence_code', $selectedBatch)->first()->id;
                     $selectedItem = $request->itemSalesHidden[$key];
                     $customSelectedItem = explode('#',$request->item_id[$key]);
+                    // dd($customSelectedItem);
 
                     if(!$selectedItem){
                         $batchQty = BatchQuantityDetail::where('item_id', $customSelectedItem)->where('batch_no', $sequenceId)->select('id', 'batch_qty')->first();
