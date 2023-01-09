@@ -21,6 +21,7 @@ use App\Http\Requests\MstItemRequest;
 use App\Http\Requests\Pms\ItemRequest;
 use app\Base\Operations\FetchOperation;
 use App\Imports\ItemEntriesExcelImport;
+use App\Models\Pms\BatchQuantityDetail;
 use Illuminate\Support\Facades\Validator;
 use App\Base\Operations\InlineCreateOperation;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -470,9 +471,9 @@ class ItemCrudController extends BaseCrudController
     {
         if(!$this->user->isSystemUser()){
             $clause = [['client_id', $this->user->client_id], ['created_by', $this->user->id]];
-            $stocks = StockItems::where($clause)->get();
+            $stocks = BatchQuantityDetail::where($clause)->get();
         }else{
-            $stocks = StockItems::all();
+            $stocks = BatchQuantityDetail::all();
         }
         $notifications = [];
         $unreadNotifications = [];
@@ -519,9 +520,9 @@ class ItemCrudController extends BaseCrudController
 	{
         if(!$this->user->isSystemUser()){
             $clause = [['client_id', $this->user->client_id], ['created_by', $this->user->id]];
-            $stocks = StockItems::where($clause)->get();
+            $stocks = BatchQuantityDetail::where($clause)->get();
         }else{
-            $stocks = StockItems::all();
+            $stocks = BatchQuantityDetail::all();
         }
 		$unreadNotifications = [];
 
@@ -545,7 +546,7 @@ class ItemCrudController extends BaseCrudController
 
     public function showNotifications()
 	{
-		$stocks = StockItems::all();
+		$stocks = BatchQuantityDetail::all();
 		$unreadNotifications = [];
         if($stocks){
             foreach($stocks as $stock){
@@ -564,7 +565,7 @@ class ItemCrudController extends BaseCrudController
 	{
 
         $notification = Notification::find($id);
-        $stock = StockItems::find($notification->data['item']['id']);
+        $stock = BatchQuantityDetail::find($notification->data['item']['id']);
         if(($stock->minimum_alert_qty) < ($stock->item_qty)) {
             $notification->read_at = Carbon::now();
             $notification->save();
