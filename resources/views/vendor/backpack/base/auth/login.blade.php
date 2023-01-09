@@ -10,7 +10,7 @@
         <div class="py-5">
             <div class="row d-flex justify-content-center align-items-center">
 
-                <img src="{{asset('images/lms_text.png')}}" alt="" width="50%">
+                <img src="{{asset('images/logo_text.png')}}" alt="" width="50%">
             </div>
             <div class="row left-img d-flex justify-content-center align-items-center">
 
@@ -18,7 +18,7 @@
             </div>
             <div class="row d-flex justify-content-center align-items-center">
 
-                <span>Bidh Lab Pvt. Ltd.</span>
+                <span>Pharmacy Pvt. Ltd.</span>
             </div>
         </div>
         
@@ -53,7 +53,6 @@
                 
                                 <div class="form-group">
                                     <label class="control-label" for="password">{{ trans('backpack::base.password') }}</label>
-                
                                     <div>
                                         <input type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" id="password" placeholder="Enter Password">
                 
@@ -64,7 +63,6 @@
                                         @endif
                                     </div>
                                 </div>
-                
                                
                 
                                 <div class="form-group pb-5">
@@ -82,10 +80,10 @@
                 </div>
                 <div class="col-md-12 d-flex justify-content-between pt-3" style="color: #867ee6;">
                     <div class="p-2">
-                        <span><i class="fa fa-mobile" aria-hidden="true"></i> 01-5453280</span> 
+                        <span><i class="fa fa-mobile" aria-hidden="true"></i> 00000000</span> 
                     </div>
                     <div class="p-2">
-                        <span><i class="fa fa-envelope" aria-hidden="true"></i> info@bidhlab.com</span> 
+                        <span><i class="fa fa-envelope" aria-hidden="true"></i> info@pharmacy.com</span> 
                     </div>
                 </div>
             </div>

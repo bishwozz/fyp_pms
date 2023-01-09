@@ -93,6 +93,21 @@
  </li>
  <hr class="hr-line">
 
+{{-- stocks --}}
+<li class="nav-item nav-dropdown">
+    <a class="nav-link nav-dropdown-toggle" href="#"><i class="nav-icon la la-tasks"></i>Stocks</a>
+    <ul class="nav-dropdown-items" style="overflow-x:hidden">
+        <li class='nav-item'><a class='nav-link' href='{{ backpack_url('stock-status') }}'><i
+                    class='la la-user nav-icon'></i>{{ trans('Stock Status') }}</a>
+            <a href="{{ backpack_url('stock-status/create') }}"><i class="fa fa-plus"></i></a>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="{{ backpack_url('stock-entry') }}">
+            <i class="nav-icon la la-question"></i> Stock entries</a></li>
+
+    </ul>
+ </li>
+ <hr class="hr-line">
+
 
 {{-- report --}}
 @hasanyrole('superadmin|clientadmin|admin|lab_admin|finance')
@@ -209,4 +224,3 @@
 @endhasanyrole
 @endhasanyrole
 
-<li class="nav-item"><a class="nav-link" href="{{ backpack_url('stock-entry') }}"><i class="nav-icon la la-question"></i> Stock entries</a></li>

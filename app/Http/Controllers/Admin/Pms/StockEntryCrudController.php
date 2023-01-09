@@ -7,7 +7,9 @@ use App\Models\StockEntry;
 use App\Models\StockItems;
 use App\Models\Pms\MstItem;
 use Illuminate\Http\Request;
+use App\Models\Pms\SaleItems;
 use App\Models\Pms\SupStatus;
+use App\Models\Pms\MstSequence;
 use App\Base\BaseCrudController;
 use Illuminate\Support\Facades\DB;
 use App\Models\Pms\StockItemDetails;
@@ -135,9 +137,7 @@ class StockEntryCrudController extends BaseCrudController
     }
 
 
-    /**
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
-     */
+ 
     public function store()
     {
         $this->crud->hasAccessOrFail('create');
@@ -213,8 +213,26 @@ class StockEntryCrudController extends BaseCrudController
 
                 }
                 // dd($itemArr);
-                $this->stockItems->create($itemArr);
+                $stockItem =  $this->stockItems->create($itemArr);
+
+
             }
+            if($stockItem){
+                $itemDetailsInsertArr = [];
+                foreach ($request->mst_item_id as $item => $itemsDetails) {
+                    $ItemDrtailArr = [
+                        'stock_item_id' => $stockItem->id,
+                        'barcode_details' => '',
+                        'item_id' => $item,
+                        'is_active' =>  true,
+                        'client_id' => $this->user->client_id,
+                    ];
+    
+                    array_push($itemDetailsInsertArr, $ItemDrtailArr);
+                }
+                $this->itemsDetails->insert($itemDetailsInsertArr);
+            }
+
 
             DB::commit();
 
@@ -232,12 +250,7 @@ class StockEntryCrudController extends BaseCrudController
         }
     }
 
-    /**
-     * Define what happens when the Update operation is loaded.
-     *
-     * @see https://backpackforlaravel.com/docs/crud-operation-update
-     * @return void
-     */
+   
     public function edit($id)
     {
         $this->crud->allowAccess('update');
@@ -256,9 +269,7 @@ class StockEntryCrudController extends BaseCrudController
         return view('customAdmin.stockEntry.form_update', $this->data);
     }
 
-    /**
-     * @return bool|\Illuminate\Http\JsonResponse|\Illuminate\Http\Response
-     */
+   
     public function update()
     {
         $this->crud->allowAccess('update');
@@ -358,10 +369,7 @@ class StockEntryCrudController extends BaseCrudController
         }
     }
 
-    /**
-     * @param $id
-     * @return bool
-     */
+   
     public function destroy($id)
     {
         $this->crud->hasAccessOrFail('delete');
@@ -380,12 +388,7 @@ class StockEntryCrudController extends BaseCrudController
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
-     */
+  
     public function show($id)
     {
         $this->crud->hasAccessOrFail('show');
@@ -506,5 +509,63 @@ class StockEntryCrudController extends BaseCrudController
         } else {
             $qtyDtl->create($arr);
         }
+    }
+
+    public function stockStatus()
+    {
+
+        // initializations
+        $sum_total = null;
+        $dataArr = [];
+        $batchDataArr = [];
+        $batchNoDataArr = [];
+        $unique_array = [];
+
+        $data = StockItemDetails::where('is_active', true)
+                ->groupBy("item_id")
+                ->select('item_id')
+                ->addSelect(DB::raw('count(*) as count'));
+
+        $data = $this->filterQueryByUser($data);
+        $data = $data->get()->toArray();
+
+        foreach ($data as $key => $value) {
+            $item = MstItem::with('mstBrandEntity')->find($value['item_id']);
+            $batchQty = BatchQuantityDetail::Where(['item_id' => $value['item_id'],['batch_qty', '>', 0]]);
+            $batchQty = $this->filterQueryByUser($batchQty);
+            $batchQty = $batchQty->get();
+            $batchDataArr = [];
+            $batchNoDataArr = [];
+            foreach ($batchQty as $batch){
+                $qty = BatchQuantityDetail::where('item_id', $value['item_id'])
+                            ->where('batch_no', $batch->batch_no)
+                            ->where('client_id', $this->user['client_id'])
+                            ->orderBy('id', 'desc')
+                            ->sum('batch_qty');
+                $batchNo = MstSequence::find($batch->batch_no);
+                $batchDataArr =  [
+                    'batchNo' => $batchNo->sequence_code,
+                    'qty' => $qty
+                ];
+                array_push($batchNoDataArr, $batchDataArr);
+            }
+
+            $salesQty = SaleItems::select(DB::RAW('SUM(total_qty) as total_sold'))->where('item_id', $value['item_id']);
+            $salesQty = $salesQty->whereRelation('sales', 'client_id', '=', $this->user->client_id)->get();
+
+
+            $arrData = [
+                'item_qty' =>  $value['count'],
+                'item' => $item,
+            ];
+            $arrData['item']['brandName'] = 'sdf';
+            $arrData['item']['batchQty'] = $batchNoDataArr;
+            $arrData['item']['soldQty'] = $salesQty;
+            array_push($dataArr, $arrData);
+            $sum_total += $value['count'];
+        }
+
+        $data = $dataArr;
+        return view('stock_status', compact('data', 'sum_total'));
     }
 }

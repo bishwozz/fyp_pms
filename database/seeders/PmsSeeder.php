@@ -15,16 +15,19 @@ class PmsSeeder extends Seeder
      */
     public function run()
     {
-        // $this->clean_tables();
-        // $this->phr_mst_unit();
-        // $this->phr_mst_categories();
+        $this->clean_tables();
+        $this->phr_mst_unit();
+        $this->phr_mst_categories();
         $this->mst_discount_modes();
+        $this->sup_status();
 
     }
 
     private function clean_tables(){
         DB::table('phr_mst_units')->delete();
         DB::table('phr_mst_categories')->delete();
+        DB::table('sup_status')->delete();
+        DB::table('mst_discount_modes')->delete();
 
     }
 
@@ -90,14 +93,24 @@ class PmsSeeder extends Seeder
         ]);
         DB::statement("SELECT SETVAL('mst_discount_modes_id_seq',100)");
 
-        // DB::table('sup_status')->insert([
-        //     array('id' => 1, 'code' => '1', 'name_en' => 'created', 'created_at' => Carbon::now()->format('d-m-Y')),
-        //     array('id' => 2, 'code' => '2', 'name_en' => 'approved', 'created_at' => Carbon::now()->format('d-m-Y')),
-        //     array('id' => 3, 'code' => '3', 'name_en' => 'cancelled', 'created_at' => Carbon::now()->format('d-m-Y')),
-        //     array('id' => 4, 'code' => '4', 'name_en' => 'partial_return', 'created_at' => Carbon::now()->format('d-m-Y')),
-        //     array('id' => 5, 'code' => '5', 'name_en' => 'full_return', 'created_at' => Carbon::now()->format('d-m-Y')),
-        // ]);
 
-        // DB::statement("SELECT SETVAL('sup_status_id_seq',100)");
+    }
+    public function sup_status(){
+        DB::table('sup_status')->insert([
+            array('id' => 1, 'code' => '1', 'name_en' => 'created', 'created_at' => Carbon::now()->format('d-m-Y')),
+            array('id' => 2, 'code' => '2', 'name_en' => 'approved', 'created_at' => Carbon::now()->format('d-m-Y')),
+            array('id' => 3, 'code' => '3', 'name_en' => 'cancelled', 'created_at' => Carbon::now()->format('d-m-Y')),
+            array('id' => 4, 'code' => '4', 'name_en' => 'partial_return', 'created_at' => Carbon::now()->format('d-m-Y')),
+            array('id' => 5, 'code' => '5', 'name_en' => 'full_return', 'created_at' => Carbon::now()->format('d-m-Y')),
+        ]);
+
+        DB::statement("SELECT SETVAL('sup_status_id_seq',100)");
+    }
+    public function country(){
+        DB::table('mst_countries')->insert([
+            array('id' => 1, 'code' => '1', 'name' => 'Nepal', 'created_at' => Carbon::now()->format('d-m-Y')),
+        ]);
+
+        DB::statement("SELECT SETVAL('sup_status_id_seq',10)");
     }
 }

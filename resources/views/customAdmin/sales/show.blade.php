@@ -3,9 +3,9 @@
 @php
 
 $defaultBreadcrumbs = [
-trans('backpack::crud.admin') => url(config('backpack.base.route_prefix'), 'dashboard'),
-$crud->entity_name_plural => url($crud->route),
-trans('backpack::crud.add') => false,
+    trans('backpack::crud.admin') => url(config('backpack.base.route_prefix'), 'dashboard'),
+    $crud->entity_name_plural => url($crud->route),
+    trans('backpack::crud.add') => false,
 ];
 
 // if breadcrumbs aren't defined in the CrudController, use the default breadcrumbs
@@ -49,11 +49,11 @@ $breadcrumbs = $breadcrumbs ?? $defaultBreadcrumbs;
 
 @php
 $status=[
-1=>'text-warning',
-2=>'text-success',
-3=>'text-danger',
-4=>'text-warning',
-5=>'text-warning'
+    1=>'text-warning',
+    2=>'text-success',
+    3=>'text-danger',
+    4=>'text-warning',
+    5=>'text-warning'
 ];
 @endphp
 
@@ -67,11 +67,6 @@ $status=[
                     <span class="me-1" style="font-weight: bold;"> Status: </span> <span
                         class="{{ isset($entry->status_id)? $status[$entry->status_id] : ''}}"
                         style="font-weight: bold;"> {{ucfirst($entry->supStatus->name_en)}}</span>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-4">
-                <div class="mb-3">
-                    <span class="me-1" style="font-weight: bold;">Buyer Name: </span> <span>{{$entry->customerEntity->name_en}}</span>
                 </div>
             </div>
             {{-- Bill Number --}}
@@ -100,24 +95,14 @@ $status=[
                     <span>{{$entry->bill_date_ad?dateToString($entry->bill_date_ad):'n/a'}}</span>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-4">
-                <div class="mb-3">
-                    <span class="me-1" style="font-weight: bold;">Contact Number: </span>
-                    <span>{{$entry->customerEntity->contact_number}}</span>
-                </div>
-            </div>
+
             @if($entry->bill_type ==2)
             <div class="col-lg-3 col-md-4">
                 <div class="mb-3">
                     <span class="me-1" style="font-weight: bold;">Pan/Vat: </span> <span>{{$entry->pan_vat}}</span>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-4">
-                <div class="mb-3">
-                    <span class="me-1" style="font-weight: bold;">Company Name: </span>
-                    <span>{{$entry->company_name}}</span>
-                </div>
-            </div>
+
             @endif
             <div class="col-lg-3 col-md-4">
                 <div class="mb-3">
@@ -173,8 +158,8 @@ $status=[
                     {{$entry->remarks?? 'n/a'}}
                 </div>
                 <div class="">
-                    <span style="font-weight: bold;">Aprroved By:</span>
-                    {{$entry->createdByEntity->name}}
+                    <span style="font-weight: bold;-en">Aprroved By:</span>
+                    {{isset($entry->createdByEntity->name)?:'-'}}
                 </div>
             </div>
             <div class="col-md-6">
