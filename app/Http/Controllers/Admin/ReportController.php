@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Models\LabBill;
 use App\Models\Patient;
 use Illuminate\Http\Request;
+use App\Base\Helpers\PdfPrint;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
@@ -27,42 +29,53 @@ class ReportController extends Controller
         $this->data['report_name'] = str_replace('_', ' ', ucwords(trim($report_type, "{}"), '_'));
         $output = [];
         $i = 0;
+        // dd($report_type,$request->all());
 
         switch($report_type){
-            /// Patient Reports
-            case 'patient_report':
-                $patient = Patient::with('gender')->get();
-                $this->data['columns'] = ['S.N','Patient No','Name','Age/Sex','Visit Date'];
-                foreach($patient as $data){
+
+            case 'purchase_report':
+                $gross_amount            =   0;
+                $net_amount            =   0;
+                $discount            =   0;
+                $date           =   '1=1';
+
+                if($request->from_date && $request->to_date ){
+                    $date =  "po_date BETWEEN '". $request->from_date  ."' AND '".$request->to_date ."'";
+                }
+
+                $purchase_report = DB::table('purchase_order_details')
+                                ->select('po_date','purchase_order_num','net_amt')
+                                ->where('status_id', '=', 2)
+                                 ->where('client_id','=',2)
+                                 ->whereRaw($date)
+                                 ->get();
+                $this->data['columns'] = ['S.N','Date','Purchase Order Number','Net Amount'];
+                foreach($purchase_report as $data){
                     $i++;
                     $output[] = [
                         'S.N'          => $i,
-                        'Patient No'   =>$data->patient_no,
-                        'Name'         =>$data->name,
-                        'Age/Sex'       =>$data->age .'/'. $data->gender->name,
-                        'Visit Date'    =>$data->registered_date,
+                        'Date'   =>$data->po_date,
+                        'Purchase Order Number'         =>$data->purchase_order_num,
+                        'Net Amount'         =>$data->net_amt,
+                        // 'Test Name'         =>$data->test_name,
                     ];
+                    $total = $net_amount+=$data->net_amt;
+                    // $discount_amount = $discount+=$data->total_discount_amount;
+                    // $gross_amount = $gross_amount+=$data->total_gross_amount;
                 }
 
-                $this->data['output'] = $output;
-            break;
-
-            case 'covid_test_report':
-                $covid_report = DB::table('lab_bills as lb')->select("lb.generated_date",'lb.customer_name','lb.bill_no','lp.name as test_name')
-                                ->leftjoin('lab_bill_items as lbi', 'lbi.lab_bill_id' ,'=', 'lb.id')
-                                ->leftjoin('lab_panels as lp', 'lp.id' ,'=', 'lbi.lab_panel_id')
-                                 ->where('lab_panel_id','=',2)->get();
-                $this->data['columns'] = ['S.N','Date','Name','Bill No','Test'];
-                foreach($covid_report as $data){
-                    $i++;
-                    $output[] = [
-                        'S.N'          => $i,
-                        'Date'   =>$data->generated_date,
-                        'Name'         =>$data->customer_name,
-                        'Bill No'         =>$data->bill_no,
-                        'Test Name'         =>$data->test_name,
-                    ];
+                if(!isset($total)){
+                    $total = 0;
                 }
+                // if(!isset($discount_amount)){
+                //     $discount_amount = 0;
+                // }
+                // if(!isset($gross_amount)){
+                //     $gross_amount = 0;
+                // }
+                $this->data['total']  = $total;
+                // $this->data['discount_amount']  = $discount_amount;
+                // $this->data['gross_amount']  = $gross_amount;
 
                 $this->data['output'] = $output;
             break;
@@ -85,110 +98,6 @@ class ReportController extends Controller
                     $this->data['output'] = $output;
             break;
 
-                 /// Overall Collection Details
-                 case 'overall_collection_details':
-                    $overall_collection_details = DB::table('lab_bills as lb')->select('lb.total_net_amount','lb.generated_date','lb.customer_name','lb.bill_no','mpm.title as payment_mode')
-                                   ->leftjoin('mst_payment_methods as mpm', 'mpm.id' ,'=', 'lb.payment_method_id')
-                                  ->get();
-    
-                  $this->data['columns'] = ['S.N','Date','Amount','Name','Bill No','Mode'];
-                  foreach($overall_collection_details as $data){
-                    $i++;
-                    $output[] = [
-                        'S.N'          => $i,
-                        'Date'   =>$data->generated_date,
-                        'Amount'         =>$data->total_net_amount,
-                        'Name'         =>$data->customer_name,
-                        'Bill No'         =>$data->bill_no,
-                        'Mode'         =>$data->payment_mode,
-                    ];
-                 }
-    
-                   $this->data['output'] = $output;
-                 break;
-    
-
-            /// Credit Reports
-            case 'credit_report':
-                $credit_report = DB::table('lab_bills as lb')->select(DB::raw("SUM(lb.total_net_amount) as net_amount"),"lb.generated_date","lb.customer_name"
-                                    ,"lb.address",'lb.bill_no')
-                                    ->leftjoin('hr_mst_employees as hme', 'hme.id' ,'=', 'lb.credit_approved_by')
-                                    ->groupby('lb.generated_date','lb.customer_name','lb.address','lb.bill_no')
-                                    ->where([['lb.payment_method_id',6],['lb.is_paid', false]])
-                                    ->get();
-               $this->data['columns'] = ['S.N','Date','Bill No','Amount','Patient Name','Address'];
-               foreach($credit_report as $data){
-                   $i++;
-                   $output[] = [
-                       'S.N'          => $i,
-                       'Date'   =>$data->generated_date,
-                       'Bill No'         =>$data->bill_no,
-                       'Amount'         =>$data->net_amount,
-                       'Patient Name'         =>$data->customer_name,
-                       'Address'         =>$data->address
-                   ];
-               }
-
-               $this->data['output'] = $output;
-             break;
-
-               /// Bill Reports
-            case 'bill_report':
-                $bill_report = DB::table('lab_bills as lb')->select('lb.generated_date','lb.customer_name','lb.is_paid','mpm.title as payment_mode','lb.total_gross_amount',
-                                    'lb.total_discount_amount','lb.total_net_amount','lb.address','lb.bill_no')
-                                    ->leftjoin('hr_mst_employees as hme', 'hme.id' ,'=', 'lb.credit_approved_by')
-                                    ->leftjoin('mst_payment_methods as mpm', 'mpm.id' ,'=', 'lb.payment_method_id')
-                                    ->get();
-               $this->data['columns'] = ['S.N','Date','Bill No','Mode','Patient Name','Gross Amount','Discount Amount','Net Amount','Is Paid'];
-               foreach($bill_report as $data){
-                   $i++;
-                   $output[] = [
-                       'S.N'          => $i,
-                       'Date'   =>$data->generated_date,
-                       'Bill No'         =>$data->bill_no,
-                       'Mode'         =>$data->payment_mode,
-                       'Patient Name'         =>$data->customer_name,
-                       'Gross Amount'         =>$data->total_gross_amount,
-                       'Discount Amount'         =>$data->total_discount_amount,
-                       'Net Amount'         =>$data->total_net_amount,
-                       'Is Paid'         =>$data->is_paid == 1 ? 'TRUE' : 'FALSE',
-                   ];
-               }
-
-               $this->data['output'] = $output;
-             break;
-
-                /// Bill Reports By Referral
-            case 'referral_report':
-                $referral_report = DB::table('lab_bills as lb')->select('lb.generated_date','lb.customer_name','lb.is_paid','mpm.title as payment_mode','lb.total_gross_amount',
-                                    'lb.total_discount_amount','lb.total_net_amount','lb.address','lb.bill_no','mr.name as referred_name')
-                                    ->leftjoin('hr_mst_employees as hme', 'hme.id' ,'=', 'lb.credit_approved_by')
-                                    ->leftjoin('mst_payment_methods as mpm', 'mpm.id' ,'=', 'lb.payment_method_id')
-                                    ->leftjoin('mst_referrals as mr', 'mr.id' ,'=', 'lb.referred_by')
-                                    ->where('lb.referred_by','>',1)
-                                    ->get();
-               $this->data['columns'] = ['S.N','Date','Bill No','Mode','Patient Name','Gross Amount','Discount Amount','Net Amount','Is Paid','Referred By'];
-               foreach($referral_report as $data){
-                   $i++;
-                   $output[] = [
-                       'S.N'          => $i,
-                       'Date'   =>$data->generated_date,
-                       'Bill No'         =>$data->bill_no,
-                       'Mode'         =>$data->payment_mode,
-                       'Patient Name'         =>$data->customer_name,
-                       'Gross Amount'         =>$data->total_gross_amount,
-                       'Discount Amount'         =>$data->total_discount_amount,
-                       'Net Amount'         =>$data->total_net_amount,
-                       'Is Paid'         =>$data->is_paid == 1 ? 'TRUE' : 'FALSE',
-                       'Referred By'         =>$data->referred_name,
-                   ];
-               }
-
-               $this->data['output'] = $output;
-             break;
-
-             
-
              default:
              $this->data['columns'] = [];
              $this->data['output'] = $output;
@@ -198,7 +107,18 @@ class ReportController extends Controller
 
 
 
-        return view('reports.common_report', $this->data);
+        if($request->is_print == "true"){
+            $html = view('reports.report_print', $this->data)->render();
+            $pdf = PdfPrint::printLandscape($html, 'report.pdf');
+            return response($pdf);
+
+        }elseif($request->is_excel == "true"){
+            $data = $this->data;
+            return Excel::download(new ReportExcel($data), 'report.xlsx');
+
+        }else{
+            return view('reports.common_report', $this->data);
+        }
      
     }
 }

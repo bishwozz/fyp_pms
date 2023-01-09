@@ -1,9 +1,5 @@
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
     <style>
         @media print {
             @page {
@@ -15,7 +11,7 @@
         }
         .report-heading {
             text-align: center;
-            font-size:13px;
+            font-size:18px;
         }
         .report-data {
             font-size:13px;
@@ -32,19 +28,18 @@
             background-color:#3B72A0 !important;
             color:white;
         }
-        
-        .th_large{
-            min-width:170px !important;
-        }
-        .th_large1{
-            min-width:130px !important;
-        }
         tfoot.table-dark{
             background-color: black;
         }
         </style>
 </head>
 <body>
+    <div class="row mt-2">
+        <div class="col">
+            <center><h2 class="font-weight-bold">{{ $report_name }}</h2></center>
+            </div>
+    </div>
+
      <table id="report_data_table" class="table table-bordered table-striped table-sm" style="width:100%;background-color:lightgrey;">
         <thead>
             <tr>
@@ -64,22 +59,15 @@
         </tbody>
         @php
             $check_no_of_columns = count($columns);
+            $all_reports = array('Cash Report', 'Collection Report', 'Overall Collection Details', 'Cancel Bill Report', 'Due Collection Report');
         @endphp
-        @if(in_array($report_name,['Cash Report', 'Collection Report', 'Overall Collection Details', 'Bill Report',
-                        'Referral Report', 'Discount Report', 'Cancel Bill Report', 'Test Price According To Referral', 'Due Collection Report']))
+        @if ( $report_name == 'Purchase Report' || $report_name == 'Test Price According To Referral')
             <tfoot class="table-dark">
                 <tr>
                     <td class="report-data-td">Total</td>
-                    <td class="report-data-td" colspan="{{ ($check_no_of_columns-2) }}"></td>
-                    <td class="report-data-td" id="total_amount">{{ isset($total)?$total:'-' }}</td> 
-                </tr>
-            </tfoot>
-        @elseif ( $report_name = 'Credit Report')
-            <tfoot class="table-dark">
-                <tr>
-                    <td class="report-data-td">Total</td>
-                    <td class="report-data-td" colspan="{{ ($check_no_of_columns-3) }}"></td>
-                    <td class="report-data-td" id="paid_amount">{{ isset($paid_total)?$paid_total:'-' }}</td> 
+                    {{-- <td class="report-data-td" colspan="{{ ($check_no_of_columns-4) }}"></td> --}}
+                    <td class="report-data-td" id="gross_amount">{{ isset($gross_amount)?$gross_amount:'-' }}</td> 
+                    <td class="report-data-td" id="discount_amount">{{ isset($discount_amount)?$discount_amount:'-' }}</td> 
                     <td class="report-data-td" id="total_amount">{{ isset($total)?$total:'-' }}</td> 
                 </tr>
             </tfoot>

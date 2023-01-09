@@ -51,25 +51,16 @@
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td>
-                            <a href="javascript:;" class="navbar-brand" data-toggle="modal"
+                            <a href="javascript:;" class="navbar-brand" style="color:blue !important;" data-toggle="modal"
                                 data-target="#viewItemDetail-{{ $loop->iteration }}">
                                 {{ $d['item']->name }}
                             </a>
                         </td>
-                        <td>{{ '' }}</td>
-                        @php
-                            $suppliers = $d['item']->mstSupplierEntity ;
-                            $supplierNames = [];
-                            foreach ($suppliers as $supplier) {
-                                $supplierNames[] = $supplier->name_en;
-                            }
-                            $supplierNamesString = implode(', ', $supplierNames);
-                        @endphp
-                        {{ $supplierNamesString }}
+                        <td>{{ $d['item']->mstBrandEntity->name_en }}</td>
                         <td>
-
+                            {{ $d['item']->mstSupplierEntity->name_en  }}
                         </td>
-                        <td>{{ $d['item_qty'] }}</td>
+                        <td>{{ $d['item']->itemQtyDetail->item_qty }}</td>
                     </tr>
 
                     <!-- Modal -->
@@ -79,6 +70,7 @@
                             <div class="modal-content ">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="viewItemDetailLabel">
+
                                         {{ $d['item']->name }}</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>

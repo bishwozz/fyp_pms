@@ -47,8 +47,8 @@ class MstCategoryCrudController extends BaseCrudController
             $this->addRowNumber(),
             $this->addCodeColumn(),
             [
-                'name'=>'title',
-                'label'=> 'title_en',
+                'name'=>'title_en',
+                'label'=> 'title',
                 'type'=>'text',
             ],
         ];

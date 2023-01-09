@@ -87,11 +87,6 @@ class MstSupplierCrudController extends BaseCrudController
                 'label' => 'Email',
             ],
             [
-                'name' => 'contact_person',
-                'type' => 'text',
-                'label' => 'Company name',
-            ],
-            [
                 'name' => 'contact_number',
                 'type' => 'text',
                 'label' => 'Contact Number',
