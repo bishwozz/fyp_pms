@@ -322,7 +322,7 @@ class SalesCrudController extends BaseCrudController
                         $itemStockMinimumAmount = $item->stock_alert_minimum;
                         $iqd = ItemQuantityDetail::where('item_id', $selectedItem )->where('client_id', $this->user->client_id)->first();
                         if($itemStockMinimumAmount){
-                            if($new_sales < $itemStockMinimumAmount){
+                            if($newBatch->batch_qty < $itemStockMinimumAmount){
                                 Notification::send($iqd, new MinimumStockAlertNotification($iqd));
                             }
                         }
