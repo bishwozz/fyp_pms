@@ -250,6 +250,7 @@ class SalesCrudController extends BaseCrudController
                 $stock = $this->salesEntries->create($salesInput);
                 $saleItem = [];
                 foreach ($request->item_id as $key => $val) {
+
                     $unit = MstUnit::where('name_en', $request->unit_id[$key])->first();
                     $selectedBatch = $request->batch_no[$key];
                     $selectedBatchQty = $request->batch_qty[$key];
@@ -259,8 +260,8 @@ class SalesCrudController extends BaseCrudController
                     $customSelectedItem = $customSelectedItem[0];
                     $customSelectedItem = MstItem::where([['code', $customSelectedItem],['client_id', $this->user->client_id]])->first()->id;
                     // $customSelectedItem = explode('#',$request->item_id[$key]);
-                    dd($customSelectedItem);
-
+                    // dd($customSelectedItem);
+          
                     if(!$selectedItem){
                         $batchQty = BatchQuantityDetail::where('item_id', $customSelectedItem)->where('batch_no', $sequenceId)->select('id', 'batch_qty')->first();
                         $itemArr = [
@@ -305,7 +306,7 @@ class SalesCrudController extends BaseCrudController
                             $totalQty = $request->total_qty[$key];
                         }
 
-                        $newQty = $batchQty->batch_qty - $totalQty;
+                        $newQty =  ($totalQty - $batchQty->batch_qty);
                         if ($newQty < 0) {
                             return response()->json([
                                 'status' => 'failed',

@@ -170,7 +170,7 @@
                             <div class="input-group">
                                 <input id="itemTax-1" data-cntr="1" type="number" min="0"
                                     class="form-control p-1 itemTax" name="tax_vat[1]" value="0" size="1"
-                                    >
+                                    readonly>
                             </div>
                         </td>
                         <td>
