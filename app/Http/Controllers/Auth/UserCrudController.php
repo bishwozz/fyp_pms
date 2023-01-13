@@ -73,7 +73,6 @@ class UserCrudController extends BaseCrudController
         $this->data['list_tab_header_view'] = 'tab.custom_tab_links';
 
         $links[] = ['label' => 'Main', 'icon' => 'la la-cogs', 'href' => backpack_url('user/main')];
-        $links[] = ['label' => 'Patients', 'icon' => 'la la-cogs', 'href' => backpack_url('')];
 
         $this->data['links'] = $links;
     }
@@ -229,6 +228,45 @@ class UserCrudController extends BaseCrudController
                 'type'  => 'password',
                 'wrapperAttributes' => [
                     'class' => 'form-group col-md-6',
+                ],
+            ],
+            [
+                'type' => 'custom_html',
+                'name' => 'custom_html_2',
+                'value' => '<br/>',
+            ],
+            [
+                'label' => 'Is Discount approver',
+                'type' => 'checkbox',
+                'name' => 'is_discount_approver',
+                'wrapperAttributes' => [
+                    'class' => 'form-group col-md-2',
+                ],
+            ],
+            [
+                'label' => 'Is Due approver',
+                'type' => 'checkbox',
+                'name' => 'is_due_approver',
+                'wrapperAttributes' => [
+                    'class' => 'form-group col-md-2',
+                ],
+            ],
+
+            [
+                'label' => 'Is Stock approver',
+                'type' => 'checkbox',
+                'name' => 'is_stock_approver',
+                'wrapperAttributes' => [
+                    'class' => 'form-group col-md-2',
+                ],
+            ],
+
+            [
+                'label' => 'Is Po approver',
+                'type' => 'checkbox',
+                'name' => 'is_po_approver',
+                'wrapperAttributes' => [
+                    'class' => 'form-group col-md-2',
                 ],
             ],
             [

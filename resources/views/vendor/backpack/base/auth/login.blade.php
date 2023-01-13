@@ -63,7 +63,9 @@
                                         @endif
                                     </div>
                                 </div>
-                               
+                                @if (backpack_users_have_email() && config('backpack.base.setup_password_recovery_routes', true))
+                                    <div class="text-center mb-3"><a href="{{ route('backpack.auth.password.reset') }}">{{ trans('backpack::base.forgot_your_password') }}</a></div>
+                                @endif
                 
                                 <div class="form-group pb-5">
                                     <div class="text-center">

@@ -31,6 +31,14 @@ class CreateExtraTables extends Migration
             $table->foreign('client_id')->references('id')->on('app_clients')->cascadeOnDelete()->cascadeOnUpdate();
 
         });
+        Schema::table('users', function (Blueprint $table) {
+            $table->integer('phone')->nullable();
+            $table->boolean('is_discount_approver')->default(false);
+            $table->boolean('is_due_approver')->default(false);
+            $table->boolean('is_stock_approver')->default(false);
+            $table->boolean('is_po_approver')->default(false);
+            $table->boolean('is_active')->default(TRUE);
+        });
     }
 
     /**

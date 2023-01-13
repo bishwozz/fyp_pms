@@ -31,6 +31,12 @@ class User extends Authenticatable
         'username',
         'patient_id',
         'phone',
+        'is_active',
+        'is_due_approver',
+        'is_discount_approver',
+        'is_stock_approver',
+        'is_po_approver',
+        'is_admin',
     ];
 
     /**

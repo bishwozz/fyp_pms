@@ -306,7 +306,7 @@ class SalesCrudController extends BaseCrudController
                             $totalQty = $request->total_qty[$key];
                         }
 
-                        $newQty =  ($totalQty - $batchQty->batch_qty);
+                        $newQty =  ($batchQty->batch_qty - $totalQty);
                         if ($newQty < 0) {
                             return response()->json([
                                 'status' => 'failed',
@@ -321,6 +321,7 @@ class SalesCrudController extends BaseCrudController
                         }else{
                             $salesQty = $salesQty->where('client_id', $this->user->client_id)->first();
                         }
+
                         $new_sales = $salesQty->item_qty - $totalQty;
                         $item = MstItem::find($selectedItem);
                         $itemStockMinimumAmount = $item->stock_alert_minimum;

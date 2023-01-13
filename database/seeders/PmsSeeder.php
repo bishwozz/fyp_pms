@@ -20,14 +20,23 @@ class PmsSeeder extends Seeder
         $this->phr_mst_categories();
         $this->mst_discount_modes();
         $this->sup_status();
-
+        $this->mst_brand();
+        $this->country();
+        $this->phr_mst_pharmaceuticals();
+        $this->mst_suppiler();
+        $this->mst_items();
     }
 
     private function clean_tables(){
         DB::table('phr_mst_units')->delete();
         DB::table('phr_mst_categories')->delete();
-        DB::table('sup_status')->delete();
         DB::table('mst_discount_modes')->delete();
+        DB::table('sup_status')->delete();
+        DB::table('mst_brands')->delete();
+        DB::table('mst_countries')->delete();
+        DB::table('phr_mst_pharmaceuticals')->delete();
+        DB::table('mst_suppliers')->delete();
+        DB::table('mst_items')->delete();
 
     }
 
@@ -106,11 +115,68 @@ class PmsSeeder extends Seeder
 
         DB::statement("SELECT SETVAL('sup_status_id_seq',100)");
     }
+    
+    public function mst_brand(){
+        DB::table('mst_brands')->insert([
+            array('id' => 1, 'code' => '1','client_id'=>2, 'name_en' => 'Amlod(NPL)', 'name_lc' => 'Amlod(NPL)', 'is_active'=>True, 'created_at' => Carbon::now()->format('d-m-Y')),
+            array('id' => 2, 'code' => '2','client_id'=>2, 'name_en' => 'Seroflo(cipla)', 'name_lc' => 'Seroflo(cipla)', 'is_active'=>True, 'created_at' => Carbon::now()->format('d-m-Y')),
+            array('id' => 3, 'code' => '3','client_id'=>2, 'name_en' => 'Pantop(Asian)', 'name_lc' => 'Pantop(Asian)', 'is_active'=>True, 'created_at' => Carbon::now()->format('d-m-Y')),
+            array('id' => 4, 'code' => '4','client_id'=>2, 'name_en' => 'Mylod-L(quest)', 'name_lc' => 'Mylod-L(quest)', 'is_active'=>True, 'created_at' => Carbon::now()->format('d-m-Y')),
+            array('id' => 5, 'code' => '5','client_id'=>2, 'name_en' => 'Hedex', 'name_lc' => 'Hedex', 'is_active'=>True, 'created_at' => Carbon::now()->format('d-m-Y')),
+        ]);
+        
+        // DB::statement("SELECT SETVAL('mst_brands_is_seq',10)");
+    }
     public function country(){
         DB::table('mst_countries')->insert([
             array('id' => 1, 'code' => '1', 'name' => 'Nepal', 'created_at' => Carbon::now()->format('d-m-Y')),
         ]);
-
-        DB::statement("SELECT SETVAL('sup_status_id_seq',10)");
     }
+
+    public function phr_mst_pharmaceuticals(){
+        DB::table('phr_mst_pharmaceuticals')->insert([
+            array('id' => 1, 'code' => '1', 'client_id'=> 2, 'name' => 'Quest Pharmaceuticals Pvt. Ltd.', 'is_active'=>True, 'created_at' => Carbon::now()->format('d-m-Y')),
+            array('id' => 2, 'code' => '2', 'client_id'=> 2, 'name' => 'Quest Pharmaceuticals Pvt. Ltd.', 'is_active'=>True, 'created_at' => Carbon::now()->format('d-m-Y')),
+            array('id' => 3, 'code' => '3', 'client_id'=> 2, 'name' => 'Quest Pharmaceuticals Pvt. Ltd.', 'is_active'=>True, 'created_at' => Carbon::now()->format('d-m-Y')),
+            array('id' => 4, 'code' => '4', 'client_id'=> 2, 'name' => 'Quest Pharmaceuticals Pvt. Ltd.', 'is_active'=>True, 'created_at' => Carbon::now()->format('d-m-Y')),
+            array('id' => 5, 'code' => '5', 'client_id'=> 2, 'name' => 'Quest Pharmaceuticals Pvt. Ltd.', 'is_active'=>True, 'created_at' => Carbon::now()->format('d-m-Y')),
+
+        ]);
+        DB::statement("SELECT SETVAL('phr_mst_pharmaceuticals_id_seq',10)");
+    }
+
+    public function mst_suppiler(){
+        DB::table('mst_suppliers')->insert([
+            array('id' => 1, 'code' => '1', 'client_id'=> 2, 'name_en' => 'Med Group', 'name_lc' => 'Med Group','country_id'=>1,'province_id'=>1,'district_id'=>1,'local_level_id'=>1,'address'=>'Kathmandu,Nepa','email'=>'blanktwinssta@gmail.com','contact_number'=>'9898987878', 'company_id'=>1, 'is_active'=>True, 'created_at' => Carbon::now()->format('d-m-Y')),
+
+        ]);
+        DB::statement("SELECT SETVAL('mst_suppliers_id_seq',10)");
+    }
+
+    public function mst_items(){
+        DB::table('mst_items')->insert([
+            array('id' => 1, 'code' => '1', 'client_id'=> 2, 'name' => 'Paracetamol', 'supplier_id'=>1,'category_id'=>27,
+                'is_deprecated'=>TRUE,'is_free'=>FALSE, 'is_barcode'=>FALSE, 'is_price_editable'=>TRUE,
+                'pharmaceutical_id'=>1,'brand_id'=>5,'tax_vat'=>0,'unit_id'=>3,'stock_alert_minimun'=>5,
+                 'description'=>'Paracetamol is a common painkiller used to treat aches and pain. It can also be used to reduce a high temperature.', 'is_active'=>True, 'created_at' => Carbon::now()->format('d-m-Y')),
+
+            array('id' => 2, 'code' => '2', 'client_id'=> 2, 'name' => 'Paracetamol', 'supplier_id'=>1,'category_id'=>27,
+                'is_deprecated'=>TRUE,'is_free'=>FALSE, 'is_barcode'=>FALSE, 'is_price_editable'=>TRUE,
+                'pharmaceutical_id'=>1,'brand_id'=>1,'tax_vat'=>0,'unit_id'=>1,'stock_alert_minimun'=>5,
+                 'description'=>'Antihistamines are a class of drugs commonly used to treat symptoms of allergies.', 'is_active'=>True, 'created_at' => Carbon::now()->format('d-m-Y')),
+
+            array('id' => 3, 'code' => '3', 'client_id'=> 2, 'name' => 'Paracetamol', 'supplier_id'=>1,'category_id'=>27,
+                'is_deprecated'=>TRUE,'is_free'=>FALSE, 'is_barcode'=>FALSE, 'is_price_editable'=>TRUE,
+                'pharmaceutical_id'=>1,'brand_id'=>2,'tax_vat'=>0,'unit_id'=>3,'stock_alert_minimun'=>5,
+                 'description'=>'These are painkillers which also reduce inflammation', 'is_active'=>True, 'created_at' => Carbon::now()->format('d-m-Y')),
+
+            array('id' => 4, 'code' => '4', 'client_id'=> 2, 'name' => 'Paracetamol', 'supplier_id'=>1,'category_id'=>27,
+                'is_deprecated'=>TRUE,'is_free'=>FALSE, 'is_barcode'=>FALSE, 'is_price_editable'=>TRUE,
+                'pharmaceutical_id'=>1,'brand_id'=>1,'tax_vat'=>0,'unit_id'=>1,'stock_alert_minimun'=>5,
+                 'description'=>'Levothyroxine treats hypothyroidism.', 'is_active'=>True, 'created_at' => Carbon::now()->format('d-m-Y')),
+
+        ]);
+        DB::statement("SELECT SETVAL('mst_suppliers_id_seq',10)");
+    }
+
 }
