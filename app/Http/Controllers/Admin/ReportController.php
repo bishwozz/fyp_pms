@@ -80,22 +80,38 @@ class ReportController extends Controller
                 $this->data['output'] = $output;
             break;
 
-            /// Cash Reports
-            case 'cash_report':
-                     $cash_report = DB::table('lab_bills')->select(DB::raw("SUM(total_net_amount) as net_amount"),"generated_date")
-                                         ->groupby('generated_date')
-                                         ->where('payment_method_id',1)->get();
-                    $this->data['columns'] = ['S.N','Date','Amount'];
-                    foreach($cash_report as $data){
-                        $i++;
-                        $output[] = [
-                            'S.N'          => $i,
-                            'Date'   =>$data->generated_date,
-                            'Amount'         =>$data->net_amount
-                        ];
-                    }
-    
-                    $this->data['output'] = $output;
+            /// Sales Reports
+            case 'sales_report':
+                $gross_amount            =   0;
+                $net_amount            =   0;
+                $discount            =   0;
+                $date           =   '1=1';
+
+                if($request->from_date && $request->to_date ){
+                    $date =  "transaction_date_ad BETWEEN '". $request->from_date  ."' AND '".$request->to_date ."'";
+                }
+
+                $sales_report = DB::table('sales')->select(DB::raw("SUM(net_amt) as net_amt"),"transaction_date_ad")
+                                    ->groupby('transaction_date_ad','net_amt')
+                                    ->where('status_id', '=', 2)
+                                    ->where('client_id','=',2)
+                                    ->whereRaw($date)
+                                    ->get();
+                $this->data['columns'] = ['S.N','Date','Amount'];
+                foreach($sales_report as $data){
+                    $i++;
+                    $output[] = [
+                        'S.N'          => $i,
+                        'Date'   =>$data->transaction_date_ad,
+                        'Amount'         =>$data->net_amt
+                    ];
+                    $total = $net_amount+=$data->net_amt;
+                }
+                if(!isset($total)){
+                    $total = 0;
+                }
+                $this->data['total']  = $total;
+                $this->data['output'] = $output;
             break;
 
              default:

@@ -30,7 +30,7 @@
                                         </a>
                                     </div>
                                     <div class="col-xl-3 col-lg-6">
-                                        <a href="{{ "/admin/reports/cash_report" }}" style="text-decoration: none;">
+                                        <a href="{{ "/admin/reports/sales_report" }}" style="text-decoration: none;">
                                             <div class="card p-2 card-stats mb-4 mb-xl-0 reports-card">
                                             <div class="card-body ">
                                                 <div class="row">
