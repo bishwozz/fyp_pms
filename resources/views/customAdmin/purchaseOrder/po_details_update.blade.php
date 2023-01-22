@@ -376,9 +376,9 @@
                         @if( $po->status_id !== \App\Models\Pms\SupStatus::APPROVED)
                         <input id="status" type="hidden" name="status_id" value="">
                         <button id="save" type="submit" class="btn btn-primary st_save">Save</button>
-                        {{-- @if(backpack_user()->is_po_approver) --}}
+                        @if(backpack_user()->is_po_approver)
                         <button id="approve" type="submit" class="btn btn-success approve">Approve</button>
-                        {{-- @endif --}}
+                        @endif
                         @endif
                         <button id="cancelBtn" class="btn btn-danger po_cancel_btn">Cancel</button>
                     </div>

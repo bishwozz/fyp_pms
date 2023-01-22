@@ -53,6 +53,37 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
         CRUD::setEntityNameStrings('', 'Purchase Order');
         $this->crud->allowAccess('show');
         $this->crud->denyAccess('delete');
+        $this->crud->clearFilters();
+        $this->setFilters();
+
+    }
+
+    protected function setFilters(){
+        $this->crud->addFilter(
+            [ // simple filter
+                'type' => 'text',
+                'name' => 'purchase_order_num',
+                'label' => 'Purchase Order Number'
+            ],
+            false,
+            function ($value) { // if the filter is active
+                $this->crud->addClause('where', 'purchase_order_num', '=', "$value");
+            }
+        );
+        $this->crud->addFilter(
+            [ 
+                'type' => 'select2',
+                'name' => 'approved_by',
+                'label' => 'Approved By'
+            ],
+            function() {
+                return User::where('client_id', '!=',1)->pluck('name', 'id')->toArray();
+            },
+            function($value) { 
+                $this->crud->addClause('where', 'approved_by', $value);
+            }
+        );
+
 
     }
 
@@ -123,6 +154,9 @@ class PurchaseOrderDetailCrudController extends BaseCrudController
         ];
         $this->crud->addColumns(array_filter($cols));
         $this->crud->allowAccess('show');
+        if(!$this->user->isSystemUser()){
+            $this->crud->addClause('where', 'client_id',backpack_user()->client_id );
+        }
 
     }
 

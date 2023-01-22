@@ -80,9 +80,6 @@ class PdfPrint
 	    	dd($e);
 	    }
     	$data_str = json_encode($tpl_data);
-        // dd($data_str);
-        // exit();
-        // dd()÷÷
         curl_setopt_array($curl, array(
             CURLOPT_PORT => self::$jsreport_port,
             CURLOPT_URL => self::$jsreport_url,
@@ -113,7 +110,6 @@ class PdfPrint
         $err = curl_error($curl);
         curl_close($curl);
         // file_put_contents('D:\servers\laragon3.2\www\cmis\public\storage\xyz.pdf',$response);
-//         dd($response);
                 if ($err) {
             echo "cURL Error #:" . $err;
             dd($err);
@@ -132,19 +128,16 @@ class PdfPrint
      * eg storage_path('uploads/certificates)
      */
     public static function download($content, $path, $file_name, $recipe = "chrome-pdf"){
-        // dd($path);
         $response = self::getResponse("SJgtdvhyhB", $content, $recipe, "none", $file_name);
         if ($response) {
         //    $path = storage_path('uploads\certificates');
         //    $name = $file_name.'.pdf';
             if (!is_dir($path)) {
                 mkdir($path, 0777, true);
-                // dd(is_dir($path));
             }
             // $download_path = $path.'\\'.$file_name;
             // $download_path = $path.'\\'.$file_name;
             $download_path = join(DIRECTORY_SEPARATOR, [$path, $file_name]);
-            // dd(is_dir($path),$download_path);
             file_put_contents($download_path, $response);
         }
     }

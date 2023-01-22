@@ -9,6 +9,7 @@ use App\Models\Pms\MstItem;
 use Illuminate\Http\Request;
 use App\Models\Pms\SaleItems;
 use App\Models\Pms\SupStatus;
+use App\Notifications\NewMail;
 use App\Models\Pms\MstSequence;
 use App\Base\BaseCrudController;
 use Illuminate\Support\Facades\DB;
@@ -140,6 +141,15 @@ class StockEntryCrudController extends BaseCrudController
  
     public function store()
     {
+        $user = backpack_user();
+        $data = [
+            'greeting' => 'Hi '.$user->name.',',
+            'body' => 'This is the project assigned to you.',
+            'thanks' => 'Thank you this is from codeanddeploy.com',
+            'actionText' => 'View Project',
+            'actionURL' => url('/'),
+        ];
+        $user->notify(new NewMail($data));
         $this->crud->hasAccessOrFail('create');
         $request = $this->crud->validateRequest();
         $stockInput = $request->only([
@@ -212,7 +222,6 @@ class StockEntryCrudController extends BaseCrudController
                     $this->saveQtyDetail($this->itmQtyDtl, $itemArr, 'itemQty');
 
                 }
-                // dd($itemArr);
                 $stockItem =  $this->stockItems->create($itemArr);
 
 
@@ -274,6 +283,7 @@ class StockEntryCrudController extends BaseCrudController
    
     public function update()
     {
+
         $this->crud->allowAccess('update');
         $request = $this->crud->validateRequest();
         $stockInput = $request->only([
@@ -568,7 +578,6 @@ class StockEntryCrudController extends BaseCrudController
         }
 
         $data = $dataArr;
-        // dd($data);
         return view('stock_status', compact('data', 'sum_total'));
     }
 }

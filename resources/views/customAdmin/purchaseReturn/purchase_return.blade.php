@@ -1,10 +1,12 @@
 
 @php
-    $currentURL = URL::current();
-    use App\Models\Pms\SupStatus;
+$currentURL = URL::current();
+use App\Models\Pms\SupStatus;
+
 @endphp
 
 @extends(backpack_view('blank'))
+
 @section('header')
 
     <section class="main-container">
@@ -20,202 +22,424 @@
 @section('content')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="{{url('css/style.css')}}">
 
-    <div class="modal fade" id="add_stock_item_modal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <input type="hidden" class="barcode_item_id">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Scan Barcode to Add Qty in "<span id="barcodeItemName"></span>"</h5>
-                </div>
-                <form id="barcodeForm">
-
-                    <div class="modal-body">
-                        <select id="barcodeScanner" name="barcode_details[]" class="form-control" multiple="multiple" style="width: 100%;height: auto;">
-                        </select>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" id="barcodeSave" class="btn btn-primary">Save changes</button>
-                    </div>
-                </form>
-
+<div class="modal fade" id="add_stock_item_modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <input type="hidden" class="barcode_item_id">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Scan Barcode to Add Qty in "<span id="barcodeItemName"></span>"</h5>
             </div>
+            <form id="barcodeForm">
+
+                <div class="modal-body">
+                    <select id="barcodeScanner" name="barcode_details[]" class="form-control" multiple="multiple" style="width: 100%;height: auto;">
+                    </select>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="barcodeSave" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+<form action='{{backpack_url()."/purchase-return"}}' role="form" method="POST" id="pr_form">
+
+
+    <div class="main-container">
+        <div class="row mt-3">
+
+
+            <div class="col-md-4">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="disc_type">Supplier</label>
+                    @if(isset($grn))
+                    <select class="form-select" id="supplier_id" name="supplier_id" disabled>
+                        <option value="{{$grn->supplier_id}}" selected>{{$grn->supplierEntity->name_en}}</option>
+                    </select>
+                    @else
+                    <select class="form-select" id="supplier_id" name="supplier_id">
+                        @foreach($suppliers as $key=>$value)
+                        <option value="{{$value}}">{{$key}}</option>
+                        @endforeach
+                    </select>
+                    @endif
+                </div>
+            </div>
+
+
+            @if(!request()->is('admin/purchase-return/create') )
+
+            <input type="hidden" name="grn_id" value="{{$grn->grn_no}}">
+            <div class="col-md-4">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="disc_type">Grn/Invoice</label>
+                    <select class="form-select" id="invoice_no" name="invoice_no" disabled>
+                        <option value="{{$grn->invoice_no}}" selected>{{$grn->invoice_no}}</option>
+                    </select>
+                </div>
+            </div>
+            @endif
+
+            <!-- remove -->
+            <!-- <div class="col-md-4">
+            <div class="input-group mb-3">
+                <label class="input-group-text">Return Number</label>
+                <select class="form-select" id="gender">
+                    <option value="1" selected></option>
+                </select>
+            </div>
+        </div> -->
+
+            @if(!request()->is('admin/purchase-return/create') )
+            <div class="col-md-4">
+                <div class="input-group mb-2">
+                    <label for="return_type">Is Full Return</label>
+                    <input type="checkbox" name="return_type" id="return_type" class="mt-2 mx-2">
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 
-
-
-
-    <form action='{{backpack_url()."/purchase-return"}}' role="form" method="POST" id="pr_form">
-        <div class="main-container">
-            <div class="row mt-3">
-                <div class="col-md-4">
-                    <div class="input-group mb-3">
-                        <label class="input-group-text" for="disc_type">Supplier</label>
-                        @if(isset($grn))
-                        <select class="form-select" id="supplier_id" name="supplier_id" disabled>
-                            <option value="{{$grn->supplier_id}}" selected>{{$grn->supplierEntity->name_en}}</option>
-                        </select>
-                        @else
-                        <select class="form-select" id="supplier_id" name="supplier_id">
-                            @foreach($suppliers as $key=>$value)
-                            <option value="{{$value}}">{{$key}}</option>
-                            @endforeach
-                        </select>
-                        @endif
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="input-group mb-3">
-                        <label class="input-group-text" for="disc_type">PO ID</label>
-                        <input >
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        {{-- End of upper form filter design? --}}
-        <div class="table-responsive">
-            <table class="table" style="min-width: 1672px;">
-                <thead>
-                    <tr class="text-white" style="background-color: #192840;">
-                        <th scope="col">Product Name</th>
-                        <th scope="col">Purch Qty</th>
-                        <th scope="col">Return Qty</th>
-                        <th scope="col">Dis Amt </th>
-                        <th scope="col">Amount</th>
-                    </tr>
-                </thead>
-                <tbody id="pr-table">
-
+    {{-- End of upper form filter design? --}}
+    <div class="table-responsive">
+        <table class="table" style="min-width: 1672px;">
+            <thead>
+                <tr class="text-white" style="background-color: #192840;">
+                    <th scope="col">Product Name</th>
                     @if(!request()->is('admin/purchase-return/create') )
-                    @foreach($grn_items as $key=>$item)
-                    @php $key++ @endphp
 
-                    <tr>
-                        <td>
-                            <div class="input-group">
-                                <input type="text" class="form-control p-1 ItemName" id="ItemName-{{$key}}" tr-id="{{$key}}" name="ItemName[{{$key}}]" value="{{$item->itemEntity->name}}" readonly>
-                                <input type="hidden" class="ItemName_hidden" name="ItemName_hidden[{{$key}}]" value="{{$item->mst_items_id}}">
-                            </div>
-                        </td>
-
-                        <td>
-                            <div class="input-group">
-                                <input type="text" class="form-control p-1 PurchaseQty" id="PurchaseQty-{{$key}}" name="PurchaseQty[{{$key}}]" tr-id="{{$key}}" placeholder="P-Qty" size="1" value="{{$item->purchase_qty??$item->invoice_qty}}">
-                            </div>
-                        </td>
-
-                        <td>
-                            <div class="input-group">
-                                <input type="number" min='1' class="form-control p-1 ReturnQty" id="ReturnQty-{{$key}}" name="ReturnQty[{{$key}}]" tr-id="{{$key}}" max={{$item->total_qty}} placeholder="R-Qty" size="1">
-                            </div>
-                        </td>
-
-                        <td>
-                            <div class="input-group mb-3">
-                                <select class="form-select DiscountMode" id="DiscountMode-{{$key}}" tr-id="{{$key}}" name="DiscountMode[{{$key}}]">
-                                    <option value="1" selected>{{$item->discountModeEntity->name_en}}</option>
-                                </select>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="input-group">
-                                <input type="text" class="form-control p-1 Discount" id="Discount-{{$key}}" tr-id="{{$key}}" name="Discount[{{$key}}]" placeholder="Discount" size="1" value="{{$item->discount}}">
-                            </div>
-                        </td>
-
-                        <td>
-                            <div class="input-group">
-                                <input type="text" class="form-control p-1 ItemAmount" id="ItemAmount-{{$key}}" name="ItemAmount[{{$key}}]" tr-id="{{$key}}" placeholder="Item Amount" size="1">
-                            </div>
-                        </td>
-
-
-                    </tr>
-                    @endforeach
-                        <p> Not Item Found</p>
-                    @else
+                    <th scope="col">Purch\Invoice Qty</th>
+                    <th scope="col">Free Qty</th>
+                    <th scope="col">Total Qty</th>
                     @endif
-                </tbody>
-            </table>
-        </div>
-        {{-- End of item search design --}}
-        <hr>
-        <div class="main-container">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text">Created By</span>
-                        <input type="text" class="form-control" placeholder="Created By" value="{{isset($grn)?$grn->createdByEntity->name:backpack_user()->name}}">
-                    </div>
+                    <th scope="col">Batch No</th>
+                    <th scope="col">Batch Qty</th>
+                    <th scope="col">Return Qty</th>
+                    <th scope="col">Disc Mode</th>
+                    <th scope="col">Discount </th>
+                    <th scope="col">Tax Vat </th>
+                    <th scope="col">Purch Price</th>
+                    <th scope="col">Amount</th>
+                    @if(request()->is('admin/purchase-return/create') )
+                    <th scope="col">Action</th>
+                    @endif
+                </tr>
+            </thead>
+            <tbody id="pr-table">
+
+                @if(!request()->is('admin/purchase-return/create') )
+                @foreach($grn_items as $key=>$item)
+                @php $key++ @endphp
+
+                <tr>
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control p-1 ItemName" id="ItemName-{{$key}}" tr-id="{{$key}}" name="ItemName[{{$key}}]" value="{{$item->itemEntity->name}}" readonly>
+                            <input type="hidden" class="ItemName_hidden" name="ItemName_hidden[{{$key}}]" value="{{$item->mst_items_id}}">
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control p-1 PurchaseQty" id="PurchaseQty-{{$key}}" name="PurchaseQty[{{$key}}]" tr-id="{{$key}}" placeholder="P-Qty" size="1" value="{{$item->purchase_qty??$item->invoice_qty}}">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control p-1 FreeQty" id="FreeQty-{{$key}}" tr-id="{{$key}}" name="FreeQty[{{$key}}]" placeholder="F-Qty" size="1" value={{$item->free_qty}}>
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control p-1 TotalQty" id="TotalQty-{{$key}}" tr-id="{{$key}}" name="TotalQty[{{$key}}]" placeholder="T-Qty" size="1" value={{$item->total_qty}}>
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="input-group mb-3">
+                            <select class="form-select BatchNo" id="BatchNo-{{$key}}" tr-id="{{$key}}" name="BatchNo[{{$key}}]">
+                                <option value="{{$item->batch_no}}" selected>{{$item->batch_no}}</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control p-1 BatchQty" id="BatchQty-{{$key}}" tr-id="{{$key}}" name="BatchQty[{{$key}}]" placeholder="B-Qty" size="1" value="{{$item->total_qty}}">
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="input-group">
+                            <input type="number" min='1' class="form-control p-1 ReturnQty" id="ReturnQty-{{$key}}" name="ReturnQty[{{$key}}]" tr-id="{{$key}}" max={{$item->total_qty}} placeholder="R-Qty" size="1">
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="input-group mb-3">
+                            <select class="form-select DiscountMode" id="DiscountMode-{{$key}}" tr-id="{{$key}}" name="DiscountMode[{{$key}}]">
+                                <option value="1" selected>{{$item->discountModeEntity->name_en}}</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control p-1 Discount" id="Discount-{{$key}}" tr-id="{{$key}}" name="Discount[{{$key}}]" placeholder="Discount" size="1" value="{{$item->discount}}">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="input-group mb-3">
+                            <div class="input-group">
+                                <input type="text" class="form-control p-1 TaxVat" id="TaxVat-{{$key}}" tr-id="{{$key}}" name="TaxVat[{{$key}}]" placeholder="Tax/vat" size="1" value="{{$item->tax_vat}}">
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control p-1  PurchasePrice" id="PurchasePrice-{{$key}}" tr-id="{{$key}}" name="PurchasePrice[{{$key}}]" placeholder="Purchase Price" size="1" value="{{$item->purchase_price}}">
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control p-1 ItemAmount" id="ItemAmount-{{$key}}" name="ItemAmount[{{$key}}]" tr-id="{{$key}}" placeholder="Item Amount" size="1">
+                        </div>
+                    </td>
 
 
-                    <div class="input-group mb-3">
-                        <span class="input-group-text">Comments</span>
-                        <input type="text" class="form-control" name="comments" placeholder="comments">
-                    </div>
+                </tr>
+                @endforeach
+                @else
+                <!-- PR from PR -->
+                <tr>
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control p-1 ItemName" name="ItemName[1]" id="ItemName-1" tr-id="1">
+                            <input type="hidden" class="ItemName_hidden" id="ItemName_hidden-1" tr-id="1" name="ItemName_hidden[1]">
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="input-group mb-3">
+                            <select class="form-select BatchNo" id="BatchNo-1" name="BatchNo[1]" tr-id="1">
+
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control p-1 BatchQty" id="BatchQty-1" name="BatchQty[1]" tr-id="1" placeholder="B-Qty" size="1">
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="input-group">
+                  
+                            <input type="text" class="form-control p-1 ReturnQty" id="ReturnQty-1" name="ReturnQty[1]" tr-id="1" placeholder="R-Qty" size="1">
+                    </td>
+
+                    <td>
+                        <div class="input-group mb-3">
+                            <select class="form-select DiscountMode" id="DiscountMode-1" name="DiscountMode[1]" tr-id="1">
+                                <option value="" selected></option>
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control p-1 Discount" id="Discount-1" name="Discount[1]" tr-id="1" placeholder="Discount" size="1">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="input-group mb-3">
+                            <div class="input-group">
+                                <input type="text" class="form-control p-1 TaxVat" id="TaxVat-1" name="TaxVat[1]" tr-id="1" placeholder="Tax/vat" size="1">
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control p-1  PurchasePrice" id="PurchasePrice-1" name="PurchasePrice[1]" tr-id="1" placeholder="Purchase Price" size="1">
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control p-1 ItemAmount" id="ItemAmount-1" tr-id="1" name="ItemAmount[1]" placeholder="Item Amount" size="1">
+                        </div>
+                    </td>
+
+
+                    <td>
+                        <i type="button" class="fa fa-plus p-1 fireRepeaterClick" id="" aria-hidden="true"></i>
+                        <i type="button" class="fa fa-trash p-1  destroyRepeater d-none" id="itemDestroyer-1" aria-hidden="true"></i>
+                    </td>
+
+                </tr>
+                <!-- Repeater -->
+                <tr id="repeater" class="d-none">
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control p-1 ItemName">
+                            <input type="hidden" class="ItemName_hidden">
+
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="input-group mb-3">
+                            <select class="form-select BatchNo">
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control p-1 BatchQty" placeholder="B-Qty" size="1">
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="input-group">
+                            <button type="button" class="btn btn-primary btn-sm barcodeScan" data-toggle="modal" data-target=" #add_stock_item_modal">+</button>
+                            <input type="text" class="form-control p-1 ReturnQty" placeholder="R-Qty" size="1">
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="input-group mb-3">
+                            <select class="form-select DiscountMode">
+                                <option value="1" selected>%</option>
+                                <option value="2">NRS</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control p-1 Discount" placeholder="Discount" size="1">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="input-group">
+
+                            <input type="text" class="form-control p-1 TaxVat" placeholder="Tax/vat" size="1">
+
+                        </div>
+                    </td>
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control p-1  PurchasePrice" placeholder="Purchase Price" size="1">
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control p-1 ItemAmount" placeholder="Item Amount" size="1">
+                        </div>
+                    </td>
+
+
+                    <td>
+                        <i type="button" class="fa fa-plus p-1 fireRepeaterClick" id="" aria-hidden="true"></i>
+                        <i type="button" class="fa fa-trash p-1  destroyRepeater" aria-hidden="true"></i>
+                    </td>
+
+                </tr>
+                <!-- End of Repeater -->
+                <!-- end of PR from PR -->
+                @endif
+
+
+
+
+
+            </tbody>
+        </table>
+    </div>
+    {{-- End of item search design --}}
+    <hr>
+    <div class="main-container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Created By</span>
+                    <input type="text" class="form-control" placeholder="Created By" value="{{isset($grn)?$grn->createdByEntity->name:backpack_user()->name}}">
                 </div>
-                <div class="col-md-6">
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                            <tr>
-                                <th class="bg-primary text-white">Gross Total</th>
-                                <td id="" class="" name=""><input id="gross_amount" name="gross_amt" class="form-control" readonly></td>
-                            </tr>
-                            <tr>
-                                <th class="bg-primary text-white">Total Discount</th>
-                                <td id="" class="" name=""><input id="total_discount" name="discount_amt" class="form-control" readonly></td>
-                            </tr>
-                            <tr>
-                                <th class="bg-primary text-white">Taxable Amount</th>
-                                <td id="" class="" name=""><input id="taxable_amount" name="taxable_amount" class="form-control" readonly></td>
-
-                            </tr>
-                            <tr>
-                                <th class="bg-primary text-white">Tax Total</th>
-                                <td id="" class="" name=""><input id="tax_total" name="tax_amt" class="form-control" readonly></td>
-
-                            </tr>
-                            <tr>
-                                <th class="bg-primary text-white">Other Charges</th>
-                                <td id="" class="" name=""><input id="other_charge" name="other_charges" class="form-control"></td>
-                            </tr>
-                            <tr>
-                                <th class="bg-primary text-white">Net Amount</th>
-                                <td id="" class="" name=""><input id="net_amount" name="net_amt" class="form-control" readonly></td>
-
-                            </tr>
 
 
-                        </tbody>
-                    </table>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Comments</span>
+                    <input type="text" class="form-control" name="comments" placeholder="comments">
                 </div>
             </div>
-        </div>
-        {{-- End of Price table --}}
-        <div class="main-container mb-4">
-            <div class="d-flex justify-content-end">
-                <input id="status" type="hidden" name="status_id" value="">
-                <!-- <button class="btn btn-primary me-1" id="save" type="submit">Save</button> -->
-                <button class="btn btn-success me-1" id="approve" type="submit">Approve Return</button>
-                <a href="{{backpack_url('purchase-return')}}" class="btn btn-danger" type="submit">Cancel</a>
+            <div class="col-md-6">
+                <table class="table table-sm table-bordered">
+                    <tbody>
+                        <tr>
+                            <th class="bg-primary text-white">Gross Total</th>
+                            <td id="" class="" name=""><input id="gross_amount" name="gross_amt" class="form-control" readonly></td>
+                        </tr>
+                        <tr>
+                            <th class="bg-primary text-white">Total Discount</th>
+                            <td id="" class="" name=""><input id="total_discount" name="discount_amt" class="form-control" readonly></td>
+                        </tr>
+                        <tr>
+                            <th class="bg-primary text-white">Taxable Amount</th>
+                            <td id="" class="" name=""><input id="taxable_amount" name="taxable_amount" class="form-control" readonly></td>
+
+                        </tr>
+                        <tr>
+                            <th class="bg-primary text-white">Tax Total</th>
+                            <td id="" class="" name=""><input id="tax_total" name="tax_amt" class="form-control" readonly></td>
+
+                        </tr>
+                        <tr>
+                            <th class="bg-primary text-white">Other Charges</th>
+                            <td id="" class="" name=""><input id="other_charge" name="other_charges" class="form-control"></td>
+                        </tr>
+                        <tr>
+                            <th class="bg-primary text-white">Net Amount</th>
+                            <td id="" class="" name=""><input id="net_amount" name="net_amt" class="form-control" readonly></td>
+
+                        </tr>
+
+
+                    </tbody>
+                </table>
             </div>
         </div>
+    </div>
+    {{-- End of Price table --}}
+    <div class="main-container mb-4">
+        <div class="d-flex justify-content-end">
+            <input id="status" type="hidden" name="status_id" value="">
+            <!-- <button class="btn btn-primary me-1" id="save" type="submit">Save</button> -->
+            <button class="btn btn-success me-1" id="approve" type="submit">Approve Return</button>
+            <a href="{{backpack_url('purchase-return')}}" class="btn btn-danger" type="submit">Cancel</a>
+        </div>
+    </div>
 
-    </form>
+</form>
 @endsection
 @section('after_scripts')
 
-    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
-    </script>
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+</script>
+
+
 
 <!-- validation cdn -->
 
@@ -253,6 +477,11 @@
                 'label':`${item.code} : ${item.name} :  `
             });
         });
+
+
+
+
+
 
 
 
@@ -444,11 +673,101 @@
         //     })
         // }
 
+        //script for repeater
+        $(document).on('click', '.fireRepeaterClick', function(e) {
+            repeater();
+        });
+
+        function repeater() {
+            let tr = $('#repeater').clone(true);
+            tr.removeAttr('id');
+            tr.removeAttr('class');
+            tr.children(':first').children(':first').children(':first').addClass('customSelect2');
+            setIdToRepeater(getLastArrayData() + 1, tr);
+            //Pause
+            $('#pr-table').append(tr);
+
+            counterArray.push(getLastArrayData() + 1);
+
+            $("#ItemName-" + getLastArrayData()).autocomplete({
+                source: availableTags,
+                minLength: 1,
+                select: function(event, ui) {
+                    let dataCntr = this.getAttribute('tr-id');
+                    let itemStock = $("#ItemName-" + dataCntr)
+                    let hidden_id = parseInt($('#ItemName-' + dataCntr).attr('item-id'))
+
+                    if (ui.item.id === hidden_id) {
+                        return;
+                    } else {
+                        let rowId = $(this).attr('tr-id');
+                        let itemId = $("#ItemName-" + rowId).attr('item-id')
+                        let indxOfItem = listOfItems.indexOf(parseInt(itemId));
+                        if (indxOfItem !== -1) {
+
+                            listOfItems.splice(indxOfItem, 1);
+                            // console.log("INS:",indxOfItem,"LISSST:",listOfItems)
+                        }
+
+                    }
+
+                    // let present = checkIfItemExist(ui.item.id, dataCntr);
+                    let present = false;
+                    if (present) {
+                        Swal.fire({
+                            title: 'Item Already Exits !',
+                            confirmButtonText: 'OK',
+                        }).then((result) => {
+                            /* Read more about isConfirmed, isDenied below */
+                            if (result.isConfirmed) {
+                                $("#ItemName-" + dataCntr).val('');
+                                // console.log("exists already")
+                                return;
+                            }
+                        })
+                    } else {
+                        listOfItems.push(ui.item.id)
+                        // console.log("LISSST:",listOfItems)
+
+                        itemStock.next().attr('name', 'ItemName_hidden[' + dataCntr + ']').val(ui.item.id);
+                        $("#ItemName-" + dataCntr).attr('item-id', ui.item.id);
+                        getBatchNo(ui.item.id, dataCntr);
+
+                        $('#BatchNo-' + dataCntr).attr('disabled', false);
 
 
+                    }
+                },
+            });
 
+            if (counterArray.length > 1) {
+                if ($('#itemDestroyer-1').hasClass('d-none')) {
+                    $('#itemDestroyer-1').removeClass('d-none')
+                }
+            }
+            if (counterArray.length == 2) {
+                $('#itemDestroyer-' + counterArray[0]).removeClass('d-none')
+            }
+        }
 
+        function setIdToRepeater(cntr, cloneTr) {
+            let classArr = ['ItemName', 'BatchNo', 'BatchQty', 'ReturnQty', 'DiscountMode', 'Discount', 'TaxVat', 'PurchasePrice', 'ItemAmount', 'destroyRepeater'];
+            let trDBfields = ['ItemName', 'BatchNo', 'BatchQty', 'ReturnQty', 'DiscountMode', 'Discount', 'TaxVat', 'PurchasePrice', 'ItemAmount'];
+            cloneTr.children(':last').children('.destroyRepeater').attr('id', 'itemDestroyer-' + cntr).attr('tr-id', cntr);
+            // cloneTr.children(':last').children('.po_history_icon').attr('id', 'po_history_icon-' + cntr).attr('tr-id', cntr);
+            cloneTr.children(':first').find('input').attr('id', 'ItemName-' + cntr).attr('tr-id', cntr).attr('name', 'ItemName[' + [cntr] + ']');
+            cloneTr.children(':first').children('.ItemName_hidden').attr('id', 'ItemName_hidden-' + cntr).attr('tr-id', cntr).attr('name', 'ItemName_hidden[' + [cntr] + ']');
 
+            for (let i = 1; i < 11; i++) {
+                let n = i + 1;
+                attr = cloneTr.children(':nth-child(' + n + ')').attr('class');
+                if (attr == undefined) {
+                    cloneTr.children(':nth-child(' + n + ')').children('.input-group').children('.' + classArr[i]).attr('id', classArr[i] + '-' + cntr).attr('tr-id', cntr).attr('name', trDBfields[i] + '[' + cntr + ']').prop("disabled", true).prop('min', '0');
+                } else {
+                    cloneTr.children(':nth-child(' + n + ')').attr('id', classArr[i] + '-' + cntr).attr('tr-id', cntr);
+                }
+            }
+        }
 
         function getLastArrayData() {
             return counterArray[counterArray.length - 1];

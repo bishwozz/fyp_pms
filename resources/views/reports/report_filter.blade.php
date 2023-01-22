@@ -1,5 +1,8 @@
 @extends(backpack_view('blank'))
 @section('content') 
+@php
+    $years = range(2020, strftime("%Y", time()));
+@endphp
 <div class="card">
 		<div class="card">
 			<div class="card-header bg-primary p-1"><i class="la la-search"aria-hidden="true"></i>Search
@@ -17,7 +20,39 @@
                             <label for="to_date">To Date</label>
                             <input type="date" class="form-control" id="to_date" placeholder="To Date">
                         </div>
+                        <div class="form-group col-md-4">
+                            <label for="month">Month</label>
+                            <select id='month' class="form-control">
+                                <option value=''>--Select Month--</option>
+                                <option value='01'>Janaury</option>
+                                <option value='02'>February</option>
+                                <option value='03'>March</option>
+                                <option value='04'>April</option>
+                                <option value='05'>May</option>
+                                <option value='06'>June</option>
+                                <option value='07'>July</option>
+                                <option value='08'>August</option>
+                                <option value='09'>September</option>
+                                <option value='10'>October</option>
+                                <option value='11'>November</option>
+                                <option value='12'>December</option>
+                                </select> 
+                        </div>
+
                     </div>
+                    <div class="form-row ml-2">
+                        <div class="form-group col-md-4">
+                            <label for="month">Year</label>
+                            <select id="year" class="form-control">
+                                <option value="">Select Year</option>
+                                @foreach($years as $year)
+                                  <option value=" {{ $year}}"> {{ $year }}</option>
+                                @endforeach
+                              </select>
+                        </div>
+                    </div>
+
+
                   </form>
 			</div>
 		</div>
@@ -58,80 +93,19 @@
                     getReportData();
                 }
             });
-        // PATIENT NAME
-                $('#patient_name').on('keyup',function(){
+
+            $( "#year" ).change(function() {
+                // var month = $( "#month" ).val();
+                // if(month){
                     getReportData();
-                });
-
-        // PATIENT REPORT
-            $('#patient_no').on('keyup',function(){
-                getReportData();
+                // }
             });
-            $( "#gender_id" ).change(function() {
-                getReportData();
+            $( "#month" ).change(function() {
+                var year = $( "#year" ).val();
+                if(year){
+                    getReportData();
+                }
             });
-
-        // COVID REPORT
-            $( "#result_type" ).change(function() {
-                getReportData();
-            });
-            
-        // OVERALL COLLECTION DETAILS
-            $( "#payment_mode" ).change(function() {
-                getReportData();
-            });
-            $( "#user" ).change(function() {
-                getReportData();
-            });
-            
-            
-        // CREDIT REPORT
-            $( "#credit_approver" ).change(function() {
-                getReportData();
-            });
-
-        // BILL REPORT
-            $( "#is_paid" ).change(function() {
-                getReportData();
-            });
-
-        // REFERAL REPORT
-            $( "#referals" ).change(function() {
-                getReportData();
-            });
-
-        // DISCOUNT REPORT
-            $('#dis_patient_name').on('keyup',function(){
-                getReportData();
-            });
-            $( "#dis_approver" ).change(function() {
-                getReportData();
-            });
-
-
-        // CANCLE BILL REPORT;
-            $( "#bill_cancel_date" ).change(function() {
-                getReportData();
-            });
-
-        // DEPARTMENT WISE TEST REPORT
-            $( "#department" ).change(function() {
-                getReportData();
-            });
-            $( "#item" ).change(function() {
-                getReportData();
-            });
-
-
-        // TEST PRICE ACCORDING TO REFERAL
-            $( "#referred_by" ).change(function() {
-                getReportData();
-            });
-        // DUE COLLECTION REPORT
-            $( "#due_collector" ).change(function() {
-                getReportData();
-            });
-        
         
         getReportData();
 
@@ -148,48 +122,13 @@
         if($('#to_date').val() !== '') {
             data += '&to_date=' + $('#to_date').val();
         }
-        if($('#patient_no').val() !== '') {
-            data += '&patient_no=' + $('#patient_no').val();
+        if($('#year').val() !== '') {
+            data += '&year=' + $('#year').val();
         }
-        if($('#patient_name').val() !== '') {
-            data += '&patient_name=' + $('#patient_name').val();
+        if($('#month').val() !== '') {
+            data += '&month=' + $('#month').val();
         }
-        if($('#gender_id').val() !== '') {
-            data += '&gender_id=' + $('#gender_id').val();
-        }
-        if($('#bill_no').val() !== '') {
-            data += '&bill_no=' + $('#bill_no').val();
-        }
-        if($('#is_paid').val() !== '') {
-            data += '&is_paid=' + $('#is_paid').val();
-        }
-        if($('#referals').val() !== '') {
-            data += '&referals=' + $('#referals').val();
-        }
-        if($('#payment_mode').val() !== '') {
-        data += '&payment_mode=' + $('#payment_mode').val();
-        }
-        if($('#credit_approver').val() !== '') {
-        data += '&credit_approver=' + $('#credit_approver').val();
-        }
-        if($('#dis_approver').val() !== '') {
-        data += '&dis_approver=' + $('#dis_approver').val();
-        }
-        if($('#department').val() !== '') {
-            data += '&department=' + $('#department').val();
-        }
-        if($('#item').val() !== '') {
-            data += '&item=' + $('#item').val();
-        }
-        if($('#result_type').val() !== '') {
-            data += '&result_type=' + $('#result_type').val();
-        }
-        if($('#bill_cancel_date').val() !== '') {
-            data += '&bill_cancel_date=' + $('#bill_cancel_date').val();
-        }
-        if($('#referred_by').val() !== '') {
-            data += '&referred_by=' + $('#referred_by').val();
-        }
+        
         window.open('/admin/getreportdata?' + data);
     }
 
@@ -204,47 +143,11 @@
         if($('#to_date').val() !== '') {
             data += '&to_date=' + $('#to_date').val();
         }
-        if($('#patient_no').val() !== '') {
-            data += '&patient_no=' + $('#patient_no').val();
+        if($('#year').val() !== '') {
+            data += '&year=' + $('#year').val();
         }
-        if($('#patient_name').val() !== '') {
-            data += '&patient_name=' + $('#patient_name').val();
-        }
-        if($('#gender_id').val() !== '') {
-            data += '&gender_id=' + $('#gender_id').val();
-        }
-        if($('#bill_no').val() !== '') {
-            data += '&bill_no=' + $('#bill_no').val();
-        }
-        if($('#is_paid').val() !== '') {
-            data += '&is_paid=' + $('#is_paid').val();
-        }
-        if($('#referals').val() !== '') {
-            data += '&referals=' + $('#referals').val();
-        }
-        if($('#payment_mode').val() !== '') {
-        data += '&payment_mode=' + $('#payment_mode').val();
-        }
-        if($('#credit_approver').val() !== '') {
-        data += '&credit_approver=' + $('#credit_approver').val();
-        }
-        if($('#dis_approver').val() !== '') {
-        data += '&dis_approver=' + $('#dis_approver').val();
-        }
-        if($('#department').val() !== '') {
-            data += '&department=' + $('#department').val();
-        }
-        if($('#item').val() !== '') {
-            data += '&item=' + $('#item').val();
-        }
-        if($('#result_type').val() !== '') {
-            data += '&result_type=' + $('#result_type').val();
-        }
-        if($('#bill_cancel_date').val() !== '') {
-            data += '&bill_cancel_date=' + $('#bill_cancel_date').val();
-        }
-        if($('#referred_by').val() !== '') {
-            data += '&referred_by=' + $('#referred_by').val();
+        if($('#month').val() !== '') {
+            data += '&month=' + $('#month').val();
         }
         window.open('/admin/getexceldata?' + data);
     }
@@ -255,23 +158,8 @@
             report_type : $('#report_type').val(),
             from_date : $('#from_date').val(),
             to_date : $('#to_date').val(),
-            patient_no : $('#patient_no').val(),
-            patient_name : $('#patient_name').val(),
-            gender_id : $('#gender_id').val(),
-            bill_no : $('#bill_no').val(),
-            is_paid :  $("#is_paid" ).val(),
-            referals :  $("#referals" ).val(),
-            payment_mode :  $("#payment_mode" ).val(),
-            dis_patient_name :  $("#dis_patient_name" ).val(),
-            credit_approver :  $("#credit_approver" ).val(),
-            dis_approver :  $("#dis_approver" ).val(),
-            department :  $("#department" ).val(),
-            item :  $("#item" ).val(),
-            result_type :  $( "#result_type" ).val(),
-            bill_cancel_date :  $( "#bill_cancel_date" ).val(),
-            referred_by :  $( "#referred_by" ).val(),
-            due_collector :  $( "#due_collector" ).val(),
-            user :  $( "#user" ).val(),
+            year : $('#year').val(),
+            month : $('#month').val(),
         }
         // debugger;
         $('#lms_report_data').html('<div class="text-center"><img src="/css/images/loading.gif"/></div>');

@@ -263,7 +263,6 @@ class SalesCrudController extends BaseCrudController
                     $customSelectedItem = $customSelectedItem[0];
                     $customSelectedItem = MstItem::where([['code', $customSelectedItem],['client_id', $this->user->client_id]])->first()->id;
                     // $customSelectedItem = explode('#',$request->item_id[$key]);
-                    // dd($customSelectedItem);
           
                     if(!$selectedItem){
                         $batchQty = BatchQuantityDetail::where('item_id', $customSelectedItem)->where('batch_no', $sequenceId)->select('id', 'batch_qty')->first();
@@ -280,7 +279,6 @@ class SalesCrudController extends BaseCrudController
                             'batch_qty' => $selectedBatchQty,
                             'item_price' => $request->unit_cost_price[$key],
                         ];
-                        // dd($itemArr);
 
                     } else{
                         $batchQty = BatchQuantityDetail::where('item_id', $selectedItem)->where('batch_no', $sequenceId)->select('id', 'batch_qty')->first();
@@ -330,14 +328,12 @@ class SalesCrudController extends BaseCrudController
                         $itemStockMinimumAmount = $item->stock_alert_minimun;
                         $iqd = ItemQuantityDetail::where('item_id', $selectedItem )->where('client_id', $this->user->client_id)->first();
                         $itemQty =ItemQuantityDetail::where('item_id', $selectedItem )->where('client_id', $this->user->client_id)->first();
-                        // dd($iqd,$itemQty);
                         if($itemStockMinimumAmount){
                             if($newBatch->batch_qty < $itemStockMinimumAmount){
                                 // $itemQty->notify(new MinimumStockAlertNotification($iqd));
                                 Notification::send($itemQty, new MinimumStockAlertNotification($iqd));
                             }
                         }
-                        dd('-');
                         if ($new_sales < 0) {
                             return response()->json([
                                 'status' => 'failed',
@@ -554,7 +550,6 @@ class SalesCrudController extends BaseCrudController
                     $itemStockMinimumAmount = $item->stock_alert_minimum;
                     // $iqd = ItemQuantityDetail::where('item_id', $selectedItem)->where('client_id', $this->user->client_id)->first();
                     $availbleQty = StockItems::where([['client_id' => $this->user->client_id], ['item_id', $selectedItem]])->sum('add_qty');
-                    // dd($availbleQty);
                     if($itemStockMinimumAmount){
                         if($new_sales < $itemStockMinimumAmount){
                             Notification::send($iqd, new MinimumStockAlertNotification($iqd));
@@ -616,7 +611,6 @@ class SalesCrudController extends BaseCrudController
     {
         $this->crud->hasAccessOrFail('show');
 
-        // dd('-');
         // get entry ID from Request (makes sure its the last ID for nested resources)
         $id = $this->crud->getCurrentEntryId() ?? $id;
         $data = [];
@@ -668,7 +662,6 @@ class SalesCrudController extends BaseCrudController
     public function stockItem(MstItem $item)
     {
 
-        // dd($item);
         $taxRate = $item->tax_vat;
         $is_barcode = $item->is_barcode;
         $is_price_editable = $item->is_price_editable;
@@ -773,7 +766,6 @@ class SalesCrudController extends BaseCrudController
             }
             $barcodeDetails = array_merge($barcodeDetails, $barcodeDetails_inside);
             $db_exist_barcode = DB::table('stock_items_details')->select('barcode_details')->where('batch_no',$sequenceId)->where('item_id',$itemId)->get()->toArray();
-            // DD($db_exist_barcode, $sequenceId, $itemId);
             $db_exist_barcode_arr = [];
             foreach($db_exist_barcode as $barcode){
                 $db_exist_barcode_arr[] = $barcode->barcode_details;
@@ -1372,15 +1364,9 @@ class SalesCrudController extends BaseCrudController
             sl.transaction_date_ad as transaction_date_ad,
             sl.bill_no as bill_no,
             sl.return_bill_no as return_bill_no,
-            ss.id,
-
-            u.name as user_name,
+            u.name as user_name
             FROM sales as sl
-
-            LEFT JOIN sup_status as ss on sl.status_id = ss.id
             LEFT JOIN users as u on sl.created_by = u.id
-
-
             WHERE sl.id = ?
         ";
     }
@@ -1410,7 +1396,7 @@ class SalesCrudController extends BaseCrudController
 
             LEFT JOIN sales as sl on si.sales_id = sl.id
             LEFT JOIN mst_items as mi on si.item_id = mi.id
-            LEFT JOIN mst_units as mu on si.unit_id = mu.id
+            LEFT JOIN phr_mst_units as mu on si.unit_id = mu.id
             LEFT JOIN batch_qty_detail as bqd on si.batch_qty_detail_id = bqd.id
 
             WHERE si.sales_id = ?

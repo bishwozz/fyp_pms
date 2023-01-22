@@ -60,7 +60,7 @@
                         <td>
                             {{ $d['item']->mstSupplierEntity->name_en  }}
                         </td>
-                        <td>{{ isset($d['item']->itemQtyDetail->item_qty)?:0 }}</td>
+                        <td>{{ isset($d['item']->itemQtyDetail->item_qty)?$d['item']->itemQtyDetail->item_qty:0 }}</td>
                     </tr>
 
                     <!-- Modal -->

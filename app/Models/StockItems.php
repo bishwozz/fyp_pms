@@ -13,6 +13,7 @@ class StockItems extends BaseModel
 {
     use CrudTrait;
 
+
     /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES

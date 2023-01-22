@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class NewAppointment extends Notification
+class NewMail extends Notification
 {
     use Queueable;
     private $details;
@@ -25,7 +25,7 @@ class NewAppointment extends Notification
 
     public function via($notifiable)
     {
-        return ['database'];
+        return ['mail'];
     }
 
     /**
@@ -36,6 +36,12 @@ class NewAppointment extends Notification
      */
     public function toMail($notifiable)
     {
+        return (new MailMessage)
+        ->subject('Order Status')
+        ->greeting('Hello!')
+        ->line('Your order status has been updated')
+        ->action('Check it out', url('/stock-entry'))
+        ->line('Best regards!');
     }
 
     /**
@@ -47,7 +53,7 @@ class NewAppointment extends Notification
     public function toArray($notifiable)
     {
         return [
-            'appointment_id' => $this->details['appointment_id']
+            //
         ];
     }
 }

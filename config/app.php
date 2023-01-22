@@ -235,7 +235,6 @@ return [
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,
         'Agent' => Jenssegers\Agent\Facades\Agent::class,
-
     ],
 
 ];

@@ -78,4 +78,20 @@ class AdminController extends Controller
         // The '/admin' route is not to be used as a page, because it breaks the menu's active state.
         return redirect(backpack_url('dashboard'));
     }
+
+    public function send() 
+    {
+    	$user = backpack_user();
+  
+        $data = [
+            'greeting' => 'Hi '.$user->name.',',
+            'body' => 'This is the project assigned to you.',
+            'thanks' => 'Thank you this is from codeanddeploy.com',
+            'actionText' => 'View Project',
+            'actionURL' => url('/'),
+        ];
+  
+        Notification::send($user, new NewMail($data));
+   
+    }
 }

@@ -618,7 +618,6 @@ class BaseCrudController extends CrudController
     {
         $filtered_items=[];
         $items= MstItem::where(['is_active' => 'true','client_id'=> backpack_user()->client_id])->get();
-        // dd($items,'-');
         foreach($items as $item){
             array_push($filtered_items, [
                 'id' => $item->id,
@@ -651,7 +650,6 @@ class BaseCrudController extends CrudController
                 ]);
             }
 
-            // dd($filtered_items);
             return $filtered_items;
         }
 

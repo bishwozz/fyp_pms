@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\LabBill;
 use App\Models\Patient;
+use App\Exports\ReportExcel;
 use Illuminate\Http\Request;
 use App\Base\Helpers\PdfPrint;
 use Illuminate\Routing\Controller;
@@ -38,6 +39,19 @@ class ReportController extends Controller
                 $net_amount            =   0;
                 $discount            =   0;
                 $date           =   '1=1';
+                $mothly = '1=1';
+                $yearly = '1=1';
+
+                if($request->month && $request->year ){
+                    $formated_data_from = "$request->year-$request->month-01";
+                    $formated_data_to = "$request->year-$request->month-28";
+                    $mothly =  "po_date BETWEEN '". $formated_data_from  ."' AND '".$formated_data_to ."'";
+                }
+                if($request->year){
+                    $formated_data_from = "$request->year-01-01";
+                    $formated_data_to = "$request->year-12-28";
+                    $yearly =  "po_date BETWEEN '". $formated_data_from  ."' AND '".$formated_data_to ."'";
+                }
 
                 if($request->from_date && $request->to_date ){
                     $date =  "po_date BETWEEN '". $request->from_date  ."' AND '".$request->to_date ."'";
@@ -45,9 +59,12 @@ class ReportController extends Controller
 
                 $purchase_report = DB::table('purchase_order_details')
                                 ->select(DB::raw("SUM(net_amt) as net_amt"),'po_date','purchase_order_num' )
+                                ->groupby('po_date','purchase_order_num')
                                 ->where('status_id', '=', 2)
-                                 ->where('client_id','=',2)
+                                 ->where('client_id','=',backpack_user()->client_id)
                                  ->whereRaw($date)
+                                 ->whereRaw($mothly)
+                                 ->whereRaw($yearly)
                                  ->get();
                 $this->data['columns'] = ['S.N','Date','Purchase Order Number','Net Amount'];
                 foreach($purchase_report as $data){
@@ -87,22 +104,40 @@ class ReportController extends Controller
                 $discount            =   0;
                 $date           =   '1=1';
 
+                $mothly = '1=1';
+                $yearly = '1=1';
+
+                if($request->month && $request->year ){
+                    $formated_data_from = "$request->year-$request->month-01";
+                    $formated_data_to = "$request->year-$request->month-28";
+                    $mothly =  "transaction_date_ad BETWEEN '". $formated_data_from  ."' AND '".$formated_data_to ."'";
+                }
+                if($request->year){
+                    $formated_data_from = "$request->year-01-01";
+                    $formated_data_to = "$request->year-12-28";
+                    $yearly =  "transaction_date_ad BETWEEN '". $formated_data_from  ."' AND '".$formated_data_to ."'";
+                }
                 if($request->from_date && $request->to_date ){
                     $date =  "transaction_date_ad BETWEEN '". $request->from_date  ."' AND '".$request->to_date ."'";
                 }
 
-                $sales_report = DB::table('sales')->select(DB::raw("SUM(net_amt) as net_amt"),"transaction_date_ad")
-                                    ->groupby('transaction_date_ad','net_amt')
-                                    ->where('status_id', '=', 2)
-                                    ->where('client_id','=',2)
+                $sales_report = DB::table('sales as s')->select(DB::raw("SUM(s.net_amt) as net_amt"),"s.transaction_date_ad","mi.name")
+                                    ->leftjoin('sales_items as si', 'si.sales_id', '=','s.id')
+                                    ->leftjoin('mst_items as mi', 'mi.id', '=','si.item_id')
+                                    ->groupby('transaction_date_ad','net_amt','mi.name')
+                                    ->where('s.status_id', '=', 2)
+                                    ->where('s.client_id','=',backpack_user()->client_id)
                                     ->whereRaw($date)
+                                    ->whereRaw($mothly)
+                                    ->whereRaw($yearly)
                                     ->get();
-                $this->data['columns'] = ['S.N','Date','Amount'];
+                $this->data['columns'] = ['S.N','Date','Item','Amount'];
                 foreach($sales_report as $data){
                     $i++;
                     $output[] = [
                         'S.N'          => $i,
                         'Date'   =>$data->transaction_date_ad,
+                        'Item'   =>$data->name,
                         'Amount'         =>$data->net_amt
                     ];
                     $total = $net_amount+=$data->net_amt;

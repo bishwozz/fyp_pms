@@ -478,10 +478,7 @@
                     <div class="col">
                         <input id="status" type="hidden" name="status_id" value="">
                         <button id="save" type="submit" class="btn btn-secondary st_save">Draft</button>
-                        {{-- @if (backpack()->user->is_) --}}
-                            
                         <button id="approve" type="submit" class="btn btn-success st_approve">Approve</button>
-                        {{-- @endif --}}
                     </div>
                 </div>
 

@@ -56,6 +56,9 @@ Route::group([
     Route::get('getreportdata', 'ReportController@getLmsReportData');
     Route::crud('mst-bank', 'MstBankCrudController');
 
+    Route::get('getexceldata', 'ReportController@getLmsReportData');
+
+
 
 });
 
@@ -207,6 +210,7 @@ Route::group([
         Route::get('sales-return/{id}', 'SalesCrudController@editSalesReturn')->name('custom.sales-return');
         Route::post('sales-return/{id}', 'SalesCrudController@storeSalesReturn')->name('custom.sales-return-store');
         Route::post('sales-return-barcode-details/{stockItem}', 'SalesCrudController@retrunSessionStore')->name('custom.sale-barcode-return');
+
 
 
     });

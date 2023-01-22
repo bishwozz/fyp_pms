@@ -59,9 +59,8 @@
         </tbody>
         @php
             $check_no_of_columns = count($columns);
-            $all_reports = array('Cash Report', 'Collection Report', 'Overall Collection Details', 'Cancel Bill Report', 'Due Collection Report');
         @endphp
-        @if ( $report_name == 'Purchase Report' || $report_name == 'Test Price According To Referral')
+        @if ( $report_name == 'Purchase Report' || $report_name == 'Sales Report')
             <tfoot class="table-dark">
                 <tr>
                     <td class="report-data-td">Total</td>

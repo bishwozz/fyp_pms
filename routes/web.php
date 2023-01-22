@@ -37,3 +37,6 @@ Route::get('send', 'PatientAppointmentCrudController@sendNotification');
 //Fetch Super Data to Other Organizations
 Route::post('fetch-super-data/{modelPath}', [AdminController::class, 'fetchMasterData'])->name('fetch.superData');
 
+Route::get('/send', 'App\Http\Controllers\AdminController@send')->name('home.send');
+
+

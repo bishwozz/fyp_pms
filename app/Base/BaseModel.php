@@ -15,12 +15,16 @@ use App\Models\CoreMaster\MstFedProvince;
 use App\Models\CoreMaster\MstFedLocalLevel;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use App\Models\CoreMaster\MstFedLocalLevelType;
+use Illuminate\Notifications\Notifiable;
+
 
 class BaseModel extends Model
 {
     use CrudTrait;
     use ComboField;
     // use SoftDeletes;
+    use Notifiable;
+
 
     protected $primaryKey = 'id';
     public $timestamps = true;

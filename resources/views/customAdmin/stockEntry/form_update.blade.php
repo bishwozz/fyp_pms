@@ -299,9 +299,9 @@
                     @if($stock->sup_status_id !== \App\Models\Pms\SupStatus::APPROVED)
                         <input  id="status" type="hidden" name="sup_status_id" value="">
                         <button id="save" type="submit"  class="btn btn-primary me-1 st_save">Draft</button>
-                        {{-- @if(backpack_user()->is_stock_approver) --}}
+                        @if(backpack_user()->is_stock_approver)
                             <button id="approve" type="submit"  class="btn btn-success me-1 st_approve">Approve</button>
-                        {{-- @endif --}}
+                        @endif
                     @endif
                     <a href="{{url($crud->route)}}"><i  class="btn btn-danger me-1">{{$stock->sup_status_id == \App\Models\Pms\SupStatus::APPROVED ?'Back':'Cancel' }}</i></a>
                 </div>

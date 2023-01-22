@@ -35,7 +35,7 @@ $all_reports = array('Cash Report', 'Collection Report', 'Overall Collection Det
                             </tr>
                             @endforeach
                         </tbody>
-                        @if ( $report_name == 'Purchase Report' || $report_name == 'Test Price According To Referral')
+                        @if ( $report_name == 'Purchase Report' || $report_name == 'Sales Report')
                             <tfoot class="table-dark">
                                 <tr>
                                     <td class="report-data-td">Total</td>
