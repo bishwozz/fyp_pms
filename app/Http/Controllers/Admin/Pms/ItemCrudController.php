@@ -468,6 +468,7 @@ class ItemCrudController extends BaseCrudController
 
     public function loadNotification()
     {
+		dd('loadNotification');
         if(!$this->user->isSystemUser()){
             $clause = [['client_id', $this->user->client_id], ['created_by', $this->user->id]];
             $stocks = StockItems::where($clause)->get();
@@ -517,8 +518,9 @@ class ItemCrudController extends BaseCrudController
 
     public function checkNotification()
 	{
+
         if(!$this->user->isSystemUser()){
-            $clause = [['client_id', $this->user->client_id], ['created_by', $this->user->id]];
+			$clause = [['client_id', $this->user->client_id], ['created_by', $this->user->id]];
             $stocks = StockItems::where($clause)->get();
         }else{
             $stocks = StockItems::all();
@@ -545,6 +547,7 @@ class ItemCrudController extends BaseCrudController
 
     public function showNotifications()
 	{
+		dd('showNotifications');
 		$stocks = StockItems::all();
 		$unreadNotifications = [];
         if($stocks){
@@ -562,6 +565,7 @@ class ItemCrudController extends BaseCrudController
 
     public function markNotification($id)
 	{
+		dd('markNotification');
 
         $notification = Notification::find($id);
         $stock = StockItems::find($notification->data['item']['id']);

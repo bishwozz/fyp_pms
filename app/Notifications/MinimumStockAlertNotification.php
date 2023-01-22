@@ -24,6 +24,7 @@ class MinimumStockAlertNotification extends Notification
     public function __construct($stock)
     {
         $this->stock = $stock;
+        // dd($this->stock,'here');
     }
 
     /**
@@ -45,6 +46,7 @@ class MinimumStockAlertNotification extends Notification
      */
     public function toBroadcast($notifiable)
     {
+        dd('here',$notifiable);
         return new BroadcastMessage([
             'item' => $this->stock->itemEntity,
             'message' => $this->stock->itemEntity->name.' is below minimum stock amount'
@@ -60,6 +62,8 @@ class MinimumStockAlertNotification extends Notification
      */
     public function toArray($notifiable)
     {
+        dd('here',$notifiable);
+
         return [
             'item' => $this->stock->itemEntity,
             'message' => $this->stock->itemEntity->name.' is below minimum stock amount'
@@ -74,6 +78,8 @@ class MinimumStockAlertNotification extends Notification
      */
     public function toDatabase($notifiable)
     {
+        dd('here',$notifiable);
+
         return [
             'item' => $this->stock->itemEntity,
             'message' => $this->stock->itemEntity->name.' is below minimum stock amount'

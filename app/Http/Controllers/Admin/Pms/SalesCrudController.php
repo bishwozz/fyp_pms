@@ -9,7 +9,6 @@ use App\Models\Pms\Sales;
 use App\Models\StockItems;
 use App\Models\Pms\MstItem;
 use App\Models\Pms\MstUnit;
-use App\Models\Notification;
 use App\Utils\NumberToWords;
 use Illuminate\Http\Request;
 use App\Models\Pms\SaleItems;
@@ -27,7 +26,10 @@ use App\Models\Pms\ItemQuantityDetail;
 use App\Models\Pms\BatchQuantityDetail;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
+
+use Illuminate\Support\Facades\Notification;
 use App\Notifications\MinimumStockAlertNotification;
+
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Illuminate\Support\Facades\Request as FacadesRequest;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -324,14 +326,18 @@ class SalesCrudController extends BaseCrudController
                         }
 
                         $new_sales = $salesQty->item_qty - $totalQty;
-                        $item = MstItem::find($selectedItem);
-                        $itemStockMinimumAmount = $item->stock_alert_minimum;
+                        $item = MstItem::find(3);
+                        $itemStockMinimumAmount = $item->stock_alert_minimun;
                         $iqd = ItemQuantityDetail::where('item_id', $selectedItem )->where('client_id', $this->user->client_id)->first();
+                        $itemQty =ItemQuantityDetail::where('item_id', $selectedItem )->where('client_id', $this->user->client_id)->first();
+                        // dd($iqd,$itemQty);
                         if($itemStockMinimumAmount){
                             if($newBatch->batch_qty < $itemStockMinimumAmount){
-                                Notification::send($iqd, new MinimumStockAlertNotification($iqd));
+                                // $itemQty->notify(new MinimumStockAlertNotification($iqd));
+                                Notification::send($itemQty, new MinimumStockAlertNotification($iqd));
                             }
                         }
+                        dd('-');
                         if ($new_sales < 0) {
                             return response()->json([
                                 'status' => 'failed',

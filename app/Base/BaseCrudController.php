@@ -22,6 +22,7 @@ use App\Models\CoreMaster\MstFedProvince;
 use App\Models\CoreMaster\MstFedLocalLevel;
 use App\Base\Operations\InlineCreateOperation;
 use App\Models\CoreMaster\MstFedLocalLevelType;
+use Illuminate\Notifications\Notifiable;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 
@@ -39,6 +40,7 @@ class BaseCrudController extends CrudController
     use InlineCreateOperation;
     use ActivityLogTraits;
     use MasterArrayData;
+    use Notifiable;
 
 
 
