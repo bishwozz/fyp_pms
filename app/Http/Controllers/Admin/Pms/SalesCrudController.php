@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\DB;
 use Prologue\Alerts\Facades\Alert;
 use App\Http\Requests\SalesRequest;
 use App\Models\Pms\StockItemDetails;
+use App\Models\CoreMaster\AppSetting;
 use App\Models\Pms\ItemQuantityDetail;
 use App\Models\Pms\BatchQuantityDetail;
 use Illuminate\Support\Facades\Artisan;
@@ -580,9 +581,9 @@ class SalesCrudController extends BaseCrudController
 
             DB::commit();
             // Artisan::call('barcode-list:generate', ['super_org_id' => $this->user->client_id]);
-            Artisan::call('barcode-list:generate', [
-                'super_org_id' => $this->user->client_id
-            ]);
+            // Artisan::call('barcode-list:generate', [
+            //     'super_org_id' => $this->user->client_id
+            // ]);
             session()->forget('barcode');
 
             return response()->json([
@@ -1025,9 +1026,9 @@ class SalesCrudController extends BaseCrudController
             }
 
             DB::commit();
-            Artisan::call('barcode-list:generate', [
-                'super_org_id' => $this->user->client_id
-            ]);
+            // Artisan::call('barcode-list:generate', [
+            //     'super_org_id' => $this->user->client_id
+            // ]);
             session()->forget('barcode');
 
             return response()->json([
@@ -1157,8 +1158,8 @@ class SalesCrudController extends BaseCrudController
         $sales[0]->netAmtWords = NumberToWords::ConvertToEnglishWord($sales[0]->net_amt);
         $sales_bill = Sales::find($id);
         $bill_no = $sales_bill->bill_no;
-        $sup_id = $sales_bill->client_id;
-        $header_footer_data = AppSetting::where('client_id', $sup_id)->first();
+        $client = $sales_bill->client_id;
+        $header_footer_data = AppSetting::where('client_id', $client)->first();
 
         if (isset($header_footer_data->background)) {
             //background
@@ -1303,14 +1304,11 @@ class SalesCrudController extends BaseCrudController
             sl.created_by,
             sl.transaction_date_ad as transaction_date_ad,
             sl.bill_no as bill_no,
-            ss.id,
-
-            u.name as user_name,
+            u.name as user_name
 
             FROM sales as sl
-
-            LEFT JOIN sup_status as ss on sl.status_id = ss.id
             LEFT JOIN users as u on sl.created_by = u.id
+
             WHERE sl.id = ?
         ";
     }
@@ -1340,7 +1338,7 @@ class SalesCrudController extends BaseCrudController
 
             LEFT JOIN sales as sl on si.sales_id = sl.id
             LEFT JOIN mst_items as mi on si.item_id = mi.id
-            LEFT JOIN mst_units as mu on si.unit_id = mu.id
+            LEFT JOIN phr_mst_units as mu on si.unit_id = mu.id
             LEFT JOIN batch_qty_detail as bqd on si.batch_qty_detail_id = bqd.id
 
             WHERE si.sales_id = ?

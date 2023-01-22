@@ -198,4 +198,15 @@ Route::group([
         ->name('stock.exportExcel');
 
 
+        Route::get('/sales/{id}/Invoice', 'SalesCrudController@printInvoice')->name('sales.pdfInvoice');
+        Route::get('/sales/{id}/InvoiceNoHeader', 'SalesCrudController@printInvoiceNoHeader')->name('sales.printInvoiceNoHeader');
+        Route::get('/sales/{id}/ReturnInvoice', 'SalesCrudController@printSalesReturnInvoice')->name('sales.printSalesReturnInvoice');
+        Route::get('/sales/{id}/ReturnInvoiceNoHeader', 'SalesCrudController@printSalesReturnInvoiceNoHeader')->name('sales.printSalesReturnInvoiceNoHeader');
+        Route::get('/sales/{id}/showReturn', 'SalesCrudController@showReturn')->name('sales.showReturn');
+
+        Route::get('sales-return/{id}', 'SalesCrudController@editSalesReturn')->name('custom.sales-return');
+        Route::post('sales-return/{id}', 'SalesCrudController@storeSalesReturn')->name('custom.sales-return-store');
+        Route::post('sales-return-barcode-details/{stockItem}', 'SalesCrudController@retrunSessionStore')->name('custom.sale-barcode-return');
+
+
     });

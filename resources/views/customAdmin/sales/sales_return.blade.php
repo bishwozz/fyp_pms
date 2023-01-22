@@ -81,51 +81,32 @@
         <div class="main-container billing-form">
             <div class="row mt-3">
                 <div class="col-xl-4 col-md-4 col-sm-6">
-                    <div class="input-group mb-3" id="billDiv">
-                        <input type="hidden" name="hidden_bill_type" id="hidden-bill-type">
-                        <label class="input-group-text" for="bill_type">Bill Type</label>
-                        <select class="form-select disableSalesReturnInput" id="bill_type" name="bill_type">
-                            <option value="1"  {{ $sales->customerEntity->is_coorporate == false ? 'selected' : ''}}>Individual</option>
-                            <option value="2"{{ $sales->bill_type == true ? 'selected' : ''}} >Corporate</option>
-                        </select>
-                    </div>
-                    <div class="input-group mb-3">
-                        <span class="input-group-text">Address</span>
-                        <input type="text" class="form-control disableSalesReturnInput" id="address" name="address" value="{{$sales->customerEntity->address}}" placeholder="address">
-                    </div>
-                    {{-- <div class="input-group mb-3">
-                        <span class="input-group-text">Bill Date</span>
-                        <input type="date" name="bill_date_ad" readonly class="form-control" placeholder="date">
-                    </div> --}}
 
                     <div class="input-group mb-3">
                         <span class="input-group-text">Bill Date</span>
                         <input type="date" name="bill_date_ad" readonly class="form-control"
                             value="{{$sales->bill_date_ad}}" placeholder="date">
                     </div>
-                    <div id="pan_vat_field" class="input-group mb-3">
-                        <span class="input-group-text">Pan/Vat</span>
-                        <input type="text" class="form-control disableSalesReturnInput" name="pan_vat" id="pan_vat" value="{{$sales->customerEntity->pan_no}}" placeholder="Pan/Vat No">
+                    <div class="input-group mb-3">
+                        <label class="input-group-text" for="salesDiscountMode">Discount Mode</label>
+                        <select class="form-select disableSalesReturnInput" name="discount_type" id="salesDiscountMode">
+                            @foreach ($discount_modes as $mode)
+                                <option value="{{ $mode->id }}">{{ $mode->name_en }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span>Item Wise Discount</span>
+                        <input type="checkbox" checked id="discountCheckbox" class="mt-2 mx-2">
                     </div>
                 </div>
                 <div class="col-xl-4 col-md-4 col-sm-6">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text">Buyer Name</span>
-                        <input type="hidden" name="customer_id" id="hidden_customer">
-                        <input type="text" class="form-control disableSalesReturnInput" id="full_name" name="full_name" value="{{$sales->customerEntity->name_en}}" placeholder="Buyer" />
-                    </div>
-                    <div class="input-group mb-3">
-                        <span class="input-group-text">Contact No</span>
-                        <input type="text" class="form-control disableSalesReturnInput" id="contact_number" name="contact_number" value="{{$sales->customerEntity->contact_number}}" placeholder="Contact">
-                    </div>
+
                     <div class="input-group mb-3">
                         <span class="input-group-text">Transaction Date</span>
                         <input type="date" name="transaction_date_ad" value="{{$sales->transaction_date_ad}}" class="form-control disableSalesReturnInput" placeholder="date">
                     </div>
-                    <div id="company_field" class="input-group mb-3">
-                        <span class="input-group-text">Company Name</span>
-                        <input type="text" class="form-control disableSalesReturnInput" id="company_name" name="company_name" value="{{$sales->customerEntity->company_name}}" placeholder="Company Name">
-                    </div>
+
                     <div class="input-group mb-3">
                         <label>Is Full Return</label>
                         <input type="checkbox" id="return_type" value="1" name="return_type" class="mt-2 mx-2" checked>
@@ -148,18 +129,7 @@
                             +
                         </span>
                     </div>
-                    <div class="input-group mb-3">
-                        <label class="input-group-text" for="salesDiscountMode">Discount Mode</label>
-                        <select class="form-select disableSalesReturnInput" name="discount_type" id="salesDiscountMode">
-                            @foreach ($discount_modes as $mode)
-                                <option value="{{ $mode->id }}">{{ $mode->name_en }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="input-group mb-3">
-                        <span>Item Wise Discount</span>
-                        <input type="checkbox" checked id="discountCheckbox" class="mt-2 mx-2">
-                    </div>
+
 
                 </div>
             </div>

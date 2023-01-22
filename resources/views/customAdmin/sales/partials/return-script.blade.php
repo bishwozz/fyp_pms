@@ -455,7 +455,7 @@
             }
         });
 
-        let barcodeList =  {!! getBarcodeJson(backpack_user()->sup_org_id) !!}
+        let barcodeList =  '';
         // let returnBarcode =  '';
 
         function flushSession(key){
