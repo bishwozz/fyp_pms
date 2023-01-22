@@ -107,7 +107,6 @@ class CreatePmsTables extends Migration
                 $table->string('name_en');
                 $table->string('name_lc')->nullable();
                 $table->unsignedSmallInteger('client_id');
-    
                 $table->unsignedInteger('country_id')->nullable();
                 $table->unsignedInteger('province_id')->nullable();
                 $table->unsignedInteger('district_id')->nullable();
@@ -163,17 +162,17 @@ class CreatePmsTables extends Migration
         });
 
 
-        Schema::create('mst_items', function (Blueprint $table) { 
+        Schema::create('mst_items', function (Blueprint $table) {
+
             $table->smallIncrements('id');
+            $table->string('name',100)->nullable();
             $table->unsignedSmallInteger('client_id');
             $table->string('code',20);
             $table->unsignedSmallInteger('supplier_id')->nullable();
             $table->unsignedSmallInteger('category_id')->nullable();
             $table->unsignedSmallInteger('pharmaceutical_id')->nullable();
-            $table->unsignedSmallInteger('brand_id');
-            $table->string('name',100)->nullable();
+            $table->unsignedSmallInteger('brand_id')->nullable();
             $table->string('tax_vat')->nullable();
-
             $table->unsignedSmallInteger('unit_id');
             $table->unsignedSmallInteger('stock_alert_minimun')->default(0);
             

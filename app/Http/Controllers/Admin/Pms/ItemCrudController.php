@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Admin\Pms;
 
+use Carbon\Carbon;
+use App\Models\StockItems;
 use App\Models\Pms\MstItem;
 use App\Models\Pms\MstUnit;
+use App\Models\Notification;
 use App\Models\Pms\MstBrand;
 use Illuminate\Http\Request;
 use App\Models\Pms\MstCategory;
@@ -11,6 +14,7 @@ use App\Models\Pms\MstSupplier;
 use App\Base\BaseCrudController;
 use App\Base\Traits\FilterStore;
 use Illuminate\Support\Facades\DB;
+use Prologue\Alerts\Facades\Alert;
 use App\Base\Traits\UserLevelFilter;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Requests\MstItemRequest;
@@ -27,7 +31,7 @@ class ItemCrudController extends BaseCrudController
 
 
     private $user;
-	
+
 	public function setup()
 	{
 		CRUD::setModel(\App\Models\Pms\MstItem::class);
@@ -57,7 +61,7 @@ class ItemCrudController extends BaseCrudController
         return $this->fetch(MstDiscMode::class);
     }
 
-	
+
 	protected function setupListOperation()
 	{
 		$columns = [
@@ -157,7 +161,7 @@ class ItemCrudController extends BaseCrudController
                     'class' => 'form-group col-md-4',
                 ],
 			],
-           
+
 			[
 				'label'     => 'Brand',
 				'type'      => 'select2',
@@ -401,7 +405,7 @@ class ItemCrudController extends BaseCrudController
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    
+
 
 	public function itemEntriesExcelImport(Request $request)
 	{
@@ -459,5 +463,118 @@ class ItemCrudController extends BaseCrudController
 			DB::rollback();
 			dd($e);
 		}
+	}
+
+
+    public function loadNotification()
+    {
+		dd('loadNotification');
+        if(!$this->user->isSystemUser()){
+            $clause = [['client_id', $this->user->client_id], ['created_by', $this->user->id]];
+            $stocks = StockItems::where($clause)->get();
+        }else{
+            $stocks = StockItems::all();
+        }
+        $notifications = [];
+        $unreadNotifications = [];
+        $readnotifications = [];
+        if($stocks){
+            foreach ($stocks as $stock) {
+                foreach ($stock->notifications as $notification) {
+                    array_push($notifications, $notification);
+                }
+                foreach ($stock->unreadNotifications as $notification) {
+                    array_push($unreadNotifications, $notification);
+                }
+                foreach ($stock->readnotifications as $notification) {
+                    array_push($readnotifications, $notification);
+                }
+            }
+        }
+        foreach ($stocks as $stock) {
+            foreach ($stock->notifications as $notification) {
+                array_push($notifications, $notification);
+            }
+            foreach ($stock->unreadNotifications as $notification) {
+                array_push($unreadNotifications, $notification);
+            }
+            foreach ($stock->readnotifications as $notification) {
+                array_push($readnotifications, $notification);
+            }
+        }
+        $notifications = collect($notifications);
+        $unreadNotifications = collect($unreadNotifications);
+        $readnotifications = collect($readnotifications);
+        $orderNotyCount = count($unreadNotifications);
+
+        return response()->json([
+            'status' => 'success',
+            'notifications' => $notifications,
+            'unreadNotifications' => $notifications,
+            'readNotifications' => $readnotifications,
+            'stockNotificationCount' => $orderNotyCount
+        ]);
+    }
+
+    public function checkNotification()
+	{
+
+        if(!$this->user->isSystemUser()){
+			$clause = [['client_id', $this->user->client_id], ['created_by', $this->user->id]];
+            $stocks = StockItems::where($clause)->get();
+        }else{
+            $stocks = StockItems::all();
+        }
+		$unreadNotifications = [];
+
+        // dd($stocks);
+        if($stocks){
+            foreach($stocks as $stock){
+                if($stock->unreadNotifications){
+                    foreach($stock->unreadNotifications as $notification){
+                        array_push($unreadNotifications, $notification);
+                    }
+                }
+            }
+        }
+		$countUnreadNotifications = count($unreadNotifications);
+		return response()->json([
+				'status' => 'success',
+				'message' => 'New Notification',
+				'countUnreadNotifications' => $countUnreadNotifications,
+			]);
+	}
+
+    public function showNotifications()
+	{
+		dd('showNotifications');
+		$stocks = StockItems::all();
+		$unreadNotifications = [];
+        if($stocks){
+            foreach($stocks as $stock){
+                if($stock->unreadNotifications){
+                    foreach($stock->unreadNotifications as $notification){
+                        array_push($unreadNotifications, $notification);
+                    }
+                }
+            }
+        }
+        $unreadNotifications = collect($unreadNotifications)->sortByDesc('created_at');
+        return view('customAdmin.partial.notification')->with('unreadNotifications', $unreadNotifications);
+	}
+
+    public function markNotification($id)
+	{
+		dd('markNotification');
+
+        $notification = Notification::find($id);
+        $stock = StockItems::find($notification->data['item']['id']);
+        if(($stock->minimum_alert_qty) < ($stock->item_qty)) {
+            $notification->read_at = Carbon::now();
+            $notification->save();
+        }else{
+            Alert::error('Must either update minimum stock alert or item quantity')->flash();
+        }
+        return redirect()->back();
 	}
 }

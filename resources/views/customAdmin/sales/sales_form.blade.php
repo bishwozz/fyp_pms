@@ -1,7 +1,7 @@
 @extends(backpack_view('blank'))
 
 @push('after_styles')
-<link rel="stylesheet" href="{{ asset('css/style.css') }}">
+{{-- <link rel="stylesheet" href="{{ asset('css/style.css') }}"> --}}
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
@@ -51,17 +51,7 @@
         <div class="billing_nav">
             <div class="heading">
             </div>
-            <div class="header_icons">
-
-                    {{--  search Custmer --}}
-                <a href="#" class='icon-btn' id="customer-div" data-toggle="tooltip" data-placement="top"
-                    title="Click here to Search Existing Customer"><i class="fa-brands fa-searchengin"></i></a>
-
-                    {{-- reload page to create sales  --}}
-                <a href="{{ url($crud->route) . '/create' }}" class='icon-btn'><i class="fa fa-plus"
-                        aria-hidden="true"></i></a>
-
-            </div>
+   
         </div>
     </div>
 
@@ -488,7 +478,10 @@
                     <div class="col">
                         <input id="status" type="hidden" name="status_id" value="">
                         <button id="save" type="submit" class="btn btn-secondary st_save">Draft</button>
+                        {{-- @if (backpack()->user->is_) --}}
+                            
                         <button id="approve" type="submit" class="btn btn-success st_approve">Approve</button>
+                        {{-- @endif --}}
                     </div>
                 </div>
 
@@ -507,5 +500,6 @@
 
 @endsection
 @push('after_scripts')
-    @include('customAdmin.sales.partials.script');
+
+@include('customAdmin.sales.partials.script');
 @endpush

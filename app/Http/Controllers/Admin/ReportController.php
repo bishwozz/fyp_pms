@@ -80,7 +80,7 @@ class ReportController extends Controller
                 $this->data['output'] = $output;
             break;
 
-            /// Cash Reports
+            /// Sales Reports
             case 'sales_report':
                 $gross_amount            =   0;
                 $net_amount            =   0;

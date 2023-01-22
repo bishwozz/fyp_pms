@@ -31,7 +31,7 @@ class MstSupplierRequest extends FormRequest
         return [
             'name_en' => 'required|max:100|unique:mst_suppliers,name_en'.$client_check,
             'name_lc' => 'max:100|unique:mst_suppliers,name_lc'.$client_check,
-            'country_id'=>'required',
+            // 'country_id'=>'required',
             'email'=>'required|email|unique:mst_suppliers,email'.$client_check,
             'province_id'=>'required',
             'district_id'=>'required',

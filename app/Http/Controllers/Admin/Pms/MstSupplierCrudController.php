@@ -91,6 +91,11 @@ class MstSupplierCrudController extends BaseCrudController
                 'type' => 'text',
                 'label' => 'Contact Number',
             ],
+            [
+                'name' => 'contact_person',
+                'type' => 'text',
+                'label' => 'Contact Person',
+            ],
 
             $this->addIsActiveColumn(),
         ];
@@ -100,20 +105,9 @@ class MstSupplierCrudController extends BaseCrudController
         $this->crud->addClause('where','is_customer', false);
         $this->crud->addClause('orWhere','is_customer', null);
 
-
-        /**
-         * Columns can be defined using the fluent syntax or array syntax:
-         * - CRUD::column('price')->type('number');
-         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']);
-         */
     }
 
-    /**
-     * Define what happens when the Create operation is loaded.
-     *
-     * @see https://backpackforlaravel.com/docs/crud-operation-create
-     * @return void
-     */
+
     protected function setupCreateOperation()
     {
         CRUD::setValidation(MstSupplierRequest::class);
@@ -144,25 +138,6 @@ class MstSupplierCrudController extends BaseCrudController
                     'required' => 'required'
                 ],
             ],
-            // [  // Select
-            //     'label'     => 'Gender',
-            //     'type' => 'select2',
-            //     'name' => 'gender_id',
-            //     'method' => 'GET',
-            //     'entity' => 'mstStoreEntity',
-            //     'attribute' => 'name_en',
-            //     'options'   => (function ($query) {
-            //         return (new MstGender())->getFieldComboOptions($query);
-            //     }),
-            //     'model' => MstGender::class,
-            //     'wrapper' => [
-            //         'class' => 'form-group col-md-6',
-            //     ],
-            //     'attributes' => [
-            //         'id' => 'gender_id',
-            //         'required' => 'required'
-            //     ],
-            // ],
 
             [
                 'name'  => 'pan_no',
@@ -248,7 +223,7 @@ class MstSupplierCrudController extends BaseCrudController
             ],
             [
                 'name'  => 'contact_person',
-                'label' => 'Company Name',
+                'label' => 'Company Person',
                 'type'  => 'text',
                 'wrapper' => [
                     'class' => 'form-group col-md-6',

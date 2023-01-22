@@ -220,6 +220,7 @@ class StockEntryCrudController extends BaseCrudController
             if($stockItem){
                 $itemDetailsInsertArr = [];
                 foreach ($request->mst_item_id as $item => $itemsDetails) {
+
                     $ItemDrtailArr = [
                         'stock_item_id' => $stockItem->id,
                         'barcode_details' => '',
@@ -229,8 +230,9 @@ class StockEntryCrudController extends BaseCrudController
                     ];
     
                     array_push($itemDetailsInsertArr, $ItemDrtailArr);
+                    $this->itemsDetails->insert($itemDetailsInsertArr);
+
                 }
-                $this->itemsDetails->insert($itemDetailsInsertArr);
             }
 
 
@@ -521,16 +523,16 @@ class StockEntryCrudController extends BaseCrudController
         $batchNoDataArr = [];
         $unique_array = [];
 
-        $data = StockItemDetails::where('is_active', true)
+        $data = StockItems::select('item_id')
                 ->groupBy("item_id")
-                ->select('item_id')
                 ->addSelect(DB::raw('count(*) as count'));
 
         $data = $this->filterQueryByUser($data);
         $data = $data->get()->toArray();
 
         foreach ($data as $key => $value) {
-            $item = MstItem::with('mstBrandEntity')->find($value['item_id']);
+                
+            $item = MstItem::find($value['item_id']);
             $batchQty = BatchQuantityDetail::Where(['item_id' => $value['item_id'],['batch_qty', '>', 0]]);
             $batchQty = $this->filterQueryByUser($batchQty);
             $batchQty = $batchQty->get();
@@ -566,6 +568,7 @@ class StockEntryCrudController extends BaseCrudController
         }
 
         $data = $dataArr;
+        // dd($data);
         return view('stock_status', compact('data', 'sum_total'));
     }
 }

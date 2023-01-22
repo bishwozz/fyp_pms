@@ -66,7 +66,17 @@
             $('.modal-body #sequenceType').attr('readonly', true);
         }
 
+        $(document).on('show.bs.modal', '.modal', function() {
+            function closeModal() {
+                $('#createSequenceCodeModel').modal('hide');
+                $('#inlineSequenceCreateForm')[0].reset();
+                $('#sequenceCode').removeClass('is-invalid');
+                $('#sequenceCode').removeClass('is-valid');
+                $('#btnInlineCreateFormSubmit').attr('disabled', true);
+            }
+        })
         function closeModal() {
+            debugger;
             $('#createSequenceCodeModel').modal('hide');
             $('#inlineSequenceCreateForm')[0].reset();
             $('#sequenceCode').removeClass('is-invalid');
@@ -128,6 +138,7 @@
             };
             axios.post(url, axiosData)
                 .then((response) => {
+                    debugger;
                     if (response.data.status === 'success') {
                         closeModal();
                         Swal.fire(response.data.message);

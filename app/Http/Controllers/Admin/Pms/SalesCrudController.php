@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Utils\PdfPrint;
 use App\Models\Pms\Sales;
+use App\Models\StockItems;
 use App\Models\Pms\MstItem;
 use App\Models\Pms\MstUnit;
 use App\Utils\NumberToWords;
@@ -20,10 +21,15 @@ use Illuminate\Support\Facades\DB;
 use Prologue\Alerts\Facades\Alert;
 use App\Http\Requests\SalesRequest;
 use App\Models\Pms\StockItemDetails;
+use App\Models\CoreMaster\AppSetting;
 use App\Models\Pms\ItemQuantityDetail;
 use App\Models\Pms\BatchQuantityDetail;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
+
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\MinimumStockAlertNotification;
+
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Illuminate\Support\Facades\Request as FacadesRequest;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -247,14 +253,18 @@ class SalesCrudController extends BaseCrudController
                 $stock = $this->salesEntries->create($salesInput);
                 $saleItem = [];
                 foreach ($request->item_id as $key => $val) {
+
                     $unit = MstUnit::where('name_en', $request->unit_id[$key])->first();
                     $selectedBatch = $request->batch_no[$key];
                     $selectedBatchQty = $request->batch_qty[$key];
                     $sequenceId = MstSequence::where('sequence_code', $selectedBatch)->first()->id;
                     $selectedItem = $request->itemSalesHidden[$key];
-                    $customSelectedItem = explode('#',$request->item_id[$key]);
+                    $customSelectedItem = explode(' : ',$request->item_id[$key]);
+                    $customSelectedItem = $customSelectedItem[0];
+                    $customSelectedItem = MstItem::where([['code', $customSelectedItem],['client_id', $this->user->client_id]])->first()->id;
+                    // $customSelectedItem = explode('#',$request->item_id[$key]);
                     // dd($customSelectedItem);
-
+          
                     if(!$selectedItem){
                         $batchQty = BatchQuantityDetail::where('item_id', $customSelectedItem)->where('batch_no', $sequenceId)->select('id', 'batch_qty')->first();
                         $itemArr = [
@@ -271,7 +281,7 @@ class SalesCrudController extends BaseCrudController
                             'item_price' => $request->unit_cost_price[$key],
                         ];
                         // dd($itemArr);
-    
+
                     } else{
                         $batchQty = BatchQuantityDetail::where('item_id', $selectedItem)->where('batch_no', $sequenceId)->select('id', 'batch_qty')->first();
                         $itemArr = [
@@ -289,7 +299,7 @@ class SalesCrudController extends BaseCrudController
                             'batch_qty' => $selectedBatchQty,
                             'item_price' => $request->unit_cost_price[$key],
                         ];
-    
+
                     }
 
                     if ($request->status_id == SupStatus::APPROVED) {
@@ -299,7 +309,7 @@ class SalesCrudController extends BaseCrudController
                             $totalQty = $request->total_qty[$key];
                         }
 
-                        $newQty = $batchQty->batch_qty - $totalQty;
+                        $newQty =  ($batchQty->batch_qty - $totalQty);
                         if ($newQty < 0) {
                             return response()->json([
                                 'status' => 'failed',
@@ -308,12 +318,26 @@ class SalesCrudController extends BaseCrudController
                         }
 
                         $newBatch = BatchQuantityDetail::find($batchQty->id);
+                        $salesQty = ItemQuantityDetail::where('item_id', $customSelectedItem)->select('id', 'item_qty');
                         if(!$selectedItem){
-                            $salesQty = ItemQuantityDetail::where('item_id', $customSelectedItem )->select('id', 'item_qty')->first();
+                            $salesQty = $salesQty->first();
                         }else{
-                            $salesQty = ItemQuantityDetail::where('item_id', $selectedItem )->where('client_id', backpack_user()->client_id)->select('id', 'item_qty')->first();
+                            $salesQty = $salesQty->where('client_id', $this->user->client_id)->first();
                         }
+
                         $new_sales = $salesQty->item_qty - $totalQty;
+                        $item = MstItem::find(3);
+                        $itemStockMinimumAmount = $item->stock_alert_minimun;
+                        $iqd = ItemQuantityDetail::where('item_id', $selectedItem )->where('client_id', $this->user->client_id)->first();
+                        $itemQty =ItemQuantityDetail::where('item_id', $selectedItem )->where('client_id', $this->user->client_id)->first();
+                        // dd($iqd,$itemQty);
+                        if($itemStockMinimumAmount){
+                            if($newBatch->batch_qty < $itemStockMinimumAmount){
+                                // $itemQty->notify(new MinimumStockAlertNotification($iqd));
+                                Notification::send($itemQty, new MinimumStockAlertNotification($iqd));
+                            }
+                        }
+                        dd('-');
                         if ($new_sales < 0) {
                             return response()->json([
                                 'status' => 'failed',
@@ -324,10 +348,8 @@ class SalesCrudController extends BaseCrudController
                         $newBatch->batch_qty = $newQty;
                         $newBatch->update();
                         $salesQty->update();
-                        // dd($newBatch,$salesQty);
                     }
-
-                    $stockItem =  $this->salesItems->create($itemArr);
+                    $this->salesItems->create($itemArr);
                 }
 
                 DB::commit();
@@ -445,7 +467,7 @@ class SalesCrudController extends BaseCrudController
         try {
             DB::beginTransaction();
             $currentSales = $this->salesEntries->find($this->crud->getCurrentEntryId());
- 
+
             // For cancelling the bill
             if ($salesInput['status_id'] == 3) {
                 $currentSales->update(['status_id' => SupStatus::CANCELLED]);
@@ -464,6 +486,17 @@ class SalesCrudController extends BaseCrudController
                     $new_sales = $salesQty->item_qty + $totalQty;
                     $salesQty->item_qty = $new_sales;
                     $newBatch->batch_qty = $newQty;
+
+                    $item = MstItem::find($selectedItem);
+                    $itemStockMinimumAmount = $item->stock_alert_minimum;
+                    $iqd = ItemQuantityDetail::where('item_id', $selectedItem )->where('client_id', $this->user->client_id)->first();
+                    if($itemStockMinimumAmount){
+                        if($new_sales < $itemStockMinimumAmount){
+                            Notification::send($iqd, new MinimumStockAlertNotification($iqd));
+                        }
+                    }
+
+
                     $newBatch->update();
                     $salesQty->update();
                 }
@@ -517,6 +550,16 @@ class SalesCrudController extends BaseCrudController
                     $newBatch = BatchQuantityDetail::find($batchQty->id);
                     $salesQty = ItemQuantityDetail::where('item_id', $request->itemSalesHidden[$key])->where('client_id', backpack_user()->client_id)->select('id', 'item_qty')->first();
                     $new_sales = $salesQty->item_qty - $totalQty;
+                    $item = MstItem::find($selectedItem);
+                    $itemStockMinimumAmount = $item->stock_alert_minimum;
+                    // $iqd = ItemQuantityDetail::where('item_id', $selectedItem)->where('client_id', $this->user->client_id)->first();
+                    $availbleQty = StockItems::where([['client_id' => $this->user->client_id], ['item_id', $selectedItem]])->sum('add_qty');
+                    // dd($availbleQty);
+                    if($itemStockMinimumAmount){
+                        if($new_sales < $itemStockMinimumAmount){
+                            Notification::send($iqd, new MinimumStockAlertNotification($iqd));
+                        }
+                    }
                     if ($new_sales < 0) {
                         return response()->json([
                             'status' => 'failed',
@@ -544,9 +587,9 @@ class SalesCrudController extends BaseCrudController
 
             DB::commit();
             // Artisan::call('barcode-list:generate', ['super_org_id' => $this->user->client_id]);
-            Artisan::call('barcode-list:generate', [
-                'super_org_id' => $this->user->client_id
-            ]);
+            // Artisan::call('barcode-list:generate', [
+            //     'super_org_id' => $this->user->client_id
+            // ]);
             session()->forget('barcode');
 
             return response()->json([
@@ -624,6 +667,8 @@ class SalesCrudController extends BaseCrudController
 
     public function stockItem(MstItem $item)
     {
+
+        // dd($item);
         $taxRate = $item->tax_vat;
         $is_barcode = $item->is_barcode;
         $is_price_editable = $item->is_price_editable;
@@ -660,7 +705,7 @@ class SalesCrudController extends BaseCrudController
         ->where('client_id', $this->user->client_id)
         ->where('batch_qty', '<>', 0)
         ->pluck('batch_no');
-        
+
         $batchNumber = MstSequence::findMany($batchNumber)->pluck('sequence_code');
 
         return response()->json([
@@ -987,9 +1032,9 @@ class SalesCrudController extends BaseCrudController
             }
 
             DB::commit();
-            Artisan::call('barcode-list:generate', [
-                'super_org_id' => $this->user->client_id
-            ]);
+            // Artisan::call('barcode-list:generate', [
+            //     'super_org_id' => $this->user->client_id
+            // ]);
             session()->forget('barcode');
 
             return response()->json([
@@ -1119,8 +1164,8 @@ class SalesCrudController extends BaseCrudController
         $sales[0]->netAmtWords = NumberToWords::ConvertToEnglishWord($sales[0]->net_amt);
         $sales_bill = Sales::find($id);
         $bill_no = $sales_bill->bill_no;
-        $sup_id = $sales_bill->client_id;
-        $header_footer_data = AppSetting::where('client_id', $sup_id)->first();
+        $client = $sales_bill->client_id;
+        $header_footer_data = AppSetting::where('client_id', $client)->first();
 
         if (isset($header_footer_data->background)) {
             //background
@@ -1265,14 +1310,11 @@ class SalesCrudController extends BaseCrudController
             sl.created_by,
             sl.transaction_date_ad as transaction_date_ad,
             sl.bill_no as bill_no,
-            ss.id,
-
-            u.name as user_name,
+            u.name as user_name
 
             FROM sales as sl
-
-            LEFT JOIN sup_status as ss on sl.status_id = ss.id
             LEFT JOIN users as u on sl.created_by = u.id
+
             WHERE sl.id = ?
         ";
     }
@@ -1302,7 +1344,7 @@ class SalesCrudController extends BaseCrudController
 
             LEFT JOIN sales as sl on si.sales_id = sl.id
             LEFT JOIN mst_items as mi on si.item_id = mi.id
-            LEFT JOIN mst_units as mu on si.unit_id = mu.id
+            LEFT JOIN phr_mst_units as mu on si.unit_id = mu.id
             LEFT JOIN batch_qty_detail as bqd on si.batch_qty_detail_id = bqd.id
 
             WHERE si.sales_id = ?
