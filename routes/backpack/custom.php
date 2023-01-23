@@ -9,7 +9,7 @@ use App\Http\Controllers\Admin\Pms\MstSequenceCrudController;
 // This route file is loaded automatically by Backpack\Base.
 // Routes you generate using Backpack\Generators will be placed here.
 
-$roles = 'superadmin|clientadmin|admin|reception|doctor|lab_admin|lab_technician|lab_technologist|referral|finance';
+$roles = 'superadmin|clientadmin|admin|salesperson';
 
 Route::group(
     [

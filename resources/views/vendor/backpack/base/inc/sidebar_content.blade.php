@@ -29,6 +29,7 @@
        {{ trans('backpack::base.dashboard') }}</a>
 </li>
 <hr class="hr-line">
+@hasanyrole('superadmin|clientadmin|admin')
 
 {{-- ///-----pms --}}
 <li class="nav-item nav-dropdown">
@@ -62,6 +63,8 @@
     </ul>
  </li>
  <hr class="hr-line">
+@endhasanyrole
+
 {{-- ///-----pms --}}
 
 {{-- ///-----purchase --}}
@@ -91,6 +94,7 @@
         </li>
     </ul>
  </li>
+ {{-- @hasanyrole('superadmin|clientadmin|admin|sales_person') --}}
  <hr class="hr-line">
 
 {{-- stocks --}}
@@ -106,11 +110,13 @@
 
     </ul>
  </li>
+{{-- @endhasanyrole --}}
+
  <hr class="hr-line">
 
 
 {{-- report --}}
-@hasanyrole('superadmin|clientadmin|admin|lab_admin|finance')
+@hasanyrole('superadmin|clientadmin|admin|salesperson')
 
 <li class='nav-item'><a class='nav-link' href='{{ backpack_url('reports') }}'><i class='nav-icon la la-file'></i>
        Reports</a>

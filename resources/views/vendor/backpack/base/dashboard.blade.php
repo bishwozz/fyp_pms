@@ -1,24 +1,40 @@
 @extends(backpack_view('blank'))
 
 @section('content')
-@php
-$count = 0;
+    @php
+    $count = 0;
+    $client =backpack_user()->client_id;
+    if(backpack_user()->client_id == 1){
+        $stock_infos = DB::table('stock_items')->get();
 
-  $notifications = DB::table('notifications')->get();
-  foreach($notifications as $notification){
-    $get_app_id = json_decode($notification->data);
-    if($get_app_id->appointment_id){
-      $id = $get_app_id->appointment_id;
-      $notfy = App\Models\PatientAppointment::find($id);
-      if($notfy){
-        $status = $notfy->appointment_status;
-        if($status == 0){
-          $count+=1;
-        }
-      }
+    }else{
+
+        $stock_infos = DB::table('stock_items')->where('client_id',$client)->get();
     }
-  }
-@endphp
+    $date_now = date("Y/m/d");
+    
+    foreach($stock_infos as $stock_info){
+        $item_name = App\Models\Pms\MstItem::findOrFail($stock_info->item_id)->name;
+        // dd($item_name);
+        $date_sort = strtotime($stock_info->expiry_date);
+        $date_convert = date("Y/m/d", $date_sort);
+        if($date_convert < $date_now){
+            $count+=1;
+
+            $user = backpack_user();
+            $data = [
+                'greeting' => 'Hi '.$user->name.',',
+                'body' => ''.$item_name .'Stock is expired',
+                'thanks' => 'Thank you',
+                'actionText' => 'View Stock',
+                'actionURL' => url('/stock-entry'),
+            ];
+            $user->notify(new NewMail($data));
+
+        }
+    }
+
+    @endphp
 <style>
     .dashboard-heading{
         width: 100%;
@@ -110,8 +126,8 @@ $count = 0;
                     <a href="#">
                         <div class="card-counter danger">
                             <i class="fa fa-window-close"></i>
-                            <span class="count-numbers" id="">{{ $inactive_barcodes }}</span>
-                            <span class="count-name">Total Inactive Stocks</span>
+                            <span class="count-numbers" id="">{{ $count }}</span>
+                            <span class="count-name">Total Expired Stocks</span>
                         </div>
                     </a>
                 </div>

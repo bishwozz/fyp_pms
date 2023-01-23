@@ -36,6 +36,34 @@ class MstSupplierCrudController extends BaseCrudController
         // $this->isAllowed();
         $this->data['script_js'] = $this->getScripts();
         $this->user = backpack_user();
+        $this->crud->clearFilters();
+        $this->setFilters();
+    }
+
+    protected function setFilters(){
+        $this->crud->addFilter(
+            [ // simple filter
+                'type' => 'text',
+                'name' => 'name_en',
+                'label' => 'Suppiler Name'
+            ],
+            false,
+            function ($value) { // if the filter is active
+                $this->crud->addClause('where', 'name_en', '=', "$value");
+            }
+        );
+        $this->crud->addFilter(
+            [ // simple filter
+                'type' => 'text',
+                'name' => 'contact_number',
+                'label' => 'Phone Number'
+            ],
+            false,
+            function ($value) { // if the filter is active
+                $this->crud->addClause('where', 'contact_number', '=', "$value");
+            }
+        );
+
     }
 
     public function getScripts()

@@ -40,8 +40,65 @@ class ItemCrudController extends BaseCrudController
 		CRUD::setEntityNameStrings('Item', ' items');
 
 		$this->user = backpack_user();
-		// $this->crud->addButtonFromModelFunction('line', 'storeItemSetting', 'storeItemSetting', 'end');
+		$this->crud->clearFilters();
+        $this->setFilters();
 	}
+
+	protected function setFilters(){
+        $this->crud->addFilter(
+            [ // simple filter
+                'type' => 'text',
+                'name' => 'name',
+                'label' => 'Medicine Name'
+            ],
+            false,
+            function ($value) { // if the filter is active
+                $this->crud->addClause('where', 'name', '=', "$value");
+            }
+        );
+        $this->crud->addFilter(
+            [ 
+                'type' => 'select2',
+                'name' => 'category_id',
+                'label' => 'Category'
+            ],
+            function() {
+                return MstCategory::where('client_id', '!=',1)->pluck('title_en', 'id')->toArray();
+            },
+            function($value) { 
+                $this->crud->addClause('where', 'category_id', $value);
+            }
+        );
+
+        $this->crud->addFilter(
+            [ 
+                'type' => 'select2',
+                'name' => 'supplier_id',
+                'label' => 'Supplier'
+            ],
+            function() {
+                return MstSupplier::where('client_id', '!=',1)->pluck('name_en', 'id')->toArray();
+            },
+            function($value) { 
+                $this->crud->addClause('where', 'supplier_id', $value);
+            }
+        );
+        $this->crud->addFilter(
+            [ 
+                'type' => 'select2',
+                'name' => 'brand_id',
+                'label' => 'Brand'
+            ],
+            function() {
+                return MstBrand::where('client_id', '!=',1)->pluck('name_en', 'id')->toArray();
+            },
+            function($value) { 
+                $this->crud->addClause('where', 'brand_id', $value);
+            }
+        );
+
+
+    }
 
 	public function fetchMstCategory()
     {

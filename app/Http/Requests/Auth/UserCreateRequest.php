@@ -28,7 +28,7 @@ class UserCreateRequest extends FormRequest
         return [
             'email'    => 'required|unique:'.config('permission.table_names.users', 'users').',email',
             'name'     => 'required',
-            'password' => 'required|confirmed',
+            'password' => 'required|confirmed|min:6',
         ];
     }
 

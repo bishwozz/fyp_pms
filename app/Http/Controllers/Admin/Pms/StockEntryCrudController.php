@@ -82,7 +82,25 @@ class StockEntryCrudController extends BaseCrudController
         // $this->crud->allowAccess('delete');
         // $this->crud->sup_status = true;
         // $this->crud->sup_status = true;
+        $this->crud->clearFilters();
+        $this->setFilters();
     }
+
+    protected function setFilters(){
+        $this->crud->addFilter(
+            [ // simple filter
+                'type' => 'text',
+                'name' => 'batch_no',
+                'label' => 'Batch Number'
+            ],
+            false,
+            function ($value) { // if the filter is active
+                $this->crud->addClause('where', 'batch_no', '=', "$value");
+            }
+        );
+
+    }
+
 
 
     protected function setupListOperation()

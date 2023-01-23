@@ -29,6 +29,24 @@ class MstBrandCrudController extends BaseCrudController
         CRUD::setRoute(config('backpack.base.route_prefix') . '/mstbrand');
         CRUD::setEntityNameStrings('', 'Brands');
         $this->user = backpack_user();
+        $this->crud->clearFilters();
+        $this->setFilters();
+    }
+
+    protected function setFilters(){
+        $this->crud->addFilter(
+            [ // simple filter
+                'type' => 'text',
+                'name' => 'name_en',
+                'label' => 'Btand Name'
+            ],
+            false,
+            function ($value) { // if the filter is active
+                $this->crud->addClause('where', 'name_en', '=', "$value");
+            }
+        );
+       
+
     }
 
     /**

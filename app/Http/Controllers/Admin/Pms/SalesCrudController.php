@@ -62,6 +62,8 @@ class SalesCrudController extends BaseCrudController
         $this->crud->denyAccess('update');
         $this->crud->denyAccess('delete');
         $this->crud->enableExportButtons();
+        $this->crud->clearFilters();
+        $this->setFilters();
 
         // $this->isAllowed([
         //     'stockItem' => 'list',
@@ -71,6 +73,33 @@ class SalesCrudController extends BaseCrudController
         //     'barcodeSessionFlush' => 'list',
         //     'setSessions' => 'list'
         // ]);
+
+    }
+
+    protected function setFilters(){
+        $this->crud->addFilter(
+            [ // simple filter
+                'type' => 'text',
+                'name' => 'bill_no',
+                'label' => 'Bill Number'
+            ],
+            false,
+            function ($value) { // if the filter is active
+                $this->crud->addClause('where', 'bill_no', '=', "$value");
+            }
+        );
+        $this->crud->addFilter(
+            [ // simple filter
+                'type' => 'text',
+                'name' => 'return_bill_no',
+                'label' => 'Return Bill Number'
+            ],
+            false,
+            function ($value) { // if the filter is active
+                $this->crud->addClause('where', 'return_bill_no', '=', "$value");
+            }
+        );
+
 
     }
 
